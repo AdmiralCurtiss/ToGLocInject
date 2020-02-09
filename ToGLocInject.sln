@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToGLocInject", "ToGLocInject.csproj", "{7DB97127-ABAC-42E3-A68F-B2A7901202E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HyoutaPluginBase", "HyoutaTools\HyoutaUtils\HyoutaPluginBase\HyoutaPluginBase.csproj", "{6E153CE7-05B9-4EBA-8DE8-AD842214F60B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HyoutaUtils", "HyoutaTools\HyoutaUtils\HyoutaUtils\HyoutaUtils.csproj", "{771553C8-0C50-411F-AB7F-E47553C81587}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "utf_tab-sharp", "HyoutaTools\utf_tab-sharp\utf_tab-sharp\utf_tab-sharp\utf_tab-sharp.csproj", "{213D12FE-9E77-44B3-9A63-3CD2A566C6DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HyoutaToolsLib", "HyoutaTools\HyoutaToolsLib.csproj", "{4E99D787-3847-49AF-978A-A76FD0162D8A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7DB97127-ABAC-42E3-A68F-B2A7901202E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DB97127-ABAC-42E3-A68F-B2A7901202E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DB97127-ABAC-42E3-A68F-B2A7901202E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DB97127-ABAC-42E3-A68F-B2A7901202E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E153CE7-05B9-4EBA-8DE8-AD842214F60B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E153CE7-05B9-4EBA-8DE8-AD842214F60B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E153CE7-05B9-4EBA-8DE8-AD842214F60B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E153CE7-05B9-4EBA-8DE8-AD842214F60B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{771553C8-0C50-411F-AB7F-E47553C81587}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{771553C8-0C50-411F-AB7F-E47553C81587}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{771553C8-0C50-411F-AB7F-E47553C81587}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{771553C8-0C50-411F-AB7F-E47553C81587}.Release|Any CPU.Build.0 = Release|Any CPU
+		{213D12FE-9E77-44B3-9A63-3CD2A566C6DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{213D12FE-9E77-44B3-9A63-3CD2A566C6DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{213D12FE-9E77-44B3-9A63-3CD2A566C6DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{213D12FE-9E77-44B3-9A63-3CD2A566C6DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E99D787-3847-49AF-978A-A76FD0162D8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E99D787-3847-49AF-978A-A76FD0162D8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E99D787-3847-49AF-978A-A76FD0162D8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E99D787-3847-49AF-978A-A76FD0162D8A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E8E89326-2CD8-43F0-BEA4-D9D72A9845BA}
+	EndGlobalSection
+EndGlobal
