@@ -403,7 +403,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 
 			// reformat synposis
 			for (int i = 4384; i < 4419; ++i) {
-				// TODO after we fix the max string length, and maybe allow multipage...?
+				ReformatSynopsis(i, w, charToWidthMap, 500);
 			}
 
 			// trim off excess whitespace at end of strings
@@ -544,6 +544,10 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 			for (int i = 0; i < lines.Count; ++i) {
 				w.Entries[idx + 1 + i] = lines[i];
 			}
+		}
+
+		private static void ReformatSynopsis(int idx, HyoutaTools.Tales.Graces.SCS.SCS w, Dictionary<char, (int w1, int w2)> charToWidthMap, int perLineMaxWidth) {
+			w.Entries[idx] = string.Join("\n", Reformat(w.Entries[idx].Trim().Replace('\n', ' '), charToWidthMap, perLineMaxWidth));
 		}
 	}
 }
