@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using HyoutaPluginBase;
+using HyoutaTools.Generic;
 using HyoutaUtils;
 using HyoutaUtils.Streams;
 
@@ -910,5 +911,28 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 		private static string[] TextboxSplit(string entry, char ch) {
 			return entry.Split(new char[] { ch });
 		}
+
+		private static ReservedMemchunk ReserveMemory(List<MemChunk> memchunks, uint size) {
+			MemChunk scratchChunk = memchunks.FirstOrDefault(x => x.FreeBytes >= size && x.IsInternal && (x.Mapper.MapRomToRam(x.Address) % 4) == 0);
+			if (scratchChunk != null) {
+				uint addressRom = scratchChunk.Address;
+				uint addressRam = scratchChunk.Mapper.MapRomToRam(addressRom);
+				scratchChunk.File.Position = scratchChunk.Address;
+				for (uint cnt = 0; cnt < size; ++cnt) {
+					scratchChunk.File.WriteByte(0x00);
+				}
+				scratchChunk.Address += size;
+				scratchChunk.FreeBytes -= size;
+				return new ReservedMemchunk() { Size = size, AddressRom = addressRom, AddressRam = addressRam };
+			} else {
+				throw new Exception("failed to find scratch space, should not happen");
+			}
+		}
+	}
+
+	internal class ReservedMemchunk {
+		public uint Size;
+		public uint AddressRom;
+		public uint AddressRam;
 	}
 }

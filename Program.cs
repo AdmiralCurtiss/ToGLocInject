@@ -9,14 +9,15 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 			//   - did this for skits, would be nice for map files too but probably a lot of work
 			// - dualize result message is slightly broken, see if we can fix that
 			// - request reward message is super broken, suspected culprit is the printf string at 0x5327A6, dunno if this is easily fixable
-			// - synopsis and similar book stuff seems to have a max string length, see if we can patch that
-			//   - also, some skits have lines over ~200 characters that get cut off in-game, maybe the same thing
 			// - there might be more buffer overflows for sprintf'd strings
 			// - password treasure chests don't work cause the menu doesn't allow letters to be entered
 			// - text in card minigame, is in module/Mg1RR.rso and/or module/Mg2RR.rso
 			// - text in music player
 			// - convert textures for card minigame
 
+
+			// note: if we need more space in main.dol, there's 1800 unused bytes at 0x8062B770 now (cause we remapped them elsewhere)
+			// but to use them we need to change the dol section mappings
 
 
 			// note: all files must be decrypted. that means:

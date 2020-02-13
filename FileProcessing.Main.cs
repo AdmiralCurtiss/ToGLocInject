@@ -644,23 +644,14 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 								}
 							}
 
-							// reserve some scratch space in executable for code patches
-							uint reservedScratchSpaceSize = 0x100;
-							uint reservedScratchSpacePositionRom;
-							uint reservedScratchSpacePositionRam;
-							MemChunk scratchChunk = memchunks.FirstOrDefault(x => x.FreeBytes >= reservedScratchSpaceSize && x.IsInternal && (x.Mapper.MapRomToRam(x.Address) % 4) == 0);
-							if (scratchChunk != null) {
-								reservedScratchSpacePositionRom = scratchChunk.Address;
-								reservedScratchSpacePositionRam = scratchChunk.Mapper.MapRomToRam(reservedScratchSpacePositionRom);
-								scratchChunk.File.Position = scratchChunk.Address;
-								for (uint cnt = 0; cnt < reservedScratchSpaceSize; ++cnt) {
-									scratchChunk.File.WriteByte(0x00);
+							uint maxTextLength = 0;
+							foreach (string tmp in wscs.Entries) {
+								if (tmp != null) {
+									maxTextLength = Math.Max(maxTextLength, (uint)TextUtils.StringToBytesShiftJis(tmp).Length);
 								}
-								scratchChunk.Address += reservedScratchSpaceSize;
-								scratchChunk.FreeBytes -= reservedScratchSpaceSize;
-							} else {
-								throw new Exception("failed to find scratch space, should not happen");
 							}
+							ReservedMemchunk reservedSpaceTextRenderBuffer = ReserveMemory(memchunks, (maxTextLength * 8u + maxTextLength).Align(4));
+							ReservedMemchunk reservedSpaceBattleChallengeDescription = ReserveMemory(memchunks, 0x60);
 
 							// actually write strings to executable
 							List<string> failedToFinds = new List<string>();
@@ -780,7 +771,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 							// this overflows with english strings, so repoint that buffer elsewhere
 							// TODO: check if we also have such issues with the challenge command, buffer for that seems to be at 0x8073C638, similar size
 							{
-								uint newBufferAddr = reservedScratchSpacePositionRam;
+								uint newBufferAddr = reservedSpaceBattleChallengeDescription.AddressRam;
 								ushort high = (ushort)(newBufferAddr >> 16);
 								ushort low = (ushort)(newBufferAddr & 0xFFFF);
 								ushort highwrite = (ushort)(low >= 0x8000 ? high + 1 : high);
@@ -790,6 +781,28 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 								ms.WriteUInt16(low.ToEndian(EndianUtils.Endianness.BigEndian));
 								ms.Position = dol.MapRamToRom(0x800bdd5au);
 								ms.WriteUInt16(low.ToEndian(EndianUtils.Endianness.BigEndian));
+							}
+
+							// default text render buffer is too small for some of our long english strings, extend
+							{
+								uint addr1 = reservedSpaceTextRenderBuffer.AddressRam;
+								uint addr2 = reservedSpaceTextRenderBuffer.AddressRam + maxTextLength * 8u;
+								ushort high1 = (ushort)(addr1 >> 16);
+								ushort low1 = (ushort)(addr1 & 0xFFFF);
+								ushort high1write = (ushort)(low1 >= 0x8000 ? high1 + 1 : high1);
+								ushort high2 = (ushort)(addr2 >> 16);
+								ushort low2 = (ushort)(addr2 & 0xFFFF);
+								ushort high2write = (ushort)(low2 >= 0x8000 ? high2 + 1 : high2);
+								ms.Position = dol.MapRamToRom(0x80066972u);
+								ms.WriteUInt16(high1write.ToEndian(EndianUtils.Endianness.BigEndian));
+								ms.Position = dol.MapRamToRom(0x8006697au);
+								ms.WriteUInt16(low1.ToEndian(EndianUtils.Endianness.BigEndian));
+								ms.Position = dol.MapRamToRom(0x80066976u);
+								ms.WriteUInt16(high2write.ToEndian(EndianUtils.Endianness.BigEndian));
+								ms.Position = dol.MapRamToRom(0x80066982u);
+								ms.WriteUInt16(low2.ToEndian(EndianUtils.Endianness.BigEndian));
+								ms.Position = dol.MapRamToRom(0x8006697eu);
+								ms.WriteUInt16(((ushort)maxTextLength).ToEndian(EndianUtils.Endianness.BigEndian));
 							}
 
 							fontStream.Position = 0;
