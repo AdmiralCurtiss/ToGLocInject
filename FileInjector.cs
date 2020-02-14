@@ -1,17 +1,18 @@
 ﻿using System;
 using System.IO;
 using HyoutaUtils;
+using HyoutaTools.Tales.CPK;
 
-namespace HyoutaTools.Tales.Graces.TranslationPort {
+namespace ToGLocInject {
 	internal class FileInjector {
 		// for debugging without producing output
 		private bool DisableInjection = false;
 
-		private CPK.CpkContainer Cpk;
+		private CpkContainer Cpk;
 		private Stream OutputStream;
 		public long CurrentInjectionOffset { get; private set; }
 
-		public FileInjector(CPK.CpkContainer cpk, string outpath, long injectionOffset) {
+		public FileInjector(CpkContainer cpk, string outpath, long injectionOffset) {
 			if (DisableInjection) {
 				return;
 			}
@@ -74,7 +75,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 			// logic for injection into subcpk
 			int subcpkidx = Cpk.GetChildIndexFromName(subcpkPath).Value;
 			var subcpkoffs = Cpk.QueryChildInfoByIndex(subcpkidx, "FileOffset");
-			var subcpk = new CPK.CpkContainer(Cpk.GetChildByIndex(subcpkidx).AsFile.DataStream);
+			var subcpk = new CpkContainer(Cpk.GetChildByIndex(subcpkidx).AsFile.DataStream);
 			int idx = subcpk.GetChildIndexFromName(relativePath).Value;
 			var fsize = subcpk.QueryChildInfoByIndex(idx, "FileSize");
 			var esize = subcpk.QueryChildInfoByIndex(idx, "ExtractSize");

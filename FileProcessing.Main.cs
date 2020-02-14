@@ -5,10 +5,13 @@ using System.Linq;
 using System.Text;
 using HyoutaPluginBase;
 using HyoutaTools.Generic;
+using HyoutaTools.Tales.CPK;
+using HyoutaTools.Tales.Graces.SCS;
+using HyoutaTools.Tales.Vesperia.FPS4;
 using HyoutaUtils;
 using HyoutaUtils.Streams;
 
-namespace HyoutaTools.Tales.Graces.TranslationPort {
+namespace ToGLocInject {
 	internal static partial class FileProcessing {
 		public static void GenerateTranslatedFiles(Config config) {
 			bool generateNew = config.PatchedFileOutputPath != null;
@@ -21,9 +24,9 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 			string v2outpath = generateNew ? Path.Combine(config.PatchedFileOutputPath, "v2patched") : null;
 			string v0outpath = generateNew ? (config.GamefileContainerWiiV0 == null ? null : Path.Combine(config.PatchedFileOutputPath, "v0patched")) : null;
 			if (generateNew) {
-				map0inject = new FileInjectorV0V2(_fc.TryGetContainer("map0R.cpk", Version.W) as CPK.CpkContainer, config.GamefileContainerWiiV0 == null ? null : _fc.TryGetContainer("map0R.cpk", Version.Wv0) as CPK.CpkContainer, Path.Combine(v2outpath, "files", "map0R.cpk"), v0outpath == null ? null : Path.Combine(v0outpath, "files", "map0R.cpk"), 0x4A694000);
-				map1inject = new FileInjectorV0V2(_fc.TryGetContainer("map1R.cpk", Version.W) as CPK.CpkContainer, config.GamefileContainerWiiV0 == null ? null : _fc.TryGetContainer("map1R.cpk", Version.Wv0) as CPK.CpkContainer, Path.Combine(v2outpath, "files", "map1R.cpk"), v0outpath == null ? null : Path.Combine(v0outpath, "files", "map1R.cpk"), 0x25DFB000);
-				rootinject = new FileInjectorV0V2(_fc.TryGetContainer("rootR.cpk", Version.W) as CPK.CpkContainer, config.GamefileContainerWiiV0 == null ? null : _fc.TryGetContainer("rootR.cpk", Version.Wv0) as CPK.CpkContainer, Path.Combine(v2outpath, "files", "rootR.cpk"), v0outpath == null ? null : Path.Combine(v0outpath, "files", "rootR.cpk"), 0x30084000);
+				map0inject = new FileInjectorV0V2(_fc.TryGetContainer("map0R.cpk", Version.W) as CpkContainer, config.GamefileContainerWiiV0 == null ? null : _fc.TryGetContainer("map0R.cpk", Version.Wv0) as CpkContainer, Path.Combine(v2outpath, "files", "map0R.cpk"), v0outpath == null ? null : Path.Combine(v0outpath, "files", "map0R.cpk"), 0x4A694000);
+				map1inject = new FileInjectorV0V2(_fc.TryGetContainer("map1R.cpk", Version.W) as CpkContainer, config.GamefileContainerWiiV0 == null ? null : _fc.TryGetContainer("map1R.cpk", Version.Wv0) as CpkContainer, Path.Combine(v2outpath, "files", "map1R.cpk"), v0outpath == null ? null : Path.Combine(v0outpath, "files", "map1R.cpk"), 0x25DFB000);
+				rootinject = new FileInjectorV0V2(_fc.TryGetContainer("rootR.cpk", Version.W) as CpkContainer, config.GamefileContainerWiiV0 == null ? null : _fc.TryGetContainer("rootR.cpk", Version.Wv0) as CpkContainer, Path.Combine(v2outpath, "files", "rootR.cpk"), v0outpath == null ? null : Path.Combine(v0outpath, "files", "rootR.cpk"), 0x30084000);
 			}
 
 			DuplicatableStream newFontMetrics = null;
@@ -38,9 +41,9 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 					var e = ParseTss(_fc.GetFile(so, Version.E), isSkitFile: false);
 					var u = ParseTss(_fc.GetFile(so, Version.U), isSkitFile: false);
 					var j = ParseTss(_fc.GetFile(so, Version.J), isSkitFile: false);
-					var escs = new SCS.SCS(_fc.GetFile(Path.Combine(Path.GetDirectoryName(so), "en", Path.GetFileNameWithoutExtension(so) + ".scs").Replace('\\', '/'), Version.E));
-					var uscs = new SCS.SCS(_fc.GetFile(Path.Combine(Path.GetDirectoryName(so), "ja", Path.GetFileNameWithoutExtension(so) + ".scs").Replace('\\', '/'), Version.U));
-					var jscs = new SCS.SCS(_fc.GetFile(Path.Combine(Path.GetDirectoryName(so), "ja", Path.GetFileNameWithoutExtension(so) + ".scs").Replace('\\', '/'), Version.J));
+					var escs = new SCS(_fc.GetFile(Path.Combine(Path.GetDirectoryName(so), "en", Path.GetFileNameWithoutExtension(so) + ".scs").Replace('\\', '/'), Version.E));
+					var uscs = new SCS(_fc.GetFile(Path.Combine(Path.GetDirectoryName(so), "ja", Path.GetFileNameWithoutExtension(so) + ".scs").Replace('\\', '/'), Version.U));
+					var jscs = new SCS(_fc.GetFile(Path.Combine(Path.GetDirectoryName(so), "ja", Path.GetFileNameWithoutExtension(so) + ".scs").Replace('\\', '/'), Version.J));
 					var ea = Apply(e, escs.Entries);
 					var ua = Apply(u, uscs.Entries);
 					var ja = Apply(j, jscs.Entries);
@@ -62,8 +65,8 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 			{
 				string compareListFileName = @"map0R.cpk/mapfile_basiR.cpk/map/sce/R/ja/basi_d01.scs";
 				MappingData compareListMappingData = new MappingData(c: false, u: Mappings.GenerateDefault());
-				var jscs = new SCS.SCS(_fc.GetFile(compareListFileName, Version.J));
-				var uscs = new SCS.SCS(_fc.GetFile(compareListFileName, Version.U));
+				var jscs = new SCS(_fc.GetFile(compareListFileName, Version.J));
+				var uscs = new SCS(_fc.GetFile(compareListFileName, Version.U));
 				var j = InsertAdds(jscs, compareListMappingData.J, false, IsSkitFile(compareListFileName));
 				var u = InsertAdds(uscs, compareListMappingData.U, true, IsSkitFile(compareListFileName));
 				compare = new List<(string jp, string en)>();
@@ -80,7 +83,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 				}
 				compare.Add((null, null));
 
-				var wscs = new SCS.SCS(_fc.GetFile(compareListFileName, Version.W));
+				var wscs = new SCS(_fc.GetFile(compareListFileName, Version.W));
 				acceptableNonReplacements.Add(wscs.Entries[39]);
 				acceptableNonReplacements.Add(wscs.Entries[40]);
 				acceptableNonReplacements.Add(wscs.Entries[96]);
@@ -94,8 +97,8 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 				var directCompareFiles = new List<string>();
 				directCompareFiles.Add("map0R.cpk/mapfile_basiR.cpk/map/sce/R/ja/basi_d09.scs");
 				foreach (string fn in directCompareFiles) {
-					var jscs = new SCS.SCS(_fc.GetFile(fn, Version.J));
-					var uscs = new SCS.SCS(_fc.GetFile(fn, Version.U));
+					var jscs = new SCS(_fc.GetFile(fn, Version.J));
+					var uscs = new SCS(_fc.GetFile(fn, Version.U));
 					MappingData val;
 					if (files.TryGetValue(fn, out val) && val != null) {
 						var j = InsertAdds(jscs, val.J, false, IsSkitFile(fn));
@@ -120,9 +123,9 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 			var (charnamestreamJ, charnamemappingsJ) = EvaluateCharNameBin(_fc.GetFile(@"rootR.cpk/str/ja/CharName.bin", Version.J));
 			var (charnamestreamU, charnamemappingsU) = EvaluateCharNameBin(_fc.GetFile(@"rootR.cpk/str/ja/CharName.bin", Version.U));
 			var (charnamestreamW, charnamemappingsW) = EvaluateCharNameBin(_fc.GetFile(@"rootR.cpk/str/ja/CharName.bin", Version.W));
-			var charnameJ = new SCS.SCS(charnamestreamJ);
-			var charnameU = new SCS.SCS(charnamestreamU);
-			var charnameW = new SCS.SCS(charnamestreamW);
+			var charnameJ = new SCS(charnamestreamJ);
+			var charnameU = new SCS(charnamestreamU);
+			var charnameW = new SCS(charnamestreamW);
 			List<(string regular, string alt)> charnamesU = BuildCharnameMapping(charnameU, charnamemappingsU);
 			List<(string regular, string alt)> charnamesJ = BuildCharnameMapping(charnameJ, charnamemappingsJ);
 			List<(string regular, string alt)> charnamesW = BuildCharnameMapping(charnameW, charnamemappingsW);
@@ -144,9 +147,9 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 						(ustream, umappingoverride) = EvaluateCharNameBin(ustream);
 						(wstream, wmappingoverride) = wstream != null ? EvaluateCharNameBin(wstream) : (null, null);
 					}
-					SCS.SCS jscs;
-					SCS.SCS uscs;
-					SCS.SCS wscs;
+					SCS jscs;
+					SCS uscs;
+					SCS wscs;
 					if (f == @"rootR.cpk/SysSub/JA/TOG_SS_ChatName.dat") {
 						jscs = ReadChatNames(jstream);
 						uscs = ReadChatNames(ustream);
@@ -160,9 +163,9 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 						uscs = ReadBattleNames(ustream, Version.U);
 						wscs = ReadBattleNames(wstream, Version.W);
 					} else {
-						jscs = new SCS.SCS(jstream);
-						uscs = new SCS.SCS(ustream);
-						wscs = wstream != null ? new SCS.SCS(wstream) : null;
+						jscs = new SCS(jstream);
+						uscs = new SCS(ustream);
+						wscs = wstream != null ? new SCS(wstream) : null;
 					}
 					bool isSkitFile = IsSkitFile(f);
 					var j = InsertAdds(jscs, kvp.Value.J, false, isSkitFile);
@@ -182,10 +185,10 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 									if (isSkitFile) {
 										string chdpath = "chat/chd/" + Path.GetFileNameWithoutExtension(f) + ".chd";
 										DuplicatableStream uchdstream = _fc.GetFile("rootR.cpk/" + chdpath, Version.U);
-										var uchd = new Tales.Vesperia.FPS4.FPS4(uchdstream.Duplicate());
+										var uchd = new FPS4(uchdstream.Duplicate());
 										utssstream = uchd.GetChildByIndex(0).AsFile.DataStream.Duplicate();
 										DuplicatableStream jchdstream = _fc.GetFile("rootR.cpk/" + chdpath, Version.J);
-										var jchd = new Tales.Vesperia.FPS4.FPS4(jchdstream.Duplicate());
+										var jchd = new FPS4(jchdstream.Duplicate());
 										jtssstream = jchd.GetChildByIndex(0).AsFile.DataStream.Duplicate();
 									} else {
 										string sopath = Path.Combine(Path.GetDirectoryName(Path.GetDirectoryName(f)), Path.GetFileNameWithoutExtension(f) + ".so").Replace('\\', '/');
@@ -390,7 +393,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 					}
 
 					DuplicatableStream wstream = currentFileW?.DataStream;
-					SCS.SCS wscs = null;
+					SCS wscs = null;
 					List<(int index, string entry)> j;
 					List<(int index, string entry)> u;
 					List<MainDolString> doltext = null;
@@ -398,11 +401,11 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 					List<MainDolString> elf_j_text = null;
 					if (f == @"rootR.cpk/str/ja/CharName.bin") {
 						var jcharbin = EvaluateCharNameBin(jstream.Duplicate());
-						var jchars = BuildCharnameMapping(new SCS.SCS(jcharbin.Item1), jcharbin.Item2);
+						var jchars = BuildCharnameMapping(new SCS(jcharbin.Item1), jcharbin.Item2);
 						var ucharbin = EvaluateCharNameBin(ustream.Duplicate());
-						var uchars = BuildCharnameMapping(new SCS.SCS(ucharbin.Item1), ucharbin.Item2);
+						var uchars = BuildCharnameMapping(new SCS(ucharbin.Item1), ucharbin.Item2);
 						var wcharbin = EvaluateCharNameBin(wstream.Duplicate());
-						var wchars = BuildCharnameMapping(new SCS.SCS(wcharbin.Item1), wcharbin.Item2);
+						var wchars = BuildCharnameMapping(new SCS(wcharbin.Item1), wcharbin.Item2);
 						j = new List<(int index, string entry)>();
 						u = new List<(int index, string entry)>();
 						if (jchars.Count != uchars.Count) {
@@ -419,7 +422,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 							wscslist.Add(wchars[aaaa].regular);
 							wscslist.Add(wchars[aaaa].alt);
 						}
-						wscs = new SCS.SCS(wscslist);
+						wscs = new SCS(wscslist);
 					} else if (f == @"rootR.cpk/SysSub/JA/TOG_SS_ChatName.dat") {
 						j = InsertAdds(ReadChatNames(jstream), kvp.Value.J, false, false);
 						u = InsertAdds(ReadChatNames(ustream), kvp.Value.U, true, false);
@@ -438,13 +441,13 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 					} else if (kvp.Value.SkipTextMapping) {
 						j = new List<(int index, string entry)>();
 						u = new List<(int index, string entry)>();
-						wscs = new SCS.SCS(new List<string>());
+						wscs = new SCS(new List<string>());
 					} else {
-						SCS.SCS jscs = null;
-						SCS.SCS uscs = null;
-						jscs = new SCS.SCS(jstream);
-						uscs = new SCS.SCS(ustream);
-						wscs = new SCS.SCS(wstream);
+						SCS jscs = null;
+						SCS uscs = null;
+						jscs = new SCS(jstream);
+						uscs = new SCS(ustream);
+						wscs = new SCS(wstream);
 						j = InsertAdds(jscs, kvp.Value.J, false, IsSkitFile(f));
 						u = InsertAdds(uscs, kvp.Value.U, true, IsSkitFile(f));
 					}
@@ -454,7 +457,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 						if (kvp.Value.MultiplyOutSkit) {
 							string chdpath = "chat/chd/" + Path.GetFileNameWithoutExtension(f) + ".chd";
 							DuplicatableStream chdstream = _fc.GetFile("rootR.cpk/" + chdpath, Version.W);
-							var chd = new Tales.Vesperia.FPS4.FPS4(chdstream.Duplicate());
+							var chd = new FPS4(chdstream.Duplicate());
 							var tssstream = chd.GetChildByIndex(0).AsFile.DataStream.Duplicate();
 							var multipliedResult = SkitProcessing.MultiplyOutSkitTss(tssstream, wscs);
 							wscs = multipliedResult.wscsnew;
@@ -466,7 +469,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 							rootinject.InjectFile(chdmodstream, chdpath);
 						}
 
-						SCS.SCS wscsorig = new SCS.SCS(new List<string>(wscs.Entries));
+						SCS wscsorig = new SCS(new List<string>(wscs.Entries));
 						(int unmappedCount, List<int> indicesUnmapped, List<bool> juConsumed) unmappedStrings;
 						if (!kvp.Value.SkipTextMapping) {
 							if (f == "boot.elf") {
@@ -501,7 +504,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 								}
 							}
 
-							SCS.SCS newscs = new SCS.SCS(deduplicatedNames);
+							SCS newscs = new SCS(deduplicatedNames);
 							MemoryStream ms = new MemoryStream();
 							wstream.ReStart();
 							for (int bbb = 0; bbb < 0x48; ++bbb) {
@@ -541,7 +544,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 							ms.Position = 0;
 							scsstr = ms;
 						} else if (f == "boot.elf") {
-							HyoutaTools.Tales.Graces.TranslationPort.MainDolPostProcess.PostProcessMainDolReplacements(_fc, charnamesU, wscs, wscsorig, j, u, charToWidthMap);
+							ToGLocInject.MainDolPostProcess.PostProcessMainDolReplacements(_fc, charnamesU, wscs, wscsorig, j, u, charToWidthMap);
 
 							MemoryStream fontStream = newFontTexture.CopyToMemory();
 
@@ -550,7 +553,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 							wstream.Position = 0;
 							StreamUtils.CopyStream(wstream, ms, wstreamlength);
 							wstream.Position = 0;
-							var dol = new GameCube.Dol(wstream);
+							var dol = new HyoutaTools.GameCube.Dol(wstream);
 
 							// figure out where we're allowed to put text
 							// first 0xFF out a memory region of the same size as the rom
@@ -640,7 +643,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 
 								bool allowInjectIntoFontTexture = true;
 								if (allowInjectIntoFontTexture) {
-									memchunks.AddRange(HyoutaTools.Tales.Graces.TranslationPort.FontSpaceFinder.FindFreeMemoryInFontTexture(fontStream));
+									memchunks.AddRange(ToGLocInject.FontSpaceFinder.FindFreeMemoryInFontTexture(fontStream));
 								}
 							}
 

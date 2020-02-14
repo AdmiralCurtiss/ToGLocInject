@@ -5,10 +5,11 @@ using System.Linq;
 using System.Text;
 using HyoutaPluginBase;
 using HyoutaTools.Generic;
+using HyoutaTools.Tales.Graces.SCS;
 using HyoutaUtils;
 using HyoutaUtils.Streams;
 
-namespace HyoutaTools.Tales.Graces.TranslationPort {
+namespace ToGLocInject {
 	internal static partial class FileProcessing {
 		static bool IsMatching(this MappingType t) {
 			return t == MappingType.SelfMatch || t == MappingType.CompMatch || t == MappingType.DirectMatched || t == MappingType.VoiceLineMatched;
@@ -18,7 +19,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 			if (s.StartsWith(starter)) {
 				string t = s.Substring(3);
 				t = t.Substring(0, t.IndexOf(')'));
-				return SCS.SCS.DecodeNumber(t);
+				return SCS.DecodeNumber(t);
 			}
 			throw new Exception("?");
 		}
@@ -132,15 +133,15 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 			return t;
 		}
 
-		private static SCS.SCS ConvertDoltextToScs(List<MainDolString> doltext) {
+		private static SCS ConvertDoltextToScs(List<MainDolString> doltext) {
 			List<string> t = new List<string>();
 			foreach (var v in doltext) {
 				t.Add(v.Text);
 			}
-			return new SCS.SCS(t);
+			return new SCS(t);
 		}
 
-		private static SCS.SCS ReadBattleNames(DuplicatableStream stream, Version v) {
+		private static SCS ReadBattleNames(DuplicatableStream stream, Version v) {
 			// technically this is an fps4 archive but we can shortcut it since the format is similar enough between versions...
 			stream.Position = 0x1C;
 			long start = stream.ReadUInt32().FromEndian(EndianUtils.Endianness.BigEndian);
@@ -152,18 +153,18 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 				names.Add(stream.ReadShiftJisNullterm());
 				stream.Position = tmp + (v == Version.W ? 0x88 : 0xA0);
 			}
-			return new SCS.SCS(names);
+			return new SCS(names);
 		}
 
-		private static void ReplaceStringsWMainDolPart((int start, int end) wr, (int start, int end) jur, ref int unmappedCount, ref List<int> indicesUnmapped, ref List<bool> juConsumedGlobal, ISet<string> acceptableNonReplacements, SCS.SCS wscs, List<(int index, string entry)> j, List<(int index, string entry)> u, W prep, bool allowSloppyComp) {
+		private static void ReplaceStringsWMainDolPart((int start, int end) wr, (int start, int end) jur, ref int unmappedCount, ref List<int> indicesUnmapped, ref List<bool> juConsumedGlobal, ISet<string> acceptableNonReplacements, SCS wscs, List<(int index, string entry)> j, List<(int index, string entry)> u, W prep, bool allowSloppyComp) {
 			int wstart = wr.start;
 			int wend = wr.end;
 			List<string> reducedW = new List<string>();
 			for (int i = 0; i < wend - wstart; ++i) {
 				reducedW.Add(wscs.Entries[i + wstart]);
 			}
-			SCS.SCS reducedWSCS = new SCS.SCS(reducedW);
-			SCS.SCS reducedWSCSorig = new SCS.SCS(reducedW);
+			SCS reducedWSCS = new SCS(reducedW);
+			SCS reducedWSCSorig = new SCS(reducedW);
 			List<(int index, string entry)> reducedJ = new List<(int index, string entry)>();
 			List<(int index, string entry)> reducedU = new List<(int index, string entry)>();
 			for (int i = jur.start; i < jur.end; ++i) {
@@ -183,7 +184,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 			}
 		}
 
-		private static (int unmappedCount, List<int> indicesUnmapped, List<bool> juConsumedGlobal) ReplaceStringsWMainDol(ISet<string> acceptableNonReplacements, SCS.SCS wscs, List<(int index, string entry)> j, List<(int index, string entry)> u, W prep, bool allowSloppyComp) {
+		private static (int unmappedCount, List<int> indicesUnmapped, List<bool> juConsumedGlobal) ReplaceStringsWMainDol(ISet<string> acceptableNonReplacements, SCS wscs, List<(int index, string entry)> j, List<(int index, string entry)> u, W prep, bool allowSloppyComp) {
 			int unmappedCount = 0;
 			List<int> indicesUnmapped = new List<int>();
 			List<bool> juConsumedGlobal = new List<bool>(u.Count);
@@ -215,7 +216,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 			return (unmappedCount, indicesUnmapped, juConsumedGlobal);
 		}
 
-		private static (int unmappedCount, List<int> indicesUnmapped, List<bool> juConsumedGlobal) ReplaceStringsW(ISet<string> acceptableNonReplacements, SCS.SCS wscs, SCS.SCS wscsorig, List<(int index, string entry)> j, List<(int index, string entry)> u, W prep, bool allowSloppyComp) {
+		private static (int unmappedCount, List<int> indicesUnmapped, List<bool> juConsumedGlobal) ReplaceStringsW(ISet<string> acceptableNonReplacements, SCS wscs, SCS wscsorig, List<(int index, string entry)> j, List<(int index, string entry)> u, W prep, bool allowSloppyComp) {
 			int replacementCountGlobal = 0;
 			List<bool> juConsumed = new List<bool>(u.Count);
 			List<bool> juConsumedGlobal = new List<bool>(u.Count);
@@ -364,7 +365,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 
 				try {
 					string inbrace = s.Substring(2, braceclose - 2);
-					SCS.SCS.DecodeNumber(inbrace);
+					SCS.DecodeNumber(inbrace);
 					return true;
 				} catch (Exception) {
 					return false;
@@ -386,7 +387,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 			return s;
 		}
 
-		private static int ReplaceStringsWInternal_Strict(SCS.SCS wscs, List<(int index, string entry)> j, List<(int index, string entry)> u, List<bool> juConsumed, List<bool> wOverwritten) {
+		private static int ReplaceStringsWInternal_Strict(SCS wscs, List<(int index, string entry)> j, List<(int index, string entry)> u, List<bool> juConsumed, List<bool> wOverwritten) {
 			int replaceCount = 0;
 			for (int idx = 0; idx < wscs.Entries.Count; ++idx) {
 				if (!wOverwritten[idx]) {
@@ -404,7 +405,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 			}
 			return replaceCount;
 		}
-		private static int ReplaceStringsWInternal_Sloppy(SCS.SCS wscs, List<(int index, string entry)> j, List<(int index, string entry)> u, List<bool> juConsumed, List<bool> wOverwritten, List<string> precompd_j_sloppy, List<string> precompd_w_sloppy) {
+		private static int ReplaceStringsWInternal_Sloppy(SCS wscs, List<(int index, string entry)> j, List<(int index, string entry)> u, List<bool> juConsumed, List<bool> wOverwritten, List<string> precompd_j_sloppy, List<string> precompd_w_sloppy) {
 			int replaceCount = 0;
 			for (int idx = 0; idx < wscs.Entries.Count; ++idx) {
 				if (!wOverwritten[idx]) {
@@ -423,7 +424,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 			return replaceCount;
 		}
 
-		private static SCS.SCS ReadChatNames(DuplicatableStream s) {
+		private static SCS ReadChatNames(DuplicatableStream s) {
 			List<string> strings = new List<string>();
 			s.DiscardBytes(8);
 			uint count = s.ReadUInt32().FromEndian(EndianUtils.Endianness.BigEndian);
@@ -433,10 +434,10 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 				long v = s.ReadUInt32().FromEndian(EndianUtils.Endianness.BigEndian);
 				strings.Add(s.ReadNulltermStringFromLocationAndReset(p + v, TextUtils.GameTextEncoding.ShiftJIS));
 			}
-			return new SCS.SCS(strings);
+			return new SCS(strings);
 		}
 
-		private static List<(string regular, string alt)> BuildCharnameMapping(SCS.SCS charnameJ, List<int> charnamemappingsJ) {
+		private static List<(string regular, string alt)> BuildCharnameMapping(SCS charnameJ, List<int> charnamemappingsJ) {
 			var m = new List<(string regular, string alt)>();
 			for (int i = 0; i < charnamemappingsJ.Count; i += 2) {
 				int reg = charnamemappingsJ[i];
@@ -541,7 +542,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 					int braceclose = s1.IndexOf(')');
 					string inbrace = s1.Substring(1, braceclose - 1);
 					string postbrace = s1.Substring(braceclose + 1);
-					int decodednumber = SCS.SCS.DecodeNumber(inbrace) - 1001;
+					int decodednumber = SCS.DecodeNumber(inbrace) - 1001;
 					if (decodednumber >= 0 && decodednumber < charnames.Count) {
 						sb.Append(charnames[decodednumber].regular);
 					} else {
@@ -738,7 +739,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 			return stuff[0] == "rootR.cpk" && stuff[1] == "chat" && (stuff.Last().StartsWith("CHT_") || stuff.Last().StartsWith("debug_0"));
 		}
 
-		private static List<(int index, string entry)> InsertAdds(SCS.SCS scs, M m, bool isU, bool isSkit) {
+		private static List<(int index, string entry)> InsertAdds(SCS scs, M m, bool isU, bool isSkit) {
 			List<(int index, string entry)> e = new List<(int index, string entry)>();
 
 			for (int i = 0; i < scs.Entries.Count; ++i) {

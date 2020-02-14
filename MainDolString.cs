@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace HyoutaTools.Tales.Graces.TranslationPort {
+namespace ToGLocInject {
 	internal class MainDolString {
 		public uint RomPointerPosition;
 		public uint RomTextPosition;

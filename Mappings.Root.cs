@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using HyoutaUtils;
 
-namespace HyoutaTools.Tales.Graces.TranslationPort {
+namespace ToGLocInject {
 	internal static partial class Mappings {
 		private static void GetFileMappingsRoot(FileFetcher _fc, Dictionary<string, MappingData> files) {
 			files.Add(@"rootR.cpk/btl/acf/bin000.acf", new MappingData(c: true, w: new W().Sys(0).Sys(13).R(33, 33).Un(259).Un(260)));

@@ -15,7 +15,7 @@ using System.IO;
 
 // FIXME: this works fine in dolphin but fails on a real console, texture memory location seems to be not deterministic...
 
-namespace HyoutaTools.Tales.Graces.TranslationPort {
+namespace ToGLocInject {
 	internal static class FontSpaceFinder {
 		private enum TileIdentification {
 			UsedTile,

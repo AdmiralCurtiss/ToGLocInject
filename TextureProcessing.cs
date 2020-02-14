@@ -4,9 +4,11 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using HyoutaPluginBase;
+using HyoutaTools.Tales.Vesperia.FPS4;
+using HyoutaTools.Tales.Vesperia.Texture;
 using HyoutaUtils;
 
-namespace HyoutaTools.Tales.Graces.TranslationPort {
+namespace ToGLocInject {
 	internal static class TextureProcessing {
 		private enum TexConvMethod {
 			Downscale2x,
@@ -165,12 +167,12 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 
 		public static Stream ProcessTexture(FileFetcher _fc, string name, DuplicatableStream jstream, DuplicatableStream ustream) {
 			DuplicatableStream wstream = _fc.GetFile(name, Version.W);
-			Vesperia.FPS4.FPS4 w = new Vesperia.FPS4.FPS4(wstream.Duplicate());
-			Vesperia.Texture.TXM wtxm = new Vesperia.Texture.TXM(w.GetChildByIndex(0).AsFile.DataStream.Duplicate());
-			Vesperia.Texture.TXV wtxv = new Vesperia.Texture.TXV(wtxm, w.GetChildByIndex(1).AsFile.DataStream.Duplicate(), false);
-			Vesperia.FPS4.FPS4 u = new Vesperia.FPS4.FPS4(ustream.Duplicate());
-			Vesperia.Texture.TXM utxm = new Vesperia.Texture.TXM(u.GetChildByIndex(0).AsFile.DataStream.Duplicate());
-			Vesperia.Texture.TXV utxv = new Vesperia.Texture.TXV(utxm, u.GetChildByIndex(1).AsFile.DataStream.Duplicate(), false);
+			FPS4 w = new FPS4(wstream.Duplicate());
+			TXM wtxm = new TXM(w.GetChildByIndex(0).AsFile.DataStream.Duplicate());
+			TXV wtxv = new TXV(wtxm, w.GetChildByIndex(1).AsFile.DataStream.Duplicate(), false);
+			FPS4 u = new FPS4(ustream.Duplicate());
+			TXM utxm = new TXM(u.GetChildByIndex(0).AsFile.DataStream.Duplicate());
+			TXV utxv = new TXV(utxm, u.GetChildByIndex(1).AsFile.DataStream.Duplicate(), false);
 			List<TexConvRules> convs = new List<TexConvRules>();
 			if (name == "rootR.cpk/mg/tex/karuta.tex") {
 				// TODO
@@ -237,12 +239,12 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 				if (newImage != null) {
 					HyoutaTools.Util.Assert(newImage.Width == wm.Width);
 					HyoutaTools.Util.Assert(newImage.Height == wm.Height);
-					if (wm.Format == Vesperia.Texture.TextureFormat.Indexed8Bits_RGB5A3) {
+					if (wm.Format == HyoutaTools.Tales.Vesperia.Texture.TextureFormat.Indexed8Bits_RGB5A3) {
 						ChopBitsRGB5A3(newImage);
 						var palette = GeneratePalette256(newImage);
 
 						s.Position = w.Files[1].Location.Value + wm.TxvLocation;
-						foreach (var loc in new Textures.PixelOrderIterators.TiledPixelOrderIterator(newImage.Width, newImage.Height, 8, 4)) {
+						foreach (var loc in new HyoutaTools.Textures.PixelOrderIterators.TiledPixelOrderIterator(newImage.Width, newImage.Height, 8, 4)) {
 							int cval = 0;
 							if (loc.X < newImage.Width && loc.Y < newImage.Height) {
 								cval = palette.lookup[newImage.GetPixel(loc.X, loc.Y)];
@@ -253,15 +255,15 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 						for (int ci = 0; ci < 256; ++ci) {
 							ushort cval = 0;
 							if (ci < palette.colors.Count) {
-								cval = Textures.ColorFetchingIterators.ColorFetcherRGB5A3.ColorToRGB5A3(palette.colors[ci]);
+								cval = HyoutaTools.Textures.ColorFetchingIterators.ColorFetcherRGB5A3.ColorToRGB5A3(palette.colors[ci]);
 							}
 							s.WriteUInt16(cval.ToEndian(EndianUtils.Endianness.BigEndian));
 						}
-					} else if (wm.Format == Vesperia.Texture.TextureFormat.GamecubeRGBA8) {
+					} else if (wm.Format == HyoutaTools.Tales.Vesperia.Texture.TextureFormat.GamecubeRGBA8) {
 						s.Position = w.Files[1].Location.Value + wm.TxvLocation;
 						byte[] tmpb = new byte[0x40];
 						int tmpp = 0;
-						foreach (var loc in new Textures.PixelOrderIterators.TiledPixelOrderIterator(newImage.Width, newImage.Height, 4, 4)) {
+						foreach (var loc in new HyoutaTools.Textures.PixelOrderIterators.TiledPixelOrderIterator(newImage.Width, newImage.Height, 4, 4)) {
 							Color col = newImage.GetPixel(loc.X, loc.Y);
 							tmpb[tmpp * 2 + 0] = col.A;
 							tmpb[tmpp * 2 + 1] = col.R;

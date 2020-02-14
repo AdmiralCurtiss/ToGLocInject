@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HyoutaTools.Tales.Graces.TranslationPort {
+namespace ToGLocInject {
 	public class Config {
 		public IContainer GamefileContainerWiiV2;
 		public IContainer GamefileContainerPS3JP;

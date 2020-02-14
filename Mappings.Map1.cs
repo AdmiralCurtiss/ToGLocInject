@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
+using HyoutaTools.Tales.Graces.SCS;
 using HyoutaUtils;
 
-namespace HyoutaTools.Tales.Graces.TranslationPort {
+namespace ToGLocInject {
 	internal static partial class Mappings {
 		private static void GetFileMappingsMap1(FileFetcher _fc, Dictionary<string, MappingData> files) {
 			files.Add(@"map1R.cpk/mapfile_anmaR.cpk/map/sce/R/ja/anma_e01.scs", new MappingData(c: true, u: GenerateDefault()));
@@ -196,8 +197,8 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 			{
 				string name = @"map1R.cpk/mapfile_lanR.cpk/map/sce/R/ja/lan2_t01.scs";
 				var mapping = new MappingData(c: true, u: GenerateCommonU(1053).A(298, 36).A(734, -1).A(754, -7), j: GenerateCommonJ(1053 + 9), w: new W().R(1075, 1029).R(1077, 1031).R(800, 546).Sys(105).R(973, 925));
-				var uscs = new SCS.SCS(_fc.GetFile(name, Version.U));
-				var wscs = new SCS.SCS(_fc.GetFile(name, Version.W));
+				var uscs = new SCS(_fc.GetFile(name, Version.U));
+				var wscs = new SCS(_fc.GetFile(name, Version.W));
 				mapping.W = mapping.W.R(669, uscs.Entries[544].ReplaceSubstring(39, 6, wscs.Entries[669], 9, 9).InsertSubstring(39, uscs.Entries[506], 6, 1).InsertSubstring(39, uscs.Entries[506], 26, 5));
 				files.Add(name, mapping);
 			}

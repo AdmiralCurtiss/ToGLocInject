@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using HyoutaPluginBase;
 using HyoutaTools.FileContainer;
+using HyoutaTools.Tales.CPK;
 using HyoutaUtils;
 using HyoutaUtils.Streams;
 
-namespace HyoutaTools.Tales.Graces.TranslationPort {
+namespace ToGLocInject {
 	internal class FileFetcher {
 		private Config Config;
 
@@ -58,7 +59,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 				var split = name.Split('/');
 				HyoutaPluginBase.FileContainer.IContainer cpk;
 				if (!cache.TryGetValue((version, split[0]), out cpk)) {
-					cpk = new Tales.CPK.CpkContainer(root.GetChildByName(split[0]).AsFile.DataStream);
+					cpk = new CpkContainer(root.GetChildByName(split[0]).AsFile.DataStream);
 					cache.Add((version, split[0]), cpk);
 				}
 				if (name == split[0]) {
@@ -73,7 +74,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 						if (s == null) {
 							return null;
 						}
-						subcpk = new Tales.CPK.CpkContainer(s);
+						subcpk = new CpkContainer(s);
 						cache.Add((version, p), subcpk);
 					}
 					if (name == p) {

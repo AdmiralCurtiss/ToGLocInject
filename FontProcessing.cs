@@ -1,4 +1,6 @@
 ﻿using HyoutaPluginBase;
+using HyoutaTools.Tales.Vesperia.FPS4;
+using HyoutaTools.Tales.Vesperia.Texture;
 using HyoutaUtils;
 using System;
 using System.Collections.Generic;
@@ -6,7 +8,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 
-namespace HyoutaTools.Tales.Graces.TranslationPort {
+namespace ToGLocInject {
 	internal class FontProcessing {
 		private static int Value(Color col) {
 			return col.A + col.R;
@@ -102,14 +104,14 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 			DuplicatableStream metricsWiiStream = _fc.GetFile("rootR.cpk/sys/FontBinary2.bin", Version.W);
 			DuplicatableStream textureWiiStream = _fc.GetFile("rootR.cpk/sys/FontTexture2.tex", Version.W);
 			DuplicatableStream texturePs3Stream = _fc.GetFile("rootR.cpk/sys/FontTexture2.tex", Version.U);
-			Vesperia.FPS4.FPS4 metricsWiiFps4 = new Vesperia.FPS4.FPS4(metricsWiiStream);
+			FPS4 metricsWiiFps4 = new FPS4(metricsWiiStream);
 			DuplicatableStream metricsWiiData = metricsWiiFps4.GetChildByIndex(1).AsFile.DataStream;
-			Vesperia.FPS4.FPS4 textureWiiFps4 = new Vesperia.FPS4.FPS4(textureWiiStream);
-			Vesperia.FPS4.FPS4 texturePs3Fps4 = new Vesperia.FPS4.FPS4(texturePs3Stream);
-			Vesperia.Texture.TXM textureWiiTxm = new Vesperia.Texture.TXM(textureWiiFps4.GetChildByIndex(0).AsFile.DataStream);
-			Vesperia.Texture.TXV textureWiiTxv = new Vesperia.Texture.TXV(textureWiiTxm, textureWiiFps4.GetChildByIndex(1).AsFile.DataStream, false);
-			Vesperia.Texture.TXM texturePs3Txm = new Vesperia.Texture.TXM(texturePs3Fps4.GetChildByIndex(0).AsFile.DataStream);
-			Vesperia.Texture.TXV texturePs3Txv = new Vesperia.Texture.TXV(texturePs3Txm, texturePs3Fps4.GetChildByIndex(1).AsFile.DataStream, false);
+			FPS4 textureWiiFps4 = new FPS4(textureWiiStream);
+			FPS4 texturePs3Fps4 = new FPS4(texturePs3Stream);
+			TXM textureWiiTxm = new TXM(textureWiiFps4.GetChildByIndex(0).AsFile.DataStream);
+			TXV textureWiiTxv = new TXV(textureWiiTxm, textureWiiFps4.GetChildByIndex(1).AsFile.DataStream, false);
+			TXM texturePs3Txm = new TXM(texturePs3Fps4.GetChildByIndex(0).AsFile.DataStream);
+			TXV texturePs3Txv = new TXV(texturePs3Txm, texturePs3Fps4.GetChildByIndex(1).AsFile.DataStream, false);
 			Bitmap bitmapWii = textureWiiTxv.textures[0].GetBitmaps()[0];
 			Bitmap bitmapPs3 = texturePs3Txv.textures[0].GetBitmaps()[0];
 
@@ -364,13 +366,13 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 				}
 
 				stream.Position = 0x100;
-				var pxit = new Textures.PixelOrderIterators.TiledPixelOrderIterator(img_wii.Width, img_wii.Height, 8, 8);
+				var pxit = new HyoutaTools.Textures.PixelOrderIterators.TiledPixelOrderIterator(img_wii.Width, img_wii.Height, 8, 8);
 				byte storage = 0;
 				bool even = false;
 				foreach (var px in pxit) {
 					if (px.X < img_wii.Width && px.Y < img_wii.Height) {
 						Color col = img_wii.GetPixel(px.X, px.Y);
-						ushort value = Textures.ColorFetchingIterators.ColorFetcherGrey8Alpha8.ColorToGrey8Alpha8(col);
+						ushort value = HyoutaTools.Textures.ColorFetchingIterators.ColorFetcherGrey8Alpha8.ColorToGrey8Alpha8(col);
 						var colidx = stuff.First(x => x.v == value).idx;
 						if (!even) {
 							storage = (byte)colidx;

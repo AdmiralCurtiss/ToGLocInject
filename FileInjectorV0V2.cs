@@ -1,13 +1,14 @@
 ﻿using System;
 using System.IO;
+using HyoutaTools.Tales.CPK;
 using HyoutaUtils;
 
-namespace HyoutaTools.Tales.Graces.TranslationPort {
+namespace ToGLocInject {
 	internal class FileInjectorV0V2 {
 		private FileInjector Injector0;
 		private FileInjector Injector2;
 
-		public FileInjectorV0V2(CPK.CpkContainer cpkv2, CPK.CpkContainer cpkv0, string outpathv2, string outpathv0, long injectionOffset) {
+		public FileInjectorV0V2(CpkContainer cpkv2, CpkContainer cpkv0, string outpathv2, string outpathv0, long injectionOffset) {
 			Injector0 = cpkv0 == null ? null : new FileInjector(cpkv0, outpathv0, injectionOffset);
 			Injector2 = cpkv2 == null ? null : new FileInjector(cpkv2, outpathv2, injectionOffset);
 		}

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using HyoutaUtils;
 
-namespace HyoutaTools.Tales.Graces.TranslationPort {
+namespace ToGLocInject {
 	internal static partial class Mappings {
 		private static void GetFileMappingsMap0(FileFetcher _fc, Dictionary<string, MappingData> files) {
 			files.Add(@"map0R.cpk/mapfile_basiR.cpk/map/sce/R/ja/basi_d01.scs", new MappingData(c: true, u: GenerateDefault()));

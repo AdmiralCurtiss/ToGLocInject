@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace HyoutaTools.Tales.Graces.TranslationPort {
+namespace ToGLocInject {
 	public static class Util {
 		public static byte GetColorComponent(this System.Drawing.Color color, int component) {
 			switch (component) {
@@ -202,7 +202,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 		public uint Address;
 		public uint FreeBytes;
 		public System.IO.MemoryStream File;
-		public Generic.IRomMapper Mapper;
+		public HyoutaTools.Generic.IRomMapper Mapper;
 		public bool IsInternal;
 
 		public override string ToString() {

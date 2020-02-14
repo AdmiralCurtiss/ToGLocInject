@@ -1,7 +1,7 @@
 ﻿using HyoutaTools.FileContainer;
 using System;
 
-namespace HyoutaTools.Tales.Graces.TranslationPort {
+namespace ToGLocInject {
 	public static class Program {
 		public static int Main() {
 			// TODO:

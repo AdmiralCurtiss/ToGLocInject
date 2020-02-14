@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace HyoutaTools.Tales.Graces.TranslationPort {
+namespace ToGLocInject {
 	internal static partial class Mappings {
 		private static M GenerateCommonU(int idx) {
 			int o = 721 - idx;

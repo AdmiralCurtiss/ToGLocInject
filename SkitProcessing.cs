@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using HyoutaPluginBase;
+using HyoutaTools.Tales.Graces.SCS;
 using HyoutaUtils;
 
-namespace HyoutaTools.Tales.Graces.TranslationPort {
+namespace ToGLocInject {
 	internal static class SkitProcessing {
 		private static bool MatchesSkitFormat(string s) {
 			int idx = s.IndexOf("\x1F(1,");
@@ -32,7 +33,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 		}
 
 		// some skit files reuse the same JP string in cases where the english text is different, this expands this to have a separate entry for each JP string
-		public static (Stream newTssStream, SCS.SCS wscsnew) MultiplyOutSkitTss(DuplicatableStream stream, SCS.SCS wscsorig) {
+		public static (Stream newTssStream, SCS wscsnew) MultiplyOutSkitTss(DuplicatableStream stream, SCS wscsorig) {
 			stream.Position = 0;
 			Stream s = stream.CopyToMemory();
 			uint magic = s.ReadUInt32().FromEndian(EndianUtils.Endianness.BigEndian);
@@ -59,7 +60,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 						string str = s.ReadNulltermString(TextUtils.GameTextEncoding.ShiftJIS);
 						// must have specific format
 						if (MatchesSkitFormat(str)) {
-							int num = SCS.SCS.DecodeNumber(str.Substring(4, str.Length - 5));
+							int num = SCS.DecodeNumber(str.Substring(4, str.Length - 5));
 							strings.Add((stringpos, num, str.Length));
 						}
 						s.Position = pos;
@@ -86,7 +87,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 					++currentIndex;
 				}
 
-				string numstr = SCS.SCS.EncodeNumber(currentIndex);
+				string numstr = SCS.EncodeNumber(currentIndex);
 				string resultstr = "\x1F(1," + numstr + ")";
 				if (resultstr.Length > d.len) {
 					throw new Exception("don't know how to inject this");
@@ -98,7 +99,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 			}
 
 			s.Position = 0;
-			return (s, new SCS.SCS(newscs));
+			return (s, new SCS(newscs));
 		}
 
 	}

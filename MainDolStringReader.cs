@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace HyoutaTools.Tales.Graces.TranslationPort {
+namespace ToGLocInject {
 	internal static class MainDolStringReader {
 		public static List<MainDolString> ReadElfStringsUs(DuplicatableStream filestream) {
 			IRomMapper dol = new Ps3ElfMapper();
@@ -112,7 +112,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 		}
 
 		public static List<MainDolString> ReadDolStrings(DuplicatableStream filestream) {
-			var dol = new GameCube.Dol(filestream);
+			var dol = new HyoutaTools.GameCube.Dol(filestream);
 			var stream = filestream.CopyToMemory();
 			var data = new List<MainDolString>();
 			ReadStringsInBlocks(data, dol, stream, 0x535A68, 0x0024, 0x04, 1, false); // wii home archive references

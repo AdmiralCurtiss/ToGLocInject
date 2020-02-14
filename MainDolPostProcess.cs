@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using HyoutaTools.Tales.Graces.SCS;
 using HyoutaUtils;
 
-namespace HyoutaTools.Tales.Graces.TranslationPort {
+namespace ToGLocInject {
 	internal static class MainDolPostProcess {
-		internal static void PostProcessMainDolReplacements(HyoutaTools.Tales.Graces.TranslationPort.FileFetcher _fc, List<(string regular, string alt)> charnamesU, HyoutaTools.Tales.Graces.SCS.SCS w, HyoutaTools.Tales.Graces.SCS.SCS worig, List<(int index, string entry)> j, List<(int index, string entry)> u, Dictionary<char, (int w1, int w2)> charToWidthMap) {
+		internal static void PostProcessMainDolReplacements(ToGLocInject.FileFetcher _fc, List<(string regular, string alt)> charnamesU, SCS w, SCS worig, List<(int index, string entry)> j, List<(int index, string entry)> u, Dictionary<char, (int w1, int w2)> charToWidthMap) {
 			// point per-language wii files at the single one that actually exists on the disc
 			for (int i = 1; i <= 8; ++i) {
 				w.Entries[i] = w.Entries[0];
@@ -144,7 +145,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 			w.Entries[3265] = u[2254].entry;
 
 			// these seem like debug warp menu strings
-			var mapname = new SCS.SCS(_fc.GetFile("rootR.cpk/str/ja/MapName.bin", Version.U));
+			var mapname = new SCS(_fc.GetFile("rootR.cpk/str/ja/MapName.bin", Version.U));
 			w.Entries[1776] = mapname.Entries[61].Substring(0, 6);
 			w.Entries[1777] = mapname.Entries[24].Substring(0, 7);
 			w.Entries[1778] = mapname.Entries[32].Substring(0, 6);
@@ -526,7 +527,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 			return lines;
 		}
 
-		private static void TryReformatTutorial(int idx, HyoutaTools.Tales.Graces.SCS.SCS w, Dictionary<char, (int w1, int w2)> charToWidthMap, int perLineMaxWidth) {
+		private static void TryReformatTutorial(int idx, SCS w, Dictionary<char, (int w1, int w2)> charToWidthMap, int perLineMaxWidth) {
 			// can only reformat when all text in one entry
 			if (w.Entries[idx + 2] != null || w.Entries[idx + 3] != null || w.Entries[idx + 4] != null || w.Entries[idx + 5] != null || w.Entries[idx + 6] != null) {
 				return;
@@ -546,7 +547,7 @@ namespace HyoutaTools.Tales.Graces.TranslationPort {
 			}
 		}
 
-		private static void ReformatSynopsis(int idx, HyoutaTools.Tales.Graces.SCS.SCS w, Dictionary<char, (int w1, int w2)> charToWidthMap, int perLineMaxWidth) {
+		private static void ReformatSynopsis(int idx, SCS w, Dictionary<char, (int w1, int w2)> charToWidthMap, int perLineMaxWidth) {
 			w.Entries[idx] = string.Join("\n", Reformat(w.Entries[idx].Trim().Replace('\n', ' '), charToWidthMap, perLineMaxWidth));
 		}
 	}
