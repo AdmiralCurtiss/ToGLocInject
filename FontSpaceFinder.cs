@@ -9,11 +9,11 @@ using System.IO;
 // this game stores a lot of its menu/system strings in its main executable
 // that means we need to find extra space to put the much longer english text
 //
-// the font texture appears to be always loaded into memory at a fixed address
-// and has ~45 KB of unused space, so we can abuse that and put the text that
-// doesn't fit into the executable in there
-
-// FIXME: this works fine in dolphin but fails on a real console, texture memory location seems to be not deterministic...
+// the font texture has ~45 KB of unused space, so we can abuse that and put
+// text that doesn't fit into the executable in there
+//
+// since the texture is loaded dynamically, we only write a placeholder address
+// to the executable and hotpatch that when the texture is actually allocated
 
 namespace ToGLocInject {
 	internal static class FontSpaceFinder {
@@ -116,7 +116,7 @@ namespace ToGLocInject {
 			uint offset = textureWiiFps4.Files[1].Location.Value + textureWiiTxv.textures[2].TXM.TxvLocation;
 			long len = stream.Length;
 			long startOfLastSafeBlock = -1;
-			var fontMapper = new FontMapper();
+			var fontMapper = new FontMapper(0xE0000000 - textureWiiFps4.Files[1].Location.Value);
 			stream.Position = 0;
 			for (long i = 0; i <= len; ++i) {
 				bool safeToWriteTo = i == len ? false : stream.ReadUInt8() == 1;
@@ -143,12 +143,18 @@ namespace ToGLocInject {
 	}
 
 	internal class FontMapper : HyoutaTools.Generic.IRomMapper {
+		public uint RamBaseAddress;
+
+		public FontMapper(uint baseAddr) {
+			RamBaseAddress = baseAddr;
+		}
+
 		public bool TryMapRamToRom(uint ramAddress, out uint value) {
 			throw new NotImplementedException();
 		}
 
 		public bool TryMapRomToRam(uint romAddress, out uint value) {
-			value = 0x908A36E0 + romAddress;
+			value = RamBaseAddress + romAddress;
 			return true;
 		}
 	}

@@ -654,6 +654,7 @@ namespace ToGLocInject {
 								}
 							}
 							ReservedMemchunk reservedSpaceTextRenderBuffer = ReserveMemory(memchunks, (maxTextLength * 8u + maxTextLength).Align(4));
+							ReservedMemchunk reservedSpaceFontTexPointerFix = ReserveMemory(memchunks, CodePatches.CodeSizeForFontTexPointerFix());
 							ReservedMemchunk reservedSpaceBattleChallengeDescription = ReserveMemory(memchunks, 0x60);
 
 							// actually write strings to executable
@@ -807,6 +808,8 @@ namespace ToGLocInject {
 								ms.Position = dol.MapRamToRom(0x8006697eu);
 								ms.WriteUInt16(((ushort)maxTextLength).ToEndian(EndianUtils.Endianness.BigEndian));
 							}
+
+							CodePatches.ApplyFontTexPointerFix(ms, dol, reservedSpaceFontTexPointerFix);
 
 							fontStream.Position = 0;
 							newFontTexture = new DuplicatableByteArrayStream(fontStream.CopyToByteArrayAndDispose());
