@@ -111,17 +111,17 @@ namespace ToGLocInject {
 			}
 		}
 
-		private static IEnumerable<int> GenerateDoltextInjectOrder(List<MainDolString> doltext) {
+		private static IEnumerable<(int dolidx, bool forceInternal)> GenerateDoltextInjectOrder(List<MainDolString> doltext) {
 			// late strings will be written to font tex, early strings will go into the eboot
-			for (int i = 10456; i < doltext.Count; ++i) { yield return i; }
-			for (int i = 0; i < 4384; ++i) { yield return i; }
-			for (int i = 4419; i < 4489; ++i) { yield return i; }
-			for (int i = 4637; i < 6888; ++i) { yield return i; }
-			for (int i = 7644; i < 10456; ++i) { yield return i; }
-			for (int i = 6888; i < 7644; i += 3) { yield return i; } // request names
-			for (int i = 6888; i < 7644; i += 3) { yield return i + 1; yield return i + 2; } // request text
-			for (int i = 4384; i < 4419; ++i) { yield return i; } // synopsis text
-			for (int i = 4489; i < 4637; ++i) { yield return i; } // sidequest text
+			for (int i = 10456; i < doltext.Count; ++i) { yield return (i, true); }
+			for (int i = 0; i < 4384; ++i) { yield return (i, true); }
+			for (int i = 4419; i < 4489; ++i) { yield return (i, true); }
+			for (int i = 4637; i < 6888; ++i) { yield return (i, true); }
+			for (int i = 7644; i < 10456; ++i) { yield return (i, true); }
+			for (int i = 6888; i < 7644; i += 3) { yield return (i, true); } // request names
+			for (int i = 6888; i < 7644; i += 3) { yield return (i + 1, false); yield return (i + 2, false); } // request text
+			for (int i = 4384; i < 4419; ++i) { yield return (i, false); } // synopsis text
+			for (int i = 4489; i < 4637; ++i) { yield return (i, false); } // sidequest text
 		}
 
 		private static string ReduceToSingleLine(string text) {

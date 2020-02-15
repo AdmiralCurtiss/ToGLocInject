@@ -660,7 +660,7 @@ namespace ToGLocInject {
 							List<string> failedToFinds = new List<string>();
 							long requiredExtraBytes = 0;
 							Dictionary<SJisString, uint> alreadyWrittenStrings = new Dictionary<SJisString, uint>();
-							foreach (int dolidx in GenerateDoltextInjectOrder(doltext)) {
+							foreach ((int dolidx, bool forceInternal) in GenerateDoltextInjectOrder(doltext)) {
 								var d = doltext[dolidx];
 								string t = wscs.Entries[dolidx];
 								if (t == null) {
@@ -676,7 +676,7 @@ namespace ToGLocInject {
 										ms.WriteUInt32(address);
 									} else {
 										uint bytecount = ((uint)inject.Length) + 1;
-										MemChunk chunk = memchunks.FirstOrDefault(x => x.FreeBytes >= bytecount);
+										MemChunk chunk = memchunks.FirstOrDefault(x => x.FreeBytes >= bytecount && (!forceInternal || x.IsInternal));
 										if (chunk != null) {
 											address = chunk.Mapper.MapRomToRam(chunk.Address).ToEndian(EndianUtils.Endianness.BigEndian);
 											chunk.File.Position = chunk.Address;
