@@ -10,7 +10,7 @@ namespace ToGLocInject {
 			files.Add(@"map1R.cpk/mapfile_anmaR.cpk/map/sce/R/ja/anma_i02.scs", new MappingData(c: true, u: GenerateDefault()));
 			files.Add(@"map1R.cpk/mapfile_anmaR.cpk/map/sce/R/ja/anma_i03.scs", new MappingData(c: true, u: GenerateDefault().A(293, -1)));
 			files.Add(@"map1R.cpk/mapfile_anmaR.cpk/map/sce/R/ja/anma_i04.scs", new MappingData(c: true, u: GenerateDefault()));
-			files.Add(@"map1R.cpk/mapfile_anmaR.cpk/map/sce/R/ja/anma_t01.scs", new MappingData(c: true, u: GenerateCommonU(703).A(274, -1).A(304, 36).A(501, -1), j: GenerateCommonJ(705).A(448, 447), w: new W().R(799, 679).R(801, 681).Sys(493)));
+			files.Add(@"map1R.cpk/mapfile_anmaR.cpk/map/sce/R/ja/anma_t01.scs", new MappingData(c: true, u: GenerateCommonU(703).A(274, -1).A(304, 36).A(501, -1), j: GenerateCommonJ(705).A(448, 447), w: new W().R(799, 679).R(801, 681).Sys(493).R(576, 407)));
 			files.Add(@"map1R.cpk/mapfile_anmaR.cpk/map/sce/R/ja/e524_010.scs", new MappingData(c: true, u: GenerateDefault().A(270, -5)));
 			files.Add(@"map1R.cpk/mapfile_anmaR.cpk/map/sce/R/ja/e524_020.scs", new MappingData(c: true, u: GenerateDefault()));
 			files.Add(@"map1R.cpk/mapfile_anmaR.cpk/map/sce/R/ja/e524_030.scs", new MappingData(c: true, u: GenerateDefault()));
