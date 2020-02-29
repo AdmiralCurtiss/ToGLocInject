@@ -13,7 +13,6 @@ namespace ToGLocInject {
 			// - password treasure chests don't work cause the menu doesn't allow letters to be entered
 			// - text in card minigame, is in module/Mg1RR.rso and/or module/Mg2RR.rso
 			// - text in music player
-			// - convert textures for card minigame
 
 
 			// note: if we need more space in main.dol, there's 1800 unused bytes at 0x8062B770 now (cause we remapped them elsewhere)

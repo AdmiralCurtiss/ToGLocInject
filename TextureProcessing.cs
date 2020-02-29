@@ -13,12 +13,16 @@ namespace ToGLocInject {
 		private enum TexConvMethod {
 			Downscale2x,
 			CropExpandCanvas,
+			Delegate,
 		}
+
+		public delegate Bitmap TexConvDelegate(Bitmap wtex, Bitmap utex);
 
 		private class TexConvRules {
 			public int WTexId;
 			public int UTexId;
 			public TexConvMethod Method;
+			public TexConvDelegate Delegate;
 		}
 
 		private static Color ChopBitsRGB5A3(Color color) {
@@ -175,7 +179,12 @@ namespace ToGLocInject {
 			TXV utxv = new TXV(utxm, u.GetChildByIndex(1).AsFile.DataStream.Duplicate(), false);
 			List<TexConvRules> convs = new List<TexConvRules>();
 			if (name == "rootR.cpk/mg/tex/karuta.tex") {
-				// TODO
+				convs.Add(new TexConvRules() { WTexId = 2, UTexId = 1, Method = TexConvMethod.Delegate, Delegate = (wtex, utex) => DoKarutaHalfAndHalf(wtex, utex, 82, 134, 294) });
+				convs.Add(new TexConvRules() { WTexId = 4, UTexId = 3, Method = TexConvMethod.Delegate, Delegate = (wtex, utex) => DoKarutaHalfAndHalf(wtex, utex, 86, 134, 294) });
+				convs.Add(new TexConvRules() { WTexId = 7, UTexId = 7, Method = TexConvMethod.Delegate, Delegate = (wtex, utex) => DownscaleTwoThirds(utex) });
+				convs.Add(new TexConvRules() { WTexId = 13, UTexId = 13, Method = TexConvMethod.Delegate, Delegate = (wtex, utex) => DoKaruta13(wtex, utex) });
+				convs.Add(new TexConvRules() { WTexId = 17, UTexId = 17, Method = TexConvMethod.Delegate, Delegate = (wtex, utex) => DownscaleTwoThirds(utex) });
+				convs.Add(new TexConvRules() { WTexId = 22, UTexId = 23, Method = TexConvMethod.Delegate, Delegate = (wtex, utex) => DownscaleTwoThirds(CropExpandCanvas(utex, 2, -2, (uint)(utex.Width + 3), (uint)(utex.Height - 3))) });
 			} else if (name == "rootR.cpk/mnu/tex/main.tex") {
 				convs.Add(new TexConvRules() { WTexId = 110, UTexId = 61, Method = TexConvMethod.Downscale2x });
 				convs.Add(new TexConvRules() { WTexId = 111, UTexId = 62, Method = TexConvMethod.Downscale2x });
@@ -230,6 +239,10 @@ namespace ToGLocInject {
 					break;
 					case TexConvMethod.CropExpandCanvas: {
 						newImage = DoCropExpandCanvas(uv.GetBitmaps()[0], wm.Width, wm.Height);
+					}
+					break;
+					case TexConvMethod.Delegate: {
+						newImage = c.Delegate(wv.GetBitmaps()[0], uv.GetBitmaps()[0]);
 					}
 					break;
 					default: {
@@ -289,9 +302,13 @@ namespace ToGLocInject {
 		}
 
 		private static Bitmap DoCropExpandCanvas(Bitmap img, uint width, uint height) {
+			int leftOffset = (int)((width - img.Width) / 2);
+			int topOffset = (int)((height - img.Height) / 2);
+			return CropExpandCanvas(img, leftOffset, topOffset, width, height);
+		}
+
+		private static Bitmap CropExpandCanvas(Bitmap img, int leftOffset, int topOffset, uint width, uint height) {
 			Bitmap n = new Bitmap((int)width, (int)height);
-			int leftOffset = (n.Width - img.Width) / 2;
-			int topOffset = (n.Height - img.Height) / 2;
 			for (int y = 0; y < n.Height; ++y) {
 				for (int x = 0; x < n.Width; ++x) {
 					int chkx = x - leftOffset;
@@ -303,6 +320,61 @@ namespace ToGLocInject {
 						c = Color.FromArgb(0, 0, 0, 0);
 					}
 					n.SetPixel(x, y, c);
+				}
+			}
+			return n;
+		}
+
+		private static Bitmap DoKarutaHalfAndHalf(Bitmap wtex, Bitmap utex, uint wx, uint ux, uint uw) {
+			Bitmap left = FontProcessing.Crop(wtex, 0, 0, (int)wx, wtex.Height);
+			Bitmap right = DownscaleTwoThirds(FontProcessing.Crop(utex, (int)ux, 0, (int)uw, utex.Height));
+			long diff = wtex.Width - (left.Width + right.Width);
+			if (diff > 0) {
+				Bitmap mid = new Bitmap((int)diff, wtex.Height);
+				for (int y = 0; y < mid.Height; ++y) {
+					for (int x = 0; x < mid.Width; ++x) {
+						mid.SetPixel(x, y, Color.FromArgb(0, 0, 0, 0));
+					}
+				}
+				left = StitchHorizontal(left, mid);
+			}
+			return StitchHorizontal(left, right);
+		}
+
+		private static Bitmap DoKaruta13(Bitmap wtex, Bitmap utex) {
+			// this is very messy but the dimensions just don't match between versions
+			// we should probably just inject a differently sized texture instead, really...
+			Bitmap cropped1 = FontProcessing.Crop(utex, 10, 4, utex.Width - 24, utex.Height - 5);
+			Bitmap upscaled = FontProcessing.PointScale(cropped1, 6);
+			Bitmap cropped2 = FontProcessing.Crop(upscaled, 0, 1, upscaled.Width, upscaled.Height - 1);
+			Bitmap downscaled = FontProcessing.DownscaleInteger(cropped2, 11);
+			return DoCropExpandCanvas(downscaled, (uint)wtex.Width, (uint)wtex.Height);
+		}
+
+		private static Bitmap DownscaleTwoThirds(Bitmap img) {
+			if (((img.Width * 2) % 3) != 0 || ((img.Height * 2) % 3) != 0) {
+				throw new Exception("Cannot cleanly two-thirds scale image!");
+			}
+			return FontProcessing.DownscaleInteger(FontProcessing.PointScale(img, 2), 3);
+		}
+
+		private static Bitmap StitchHorizontal(Bitmap a, Bitmap b) {
+			int ah = a.Height;
+			int bh = b.Height;
+			int aw = a.Width;
+			int bw = b.Width;
+			if (ah != bh) {
+				throw new Exception("Cannot horizontal stitch differing heights.");
+			}
+			Bitmap n = new Bitmap(aw + bw, ah);
+			for (int y = 0; y < ah; ++y) {
+				for (int x = 0; x < aw; ++x) {
+					n.SetPixel(x, y, a.GetPixel(x, y));
+				}
+			}
+			for (int y = 0; y < bh; ++y) {
+				for (int x = 0; x < bw; ++x) {
+					n.SetPixel(aw + x, y, b.GetPixel(x, y));
 				}
 			}
 			return n;

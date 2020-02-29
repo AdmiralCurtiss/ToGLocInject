@@ -78,11 +78,15 @@ namespace ToGLocInject {
 			return img.Height;
 		}
 
-		private static Bitmap PointScale(Bitmap img, int factor) {
+		public static Bitmap PointScale(Bitmap img, int factor) {
 			return PointScaleAndCrop(img, factor, 0, 0, img.Width, img.Height);
 		}
 
-		private static Bitmap PointScaleAndCrop(Bitmap img, int factor, int startx, int starty, int width, int height) {
+		public static Bitmap Crop(Bitmap img, int startx, int starty, int width, int height) {
+			return PointScaleAndCrop(img, 1, startx, starty, width, height);
+		}
+
+		public static Bitmap PointScaleAndCrop(Bitmap img, int factor, int startx, int starty, int width, int height) {
 			Bitmap s = new Bitmap(width * factor, height * factor);
 			for (int y = 0; y < height; ++y) {
 				for (int x = 0; x < width; ++x) {
