@@ -23,6 +23,7 @@ namespace ToGLocInject {
 			GetFileMappingsRoot(_fc, files);
 			files.Add("boot.elf", new MappingData(c: true));
 			GetFileMappingsWiiV0(files);
+			GetFileMappingsAreaNameTextures(files);
 			return files;
 		}
 
@@ -34,6 +35,42 @@ namespace ToGLocInject {
 			files.Add(@"map0R.cpk/mapfile_rockR.cpk/map/sce/R/rock_d02.so", new MappingData(c: true, skipTextMapping: true, replaceInWiiV0: true));
 			files.Add(@"map1R.cpk/mapfile_systemR.cpk/map/sce/R/mg02_e01.so", new MappingData(c: true, skipTextMapping: true, replaceInWiiV0: true));
 			files.Add(@"rootR.cpk/module/mainRR.sel", new MappingData(c: true, skipTextMapping: true, replaceInWiiV0: true));
+		}
+
+		private static void GetFileMappingsAreaNameTextures(Dictionary<string, MappingData> files) {
+			// files that contain the fancy names displayed when first entering an area
+			files.Add(@"map0R.cpk/mapfile_basiR.cpk/map/chr/R/e731_090.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map0R.cpk/mapfile_briaR.cpk/map/chr/R/bria_d01.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map0R.cpk/mapfile_bridR.cpk/map/chr/R/brid_d10.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map0R.cpk/mapfile_caveR.cpk/map/chr/R/e210_020.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map0R.cpk/mapfile_foreR.cpk/map/chr/R/fore_d01.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map0R.cpk/mapfile_icebR.cpk/map/chr/R/iceb_d01.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map0R.cpk/mapfile_ironR.cpk/map/chr/R/e525_030.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map0R.cpk/mapfile_koneR.cpk/map/chr/R/kone_d02.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map0R.cpk/mapfile_kotR.cpk/map/chr/R/e526_060.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map0R.cpk/mapfile_kotR.cpk/map/chr/R/e833_010.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map0R.cpk/mapfile_lasR.cpk/map/chr/R/e835_010.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map0R.cpk/mapfile_montR.cpk/map/chr/R/e101_010.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map0R.cpk/mapfile_sandR.cpk/map/chr/R/sand_d01.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map0R.cpk/mapfile_sneeR.cpk/map/chr/R/e524_040.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map0R.cpk/mapfile_snowR.cpk/map/chr/R/snow_d01.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map0R.cpk/mapfile_stdaR.cpk/map/chr/R/e420_080.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map0R.cpk/mapfile_varoR.cpk/map/chr/R/varo_d01.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map0R.cpk/mapfile_wincR.cpk/map/chr/R/winc_d01.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map0R.cpk/mapfile_zoneR.cpk/map/chr/R/zone_d02.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map1R.cpk/mapfile_anmaR.cpk/map/chr/R/e524_010.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map1R.cpk/mapfile_beraR.cpk/map/chr/R/e523_030.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map1R.cpk/mapfile_fendR.cpk/map/chr/R/e523_090.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map1R.cpk/mapfile_lakeR.cpk/map/chr/R/e313_010.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map1R.cpk/mapfile_lanR.cpk/map/chr/R/lan1_t01.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map1R.cpk/mapfile_nekoR.cpk/map/chr/R/neko_t01.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map1R.cpk/mapfile_olleR.cpk/map/chr/R/olle_t01.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map1R.cpk/mapfile_otheR.cpk/map/chr/R/e730_030.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map1R.cpk/mapfile_riotR.cpk/map/chr/R/e522_030.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map1R.cpk/mapfile_sablR.cpk/map/chr/R/e419_020.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map1R.cpk/mapfile_strtR.cpk/map/chr/R/e420_010.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map1R.cpk/mapfile_supaR.cpk/map/chr/R/supa_r01.ani", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"map1R.cpk/mapfile_winR.cpk/map/chr/R/e104_010.ani", new MappingData(c: true, skipTextMapping: true));
 		}
 	}
 }

@@ -12,7 +12,9 @@ namespace ToGLocInject {
 	internal static class TextureProcessing {
 		private enum TexConvMethod {
 			Downscale2x,
+			DownscaleTwoThirds,
 			CropExpandCanvas,
+			Clear,
 			Delegate,
 		}
 
@@ -171,6 +173,10 @@ namespace ToGLocInject {
 
 		public static Stream ProcessTexture(FileFetcher _fc, string name, DuplicatableStream jstream, DuplicatableStream ustream) {
 			DuplicatableStream wstream = _fc.GetFile(name, Version.W);
+			return ProcessTexture(name, ustream, wstream);
+		}
+
+		public static Stream ProcessTexture(string name, DuplicatableStream ustream, DuplicatableStream wstream) {
 			FPS4 w = new FPS4(wstream.Duplicate());
 			TXM wtxm = new TXM(w.GetChildByIndex(0).AsFile.DataStream.Duplicate());
 			TXV wtxv = new TXV(wtxm, w.GetChildByIndex(1).AsFile.DataStream.Duplicate(), false);
@@ -181,9 +187,9 @@ namespace ToGLocInject {
 			if (name == "rootR.cpk/mg/tex/karuta.tex") {
 				convs.Add(new TexConvRules() { WTexId = 2, UTexId = 1, Method = TexConvMethod.Delegate, Delegate = (wtex, utex) => DoKarutaHalfAndHalf(wtex, utex, 82, 134, 294) });
 				convs.Add(new TexConvRules() { WTexId = 4, UTexId = 3, Method = TexConvMethod.Delegate, Delegate = (wtex, utex) => DoKarutaHalfAndHalf(wtex, utex, 86, 134, 294) });
-				convs.Add(new TexConvRules() { WTexId = 7, UTexId = 7, Method = TexConvMethod.Delegate, Delegate = (wtex, utex) => DownscaleTwoThirds(utex) });
+				convs.Add(new TexConvRules() { WTexId = 7, UTexId = 7, Method = TexConvMethod.DownscaleTwoThirds });
 				convs.Add(new TexConvRules() { WTexId = 13, UTexId = 13, Method = TexConvMethod.Delegate, Delegate = (wtex, utex) => DoKaruta13(wtex, utex) });
-				convs.Add(new TexConvRules() { WTexId = 17, UTexId = 17, Method = TexConvMethod.Delegate, Delegate = (wtex, utex) => DownscaleTwoThirds(utex) });
+				convs.Add(new TexConvRules() { WTexId = 17, UTexId = 17, Method = TexConvMethod.DownscaleTwoThirds });
 				convs.Add(new TexConvRules() { WTexId = 22, UTexId = 23, Method = TexConvMethod.Delegate, Delegate = (wtex, utex) => DownscaleTwoThirds(CropExpandCanvas(utex, 2, -2, (uint)(utex.Width + 3), (uint)(utex.Height - 3))) });
 			} else if (name == "rootR.cpk/mnu/tex/main.tex") {
 				convs.Add(new TexConvRules() { WTexId = 110, UTexId = 61, Method = TexConvMethod.Downscale2x });
@@ -222,6 +228,9 @@ namespace ToGLocInject {
 				convs.Add(new TexConvRules() { WTexId = 6, UTexId = 12, Method = TexConvMethod.CropExpandCanvas });
 				convs.Add(new TexConvRules() { WTexId = 7, UTexId = 14, Method = TexConvMethod.CropExpandCanvas });
 				convs.Add(new TexConvRules() { WTexId = 8, UTexId = 16, Method = TexConvMethod.CropExpandCanvas });
+			} else if (name.EndsWith(".CLG")) {
+				convs.Add(new TexConvRules() { WTexId = 0, UTexId = 0, Method = TexConvMethod.DownscaleTwoThirds });
+				convs.Add(new TexConvRules() { WTexId = 1, UTexId = 1, Method = TexConvMethod.Clear });
 			}
 
 			MemoryStream s = wstream.Duplicate().CopyToMemory();
@@ -237,8 +246,21 @@ namespace ToGLocInject {
 						newImage = FontProcessing.DownscaleInteger(uv.GetBitmaps()[0], 2);
 					}
 					break;
+					case TexConvMethod.DownscaleTwoThirds: {
+						newImage = DownscaleTwoThirds(uv.GetBitmaps()[0]);
+					}
+					break;
 					case TexConvMethod.CropExpandCanvas: {
 						newImage = DoCropExpandCanvas(uv.GetBitmaps()[0], wm.Width, wm.Height);
+					}
+					break;
+					case TexConvMethod.Clear: {
+						newImage = new Bitmap(wv.GetBitmaps()[0]);
+						for (int y = 0; y < newImage.Height; ++y) {
+							for (int x = 0; x < newImage.Width; ++x) {
+								newImage.SetPixel(x, y, Color.FromArgb(0, 0, 0, 0));
+							}
+						}
 					}
 					break;
 					case TexConvMethod.Delegate: {
@@ -378,6 +400,28 @@ namespace ToGLocInject {
 				}
 			}
 			return n;
+		}
+
+		public static Stream ProcessAreaNameTexture(FileFetcher _fc, string name, DuplicatableStream jstream, DuplicatableStream ustream) {
+			DuplicatableStream wstream = _fc.GetFile(name, Version.W);
+			FPS4 wani = new FPS4(wstream.Duplicate());
+			FPS4 uani = new FPS4(new HyoutaTools.Tales.tlzc.TlzcDecompressor().Decompress(ustream.Duplicate()));
+			var clgfileinfo = wani.Files.Where(x => x.FileName.EndsWith(".CLG")).First();
+			string clgname = clgfileinfo.FileName;
+			FPS4 waniclg = new FPS4(wani.GetChildByName(clgname).AsFile.DataStream);
+			FPS4 uaniclg = new FPS4(uani.GetChildByName(clgname).AsFile.DataStream);
+			DuplicatableStream wtexstream = waniclg.GetChildByIndex(1).AsFile.DataStream;
+			DuplicatableStream utexstream = uaniclg.GetChildByIndex(1).AsFile.DataStream;
+
+			Stream wtexstreammod = ProcessTexture(name + "/" + clgname, utexstream, wtexstream);
+
+			long injectOffset = clgfileinfo.Location.Value + waniclg.Files[1].Location.Value;
+			Stream wstreammod = wstream.CopyToMemory();
+			wstreammod.Position = injectOffset;
+			wtexstreammod.Position = 0;
+			StreamUtils.CopyStream(wtexstreammod, wstreammod, wtexstreammod.Length);
+			wstreammod.Position = 0;
+			return wstreammod;
 		}
 	}
 }

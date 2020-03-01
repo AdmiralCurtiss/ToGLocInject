@@ -485,6 +485,8 @@ namespace ToGLocInject {
 						Stream scsstr;
 						if (isGenericTexture) {
 							scsstr = TextureProcessing.ProcessTexture(_fc, f, jstream, ustream);
+						} else if (f.EndsWith(".ani")) {
+							scsstr = TextureProcessing.ProcessAreaNameTexture(_fc, f, jstream, ustream);
 						} else if (f == @"rootR.cpk/str/ja/CharName.bin") {
 							// rebuild char mapping from new wscs
 							List<string> deduplicatedNames = new List<string>();
