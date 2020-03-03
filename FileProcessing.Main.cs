@@ -761,6 +761,12 @@ namespace ToGLocInject {
 
 							// finally apply a few code patches
 
+							// allow this to boot on non-JPN consoles by always claiming Japanese system language in the SCGetLanguage wii system library function
+							{
+								ms.Position = dol.MapRamToRom(0x803595dcu);
+								ms.WriteUInt32(0x38600000u.ToEndian(EndianUtils.Endianness.BigEndian)); // li r3, 0
+							}
+
 							// remove special cases in font metrics calculation function to let spaces read its metrics from the font metrics file
 							{
 								ms.Position = dol.MapRamToRom(0x80068534u);
@@ -890,6 +896,9 @@ namespace ToGLocInject {
 								if (v0outpath != null) {
 									WritePatchedFile(Path.Combine(v0outpath, "sys", "main.dol"), scsstr);
 								}
+								if (config.RiivolutionOutputPath != null) {
+									WritePatchedFile(Path.Combine(config.RiivolutionOutputPath, "main.dol"), scsstr);
+								}
 							} else {
 								InjectFile(map0inject, map1inject, rootinject, f, scsstr);
 							}
@@ -905,6 +914,33 @@ namespace ToGLocInject {
 					var scsstr = newFontTexture.Duplicate();
 					scsstr.Position = 0;
 					InjectFile(map0inject, map1inject, rootinject, "rootR.cpk/sys/FontTexture2.tex", scsstr);
+				}
+
+				if (config.RiivolutionOutputPath != null) {
+					DateTime generationTime = DateTime.Now;
+					for (int gameversion = 0; gameversion < 4; gameversion += 2) {
+						Directory.CreateDirectory(config.RiivolutionOutputPath);
+						StringBuilder xml = new StringBuilder();
+						xml.AppendLine("<wiidisc version=\"1\">");
+						xml.AppendFormat("\t<id game=\"STGJ\" version=\"{0}\" />", gameversion).AppendLine();
+						xml.AppendLine("\t<options>");
+						xml.AppendLine("\t\t<section name=\"English Patch\">");
+						xml.AppendFormat("\t\t\t<option name=\"English Patch {0:yyyy-MM-dd HH-mm-ss}\" default=\"1\">", generationTime).AppendLine();
+						xml.AppendLine("\t\t\t\t<choice name=\"Enabled\">");
+						xml.AppendLine("\t\t\t\t\t<patch id=\"eng\" />");
+						xml.AppendLine("\t\t\t\t</choice>");
+						xml.AppendLine("\t\t\t</option>");
+						xml.AppendLine("\t\t</section>");
+						xml.AppendLine("\t</options>");
+						xml.AppendLine("\t<patch id=\"eng\" root=\"/graces_english\">");
+						map0inject.GenerateRiivolutionData(xml, config.RiivolutionOutputPath, "map0R.cpk", gameversion == 2);
+						map1inject.GenerateRiivolutionData(xml, config.RiivolutionOutputPath, "map1R.cpk", gameversion == 2);
+						rootinject.GenerateRiivolutionData(xml, config.RiivolutionOutputPath, "rootR.cpk", gameversion == 2);
+						xml.AppendLine("\t\t<file disc=\"main.dol\" external=\"main.dol\" />");
+						xml.AppendLine("\t</patch>");
+						xml.AppendLine("</wiidisc>");
+						File.WriteAllText(Path.Combine(config.RiivolutionOutputPath, string.Format("STGJv{0}.xml", gameversion)), xml.ToString());
+					}
 				}
 
 				map0inject.Close();

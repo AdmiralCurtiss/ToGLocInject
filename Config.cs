@@ -14,6 +14,7 @@ namespace ToGLocInject {
 		public IFile EbootBinPS3JP;
 		public IFile EbootBinPS3US;
 		public string PatchedFileOutputPath;
+		public string RiivolutionOutputPath;
 
 		public string CachePath;
 		public IContainer GamefileContainerWiiV0;

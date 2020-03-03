@@ -13,6 +13,8 @@ namespace ToGLocInject {
 			// - password treasure chests don't work cause the menu doesn't allow letters to be entered
 			// - text in card minigame, is in module/Mg1RR.rso and/or module/Mg2RR.rso
 			// - text in music player
+			// - don't inject the v0-inject files into the v2 archives
+			// - mainRR.sel for riivolution in v0
 
 
 			// note: if we need more space in main.dol, there's 1800 unused bytes at 0x8062B770 now (cause we remapped them elsewhere)
@@ -45,6 +47,7 @@ namespace ToGLocInject {
 			config.EbootBinPS3JP = new FileOnDisk(@"c:\_graces\ps3-jp\boot.elf");
 			config.EbootBinPS3US = new FileOnDisk(@"c:\_graces\ps3-us\boot.elf");
 			config.PatchedFileOutputPath = @"c:\_graces\wii-en-patched";
+			config.RiivolutionOutputPath = @"c:\_graces\wii-en-patched\riivolution";
 
 			// can be set to speed up multiple runs of the tool by caching decompressed files
 			//config.CachePath = @"c:\_graces\_cache";
