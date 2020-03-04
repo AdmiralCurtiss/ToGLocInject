@@ -767,6 +767,40 @@ namespace ToGLocInject {
 			return set;
 		}
 
+		private static SortedSet<int> FilterMultidefinedJs(SortedSet<int> sortedSet, List<(int index, string entry)> j, List<(int index, string entry)> u, (string j, string expectedU, string replacementU) hack) {
+			List<int> toRemove = new List<int>();
+			foreach (int idx in sortedSet) {
+				SortedSet<int> uidxs = new SortedSet<int>();
+				List<int> juidxs = new List<int>();
+				for (int i = 0; i < j.Count; ++i) {
+					if (j[i].index == idx) {
+						uidxs.Add(u[i].index);
+						juidxs.Add(i);
+					}
+				}
+				if (uidxs.Count == 1) {
+					toRemove.Add(idx);
+				} else if (juidxs.Count > 1) {
+					// this is super hacky but this string is pretty common and filtering it out manually whereever it shows up would be a pain
+					bool matchesHack = true;
+					foreach (int ju in juidxs) {
+						if (!(j[ju].entry == hack.j && u[ju].entry == hack.replacementU)) {
+							matchesHack = false;
+							break;
+						}
+					}
+					if (matchesHack) {
+						toRemove.Add(idx);
+					}
+				}
+			}
+			foreach (int idx in toRemove) {
+				sortedSet.Remove(idx);
+			}
+			return sortedSet;
+		}
+
+
 		private static List<(int index, string entry)> InsertAdds(SCS scs, M m, bool isU, bool isSkit) {
 			List<(int index, string entry)> e = new List<(int index, string entry)>();
 

@@ -132,6 +132,17 @@ namespace ToGLocInject {
 
 			List<string> mappingNextInput = new List<string>();
 
+			// prefilter for common strings that we want to replace in the English files before actually matching
+			List<(string j, string expectedU, string replacementU)> prefilterStrings = new List<(string j, string expectedU, string replacementU)>();
+			(string j, string expectedU, string replacementU) prefilterStringMultidefinedJHack;
+			{
+				var d17j = new SCS(_fc.GetFile("map0R.cpk/mapfile_basiR.cpk/map/sce/R/ja/basi_d17.scs", Version.J));
+				var d17u = new SCS(_fc.GetFile("map0R.cpk/mapfile_basiR.cpk/map/sce/R/ja/basi_d17.scs", Version.U));
+				prefilterStringMultidefinedJHack = (d17j.Entries[477], d17u.Entries[474], d17u.Entries[532]);
+				prefilterStrings.Add((d17j.Entries[270], d17u.Entries[268], d17u.Entries[391].Substring(0, 5)));
+				prefilterStrings.Add(prefilterStringMultidefinedJHack);
+			}
+
 			foreach (var kvp in files) {
 				string f = kvp.Key;
 				bool writeAll = false;
@@ -451,7 +462,8 @@ namespace ToGLocInject {
 						wscs = new SCS(wstream);
 						j = InsertAdds(jscs, kvp.Value.J, false, IsSkitFile(f));
 						u = InsertAdds(uscs, kvp.Value.U, true, IsSkitFile(f));
-						multidefined_j_idxs = GetDefinedAddsSet(kvp.Value.J);
+						ApplyPrefilter(j, u, prefilterStrings);
+						multidefined_j_idxs = FilterMultidefinedJs(GetDefinedAddsSet(kvp.Value.J), j, u, prefilterStringMultidefinedJHack);
 					}
 
 
@@ -966,6 +978,16 @@ namespace ToGLocInject {
 			}
 
 			return;
+		}
+
+		private static void ApplyPrefilter(List<(int index, string entry)> j, List<(int index, string entry)> u, List<(string j, string expectedU, string replacementU)> prefilterStrings) {
+			foreach (var prefilter in prefilterStrings) {
+				for (int i = 0; i < j.Count; ++i) {
+					if (j[i].entry == prefilter.j && u[i].entry == prefilter.expectedU) {
+						u[i] = (u[i].index, prefilter.replacementU);
+					}
+				}
+			}
 		}
 
 		private static void WritePatchedFile(string outfilename, Stream scsstr) {
