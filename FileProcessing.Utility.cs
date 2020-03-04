@@ -217,6 +217,11 @@ namespace ToGLocInject {
 		}
 
 		private static (int unmappedCount, List<int> indicesUnmapped, List<bool> juConsumedGlobal, List<(int widx, int jidx)> widx_with_multidefined_j) ReplaceStringsW(ISet<string> acceptableNonReplacements, SCS wscs, SCS wscsorig, List<(int index, string entry)> j, List<(int index, string entry)> u, W prep, bool allowSloppyComp, SortedSet<int> multidefined_j_idxs) {
+			var p = ReplaceStringsW_Part1(acceptableNonReplacements, wscs, wscsorig, j, u, prep, allowSloppyComp, multidefined_j_idxs);
+			return ReplaceStringsW_Part2(p.acceptableNonReplacements, p.wscs, p.wscsorig, p.j, p.u, p.prep, p.replacementCountGlobal, p.juConsumedGlobal, p.wOverwritten, p.widx_with_multidefined_j);
+		}
+
+		private static (ISet<string> acceptableNonReplacements, SCS wscs, SCS wscsorig, List<(int index, string entry)> j, List<(int index, string entry)> u, W prep, int replacementCountGlobal, List<bool> juConsumedGlobal, List<bool> wOverwritten, List<(int widx, int jidx)> widx_with_multidefined_j) ReplaceStringsW_Part1(ISet<string> acceptableNonReplacements, SCS wscs, SCS wscsorig, List<(int index, string entry)> j, List<(int index, string entry)> u, W prep, bool allowSloppyComp, SortedSet<int> multidefined_j_idxs) {
 			int replacementCountGlobal = 0;
 			List<bool> juConsumed = new List<bool>(u.Count);
 			List<bool> juConsumedGlobal = new List<bool>(u.Count);
@@ -289,6 +294,10 @@ namespace ToGLocInject {
 				}
 			}
 
+			return (acceptableNonReplacements, wscs, wscsorig, j, u, prep, replacementCountGlobal, juConsumedGlobal, wOverwritten, widx_with_multidefined_j);
+		}
+
+		private static (int unmappedCount, List<int> indicesUnmapped, List<bool> juConsumedGlobal, List<(int widx, int jidx)> widx_with_multidefined_j) ReplaceStringsW_Part2(ISet<string> acceptableNonReplacements, SCS wscs, SCS wscsorig, List<(int index, string entry)> j, List<(int index, string entry)> u, W prep, int replacementCountGlobal, List<bool> juConsumedGlobal, List<bool> wOverwritten, List<(int widx, int jidx)> widx_with_multidefined_j) {
 			{
 				foreach (var x in prep.PrecalculatedReplacements) {
 					if (x.u == W.KEEP_ORIGINAL_MARK_MAPPED) {

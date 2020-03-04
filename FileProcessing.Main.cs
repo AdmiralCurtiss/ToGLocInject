@@ -478,7 +478,22 @@ namespace ToGLocInject {
 								// process this one in chunks for better matching, to reduce context-incorrect jp wii <- us ps3 matches
 								unmappedStrings = ReplaceStringsWMainDol(acceptableNonReplacements, wscs, j, u, kvp.Value.W, true);
 							} else {
-								unmappedStrings = ReplaceStringsW(acceptableNonReplacements, wscs, wscsorig, j, u, kvp.Value.W, true, multidefined_j_idxs);
+								var p = ReplaceStringsW_Part1(acceptableNonReplacements, wscs, wscsorig, j, u, kvp.Value.W, true, multidefined_j_idxs);
+								wscs = p.wscs;
+								int newStringCount = 0;
+								if (f.StartsWith("map") && f.EndsWith(".scs") && p.widx_with_multidefined_j.Count > 0) {
+									var multiplyOutResult = ScenarioProcessing.MultiplyOutScenarioFile(p.widx_with_multidefined_j, _fc, f, wscs, j, u);
+									if (multiplyOutResult.newScenarioFileStream != null) {
+										newStringCount = multiplyOutResult.wscsnew.Entries.Count - wscs.Entries.Count;
+										wscs = multiplyOutResult.wscsnew;
+										InjectFile(map0inject, map1inject, rootinject, multiplyOutResult.newScenarioFilePath, multiplyOutResult.newScenarioFileStream);
+
+										for (int nsc = 0; nsc < newStringCount; ++nsc) {
+											p.wOverwritten.Add(true);
+										}
+									}
+								}
+								unmappedStrings = ReplaceStringsW_Part2(p.acceptableNonReplacements, wscs, p.wscsorig, p.j, p.u, p.prep, p.replacementCountGlobal + newStringCount, p.juConsumedGlobal, p.wOverwritten, p.widx_with_multidefined_j);
 							}
 						} else {
 							unmappedStrings = (0, null, null, null);
@@ -850,14 +865,6 @@ namespace ToGLocInject {
 							ms.Position = 0;
 							scsstr = ms;
 						} else {
-							if (unmappedStrings.widx_with_multidefined_j.Count > 0 && !IsSkitFile(f)) {
-								var multiplyOutResult = ScenarioProcessing.MultiplyOutScenarioFile(unmappedStrings.widx_with_multidefined_j, _fc, f, wscs, j, u);
-								if (multiplyOutResult.newScenarioFileStream != null) {
-									wscs = multiplyOutResult.wscsnew;
-									InjectFile(map0inject, map1inject, rootinject, multiplyOutResult.newScenarioFilePath, multiplyOutResult.newScenarioFileStream);
-								}
-							}
-
 							scsstr = wscs.WriteToScs();
 						}
 
