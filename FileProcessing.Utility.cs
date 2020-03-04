@@ -171,7 +171,7 @@ namespace ToGLocInject {
 				reducedJ.Add(j[i]);
 				reducedU.Add(u[i]);
 			}
-			var rv = ReplaceStringsW(acceptableNonReplacements, reducedWSCS, reducedWSCSorig, reducedJ, reducedU, prep, allowSloppyComp);
+			var rv = ReplaceStringsW(acceptableNonReplacements, reducedWSCS, reducedWSCSorig, reducedJ, reducedU, prep, allowSloppyComp, null);
 			for (int i = 0; i < wend - wstart; ++i) {
 				wscs.Entries[i + wstart] = reducedWSCS.Entries[i];
 			}
@@ -184,7 +184,7 @@ namespace ToGLocInject {
 			}
 		}
 
-		private static (int unmappedCount, List<int> indicesUnmapped, List<bool> juConsumedGlobal) ReplaceStringsWMainDol(ISet<string> acceptableNonReplacements, SCS wscs, List<(int index, string entry)> j, List<(int index, string entry)> u, W prep, bool allowSloppyComp) {
+		private static (int unmappedCount, List<int> indicesUnmapped, List<bool> juConsumedGlobal, List<(int widx, int jidx)> widx_with_multidefined_j) ReplaceStringsWMainDol(ISet<string> acceptableNonReplacements, SCS wscs, List<(int index, string entry)> j, List<(int index, string entry)> u, W prep, bool allowSloppyComp) {
 			int unmappedCount = 0;
 			List<int> indicesUnmapped = new List<int>();
 			List<bool> juConsumedGlobal = new List<bool>(u.Count);
@@ -213,10 +213,10 @@ namespace ToGLocInject {
 			ReplaceStringsWMainDolPart((7644, 8466), (7207, 8101), ref unmappedCount, ref indicesUnmapped, ref juConsumedGlobal, acceptableNonReplacements, wscs, j, u, prep, allowSloppyComp);
 			ReplaceStringsWMainDolPart((8466, 8616), (8101, 8265), ref unmappedCount, ref indicesUnmapped, ref juConsumedGlobal, acceptableNonReplacements, wscs, j, u, prep, allowSloppyComp);
 			ReplaceStringsWMainDolPart((8616, 10456), (8265, 10429), ref unmappedCount, ref indicesUnmapped, ref juConsumedGlobal, acceptableNonReplacements, wscs, j, u, prep, allowSloppyComp);
-			return (unmappedCount, indicesUnmapped, juConsumedGlobal);
+			return (unmappedCount, indicesUnmapped, juConsumedGlobal, new List<(int widx, int jidx)>());
 		}
 
-		private static (int unmappedCount, List<int> indicesUnmapped, List<bool> juConsumedGlobal) ReplaceStringsW(ISet<string> acceptableNonReplacements, SCS wscs, SCS wscsorig, List<(int index, string entry)> j, List<(int index, string entry)> u, W prep, bool allowSloppyComp) {
+		private static (int unmappedCount, List<int> indicesUnmapped, List<bool> juConsumedGlobal, List<(int widx, int jidx)> widx_with_multidefined_j) ReplaceStringsW(ISet<string> acceptableNonReplacements, SCS wscs, SCS wscsorig, List<(int index, string entry)> j, List<(int index, string entry)> u, W prep, bool allowSloppyComp, SortedSet<int> multidefined_j_idxs) {
 			int replacementCountGlobal = 0;
 			List<bool> juConsumed = new List<bool>(u.Count);
 			List<bool> juConsumedGlobal = new List<bool>(u.Count);
@@ -236,10 +236,11 @@ namespace ToGLocInject {
 			bool didSloppyInit = false;
 			List<string> sloppy_j = null;
 			List<string> sloppy_w = null;
+			List<(int widx, int jidx)> widx_with_multidefined_j = new List<(int widx, int jidx)>();
 			while (true) {
 				int replacementCount = 0;
 				// first map direct, 1:1, marking every used ju and not reusing already used ju strings
-				replacementCount += ReplaceStringsWInternal_Strict(wscs, j, u, juConsumed, wOverwritten);
+				replacementCount += ReplaceStringsWInternal_Strict(wscs, j, u, juConsumed, wOverwritten, multidefined_j_idxs, widx_with_multidefined_j);
 
 				// then do that again, but with a sloppy comparison logic
 				if (allowSloppyComp) {
@@ -266,7 +267,7 @@ namespace ToGLocInject {
 						}
 						didSloppyInit = true;
 					}
-					replacementCount += ReplaceStringsWInternal_Sloppy(wscs, j, u, juConsumed, wOverwritten, sloppy_j, sloppy_w);
+					replacementCount += ReplaceStringsWInternal_Sloppy(wscs, j, u, juConsumed, wOverwritten, sloppy_j, sloppy_w, multidefined_j_idxs, widx_with_multidefined_j);
 				}
 
 				for (int i = 0; i < u.Count; ++i) {
@@ -336,7 +337,7 @@ namespace ToGLocInject {
 				}
 			}
 
-			return (unreplacedCounter, unmappedIndices, juConsumedGlobal);
+			return (unreplacedCounter, unmappedIndices, juConsumedGlobal, widx_with_multidefined_j);
 		}
 
 		private static bool IsAcceptableUnchanged(string s) {
@@ -387,7 +388,7 @@ namespace ToGLocInject {
 			return s;
 		}
 
-		private static int ReplaceStringsWInternal_Strict(SCS wscs, List<(int index, string entry)> j, List<(int index, string entry)> u, List<bool> juConsumed, List<bool> wOverwritten) {
+		private static int ReplaceStringsWInternal_Strict(SCS wscs, List<(int index, string entry)> j, List<(int index, string entry)> u, List<bool> juConsumed, List<bool> wOverwritten, SortedSet<int> multidefined_j_idxs, List<(int widx, int jidx)> widx_with_multidefined_j) {
 			int replaceCount = 0;
 			for (int idx = 0; idx < wscs.Entries.Count; ++idx) {
 				if (!wOverwritten[idx]) {
@@ -398,6 +399,9 @@ namespace ToGLocInject {
 							juConsumed[idx2] = true;
 							wscs.Entries[idx] = u[idx2].entry;
 							++replaceCount;
+							if (multidefined_j_idxs != null && multidefined_j_idxs.Contains(j[idx2].index)) {
+								widx_with_multidefined_j.Add((idx, j[idx2].index));
+							}
 							break;
 						}
 					}
@@ -405,7 +409,7 @@ namespace ToGLocInject {
 			}
 			return replaceCount;
 		}
-		private static int ReplaceStringsWInternal_Sloppy(SCS wscs, List<(int index, string entry)> j, List<(int index, string entry)> u, List<bool> juConsumed, List<bool> wOverwritten, List<string> precompd_j_sloppy, List<string> precompd_w_sloppy) {
+		private static int ReplaceStringsWInternal_Sloppy(SCS wscs, List<(int index, string entry)> j, List<(int index, string entry)> u, List<bool> juConsumed, List<bool> wOverwritten, List<string> precompd_j_sloppy, List<string> precompd_w_sloppy, SortedSet<int> multidefined_j_idxs, List<(int widx, int jidx)> widx_with_multidefined_j) {
 			int replaceCount = 0;
 			for (int idx = 0; idx < wscs.Entries.Count; ++idx) {
 				if (!wOverwritten[idx]) {
@@ -416,6 +420,9 @@ namespace ToGLocInject {
 							juConsumed[idx2] = true;
 							wscs.Entries[idx] = u[idx2].entry;
 							++replaceCount;
+							if (multidefined_j_idxs != null && multidefined_j_idxs.Contains(j[idx2].index)) {
+								widx_with_multidefined_j.Add((idx, j[idx2].index));
+							}
 							break;
 						}
 					}
@@ -737,6 +744,18 @@ namespace ToGLocInject {
 		private static bool IsSkitFile(string filename) {
 			string[] stuff = filename.Split(new char[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries);
 			return stuff[0] == "rootR.cpk" && stuff[1] == "chat" && (stuff.Last().StartsWith("CHT_") || stuff.Last().StartsWith("debug_0"));
+		}
+
+		private static SortedSet<int> GetDefinedAddsSet(M m) {
+			SortedSet<int> set = new SortedSet<int>();
+			foreach (var a in m.Adds) {
+				foreach (int b in a.entries) {
+					if (b >= 0) {
+						set.Add(b);
+					}
+				}
+			}
+			return set;
 		}
 
 		private static List<(int index, string entry)> InsertAdds(SCS scs, M m, bool isU, bool isSkit) {

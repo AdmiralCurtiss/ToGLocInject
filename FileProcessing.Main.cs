@@ -399,6 +399,7 @@ namespace ToGLocInject {
 					List<MainDolString> doltext = null;
 					List<MainDolString> elf_u_text = null;
 					List<MainDolString> elf_j_text = null;
+					SortedSet<int> multidefined_j_idxs = null;
 					if (f == @"rootR.cpk/str/ja/CharName.bin") {
 						var jcharbin = EvaluateCharNameBin(jstream.Duplicate());
 						var jchars = BuildCharnameMapping(new SCS(jcharbin.Item1), jcharbin.Item2);
@@ -450,6 +451,7 @@ namespace ToGLocInject {
 						wscs = new SCS(wstream);
 						j = InsertAdds(jscs, kvp.Value.J, false, IsSkitFile(f));
 						u = InsertAdds(uscs, kvp.Value.U, true, IsSkitFile(f));
+						multidefined_j_idxs = GetDefinedAddsSet(kvp.Value.J);
 					}
 
 
@@ -470,16 +472,16 @@ namespace ToGLocInject {
 						}
 
 						SCS wscsorig = new SCS(new List<string>(wscs.Entries));
-						(int unmappedCount, List<int> indicesUnmapped, List<bool> juConsumed) unmappedStrings;
+						(int unmappedCount, List<int> indicesUnmapped, List<bool> juConsumed, List<(int widx, int jidx)> widx_with_multidefined_j) unmappedStrings;
 						if (!kvp.Value.SkipTextMapping) {
 							if (f == "boot.elf") {
 								// process this one in chunks for better matching, to reduce context-incorrect jp wii <- us ps3 matches
 								unmappedStrings = ReplaceStringsWMainDol(acceptableNonReplacements, wscs, j, u, kvp.Value.W, true);
 							} else {
-								unmappedStrings = ReplaceStringsW(acceptableNonReplacements, wscs, wscsorig, j, u, kvp.Value.W, true);
+								unmappedStrings = ReplaceStringsW(acceptableNonReplacements, wscs, wscsorig, j, u, kvp.Value.W, true, multidefined_j_idxs);
 							}
 						} else {
-							unmappedStrings = (0, null, null);
+							unmappedStrings = (0, null, null, null);
 						}
 
 						Stream scsstr;
@@ -848,6 +850,14 @@ namespace ToGLocInject {
 							ms.Position = 0;
 							scsstr = ms;
 						} else {
+							if (unmappedStrings.widx_with_multidefined_j.Count > 0 && !IsSkitFile(f)) {
+								var multiplyOutResult = ScenarioProcessing.MultiplyOutScenarioFile(unmappedStrings.widx_with_multidefined_j, _fc, f, wscs, j, u);
+								if (multiplyOutResult.newScenarioFileStream != null) {
+									wscs = multiplyOutResult.wscsnew;
+									InjectFile(map0inject, map1inject, rootinject, multiplyOutResult.newScenarioFilePath, multiplyOutResult.newScenarioFileStream);
+								}
+							}
+
 							scsstr = wscs.WriteToScs();
 						}
 
