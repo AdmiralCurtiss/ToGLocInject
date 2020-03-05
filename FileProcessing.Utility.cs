@@ -349,6 +349,35 @@ namespace ToGLocInject {
 			return (unreplacedCounter, unmappedIndices, juConsumedGlobal, widx_with_multidefined_j);
 		}
 
+		private static void ReplaceStringsWMultipliedOut(SCS wscs, List<(int index, string entry)> j, List<(int index, string entry)> u, List<(int widx, int jidx)> widx_with_multidefined_j, List<List<int>> new_multidefined_widxs, List<(string regular, string alt)> charnames) {
+			foreach (var nmw in new_multidefined_widxs) {
+				int old_widx = nmw[0];
+				int juidx = widx_with_multidefined_j.Find(x => x.widx == old_widx).jidx;
+				List<string> potentialU = new List<string>();
+				for (int i = 0; i < j.Count; ++i) {
+					if (j[i].index == juidx) {
+						potentialU.Add(u[i].entry);
+					}
+				}
+
+				int ww = 0;
+				foreach (int w in nmw) {
+					string sold = wscs.Entries[w];
+					string snew = potentialU[ww % potentialU.Count];
+					//Console.WriteLine("Setting over #" + w + ": ");
+					//Console.WriteLine("old: " + CsvEscape(sold, charnames));
+					//Console.WriteLine("new: " + CsvEscape(snew, charnames));
+					++ww;
+				}
+				if (potentialU.Count > nmw.Count) {
+					Console.WriteLine("more U strings found than multiplied out J string slots; unused:");
+					for (int k = nmw.Count; k < potentialU.Count; ++k) {
+						Console.WriteLine("unused: " + CsvEscape(potentialU[k], charnames));
+					}
+				}
+			}
+		}
+
 		private static bool IsAcceptableUnchanged(string s) {
 			if (s == null || s == "") {
 				return true;

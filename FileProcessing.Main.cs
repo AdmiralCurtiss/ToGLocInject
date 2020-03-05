@@ -498,6 +498,8 @@ namespace ToGLocInject {
 									if (multiplyOutResult.newScenarioFileStream != null) {
 										newStringCount = multiplyOutResult.wscsnew.Entries.Count - wscs.Entries.Count;
 										wscs = multiplyOutResult.wscsnew;
+										Console.WriteLine("Appended " + newStringCount + " strings in " + f);
+										ReplaceStringsWMultipliedOut(wscs, p.j, p.u, p.widx_with_multidefined_j, multiplyOutResult.new_multidefined_widxs, charnamesW);
 										InjectFile(map0inject, map1inject, rootinject, multiplyOutResult.newScenarioFilePath, multiplyOutResult.newScenarioFileStream);
 
 										for (int nsc = 0; nsc < newStringCount; ++nsc) {
