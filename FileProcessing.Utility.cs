@@ -367,6 +367,7 @@ namespace ToGLocInject {
 					//Console.WriteLine("Setting over #" + w + ": ");
 					//Console.WriteLine("old: " + CsvEscape(sold, charnames));
 					//Console.WriteLine("new: " + CsvEscape(snew, charnames));
+					wscs.Entries[w] = snew;
 					++ww;
 				}
 				if (potentialU.Count > nmw.Count) {
