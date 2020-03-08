@@ -6,7 +6,7 @@ using HyoutaUtils;
 
 namespace ToGLocInject {
 	internal static class MainDolPostProcess {
-		internal static void PostProcessMainDolReplacements(ToGLocInject.FileFetcher _fc, List<(string regular, string alt)> charnamesU, SCS w, SCS worig, List<(int index, string entry)> j, List<(int index, string entry)> u, Dictionary<char, (int w1, int w2)> charToWidthMap) {
+		internal static void PostProcessMainDolReplacements(ToGLocInject.FileFetcher _fc, HyoutaTools.Tales.Graces.CharNameBin charnamesU, SCS w, SCS worig, List<(int index, string entry)> j, List<(int index, string entry)> u, Dictionary<char, (int w1, int w2)> charToWidthMap) {
 			// point per-language wii files at the single one that actually exists on the disc
 			for (int i = 1; i <= 8; ++i) {
 				w.Entries[i] = w.Entries[0];
@@ -41,16 +41,16 @@ namespace ToGLocInject {
 			w.Entries[1187] = w.Entries[1187].Substring(0, 9) + u[204].entry.Substring(10);
 
 			// party member names
-			w.Entries[1370] = charnamesU[0].regular;
-			w.Entries[1371] = charnamesU[1].regular;
-			w.Entries[1372] = charnamesU[2].regular;
-			w.Entries[1373] = charnamesU[3].regular;
-			w.Entries[1374] = charnamesU[4].regular;
-			w.Entries[1375] = charnamesU[5].regular;
-			w.Entries[1376] = charnamesU[6].regular;
-			w.Entries[1377] = charnamesU[21].regular;
-			w.Entries[1378] = charnamesU[8].alt;
-			w.Entries[1379] = charnamesU[1].alt;
+			w.Entries[1370] = charnamesU.GetName(1001).regular;
+			w.Entries[1371] = charnamesU.GetName(1002).regular;
+			w.Entries[1372] = charnamesU.GetName(1003).regular;
+			w.Entries[1373] = charnamesU.GetName(1004).regular;
+			w.Entries[1374] = charnamesU.GetName(1005).regular;
+			w.Entries[1375] = charnamesU.GetName(1006).regular;
+			w.Entries[1376] = charnamesU.GetName(1007).regular;
+			w.Entries[1377] = charnamesU.GetName(1022).regular;
+			w.Entries[1378] = charnamesU.GetName(1009).alt;
+			w.Entries[1379] = charnamesU.GetName(1002).alt;
 
 			w.Entries[1447] = u[152].entry;
 			w.Entries[1449] = u[508].entry.Substring(6);

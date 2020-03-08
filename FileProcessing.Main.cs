@@ -6,6 +6,7 @@ using System.Text;
 using HyoutaPluginBase;
 using HyoutaTools.Generic;
 using HyoutaTools.Tales.CPK;
+using HyoutaTools.Tales.Graces;
 using HyoutaTools.Tales.Graces.SCS;
 using HyoutaTools.Tales.Vesperia.FPS4;
 using HyoutaUtils;
@@ -120,15 +121,9 @@ namespace ToGLocInject {
 				}
 			}
 
-			var (charnamestreamJ, charnamemappingsJ) = EvaluateCharNameBin(_fc.GetFile(@"rootR.cpk/str/ja/CharName.bin", Version.J));
-			var (charnamestreamU, charnamemappingsU) = EvaluateCharNameBin(_fc.GetFile(@"rootR.cpk/str/ja/CharName.bin", Version.U));
-			var (charnamestreamW, charnamemappingsW) = EvaluateCharNameBin(_fc.GetFile(@"rootR.cpk/str/ja/CharName.bin", Version.W));
-			var charnameJ = new SCS(charnamestreamJ);
-			var charnameU = new SCS(charnamestreamU);
-			var charnameW = new SCS(charnamestreamW);
-			List<(string regular, string alt)> charnamesU = BuildCharnameMapping(charnameU, charnamemappingsU);
-			List<(string regular, string alt)> charnamesJ = BuildCharnameMapping(charnameJ, charnamemappingsJ);
-			List<(string regular, string alt)> charnamesW = BuildCharnameMapping(charnameW, charnamemappingsW);
+			CharNameBin charnamesJ = new CharNameBin(_fc.GetFile(@"rootR.cpk/str/ja/CharName.bin", Version.J));
+			CharNameBin charnamesU = new CharNameBin(_fc.GetFile(@"rootR.cpk/str/ja/CharName.bin", Version.U));
+			CharNameBin charnamesW = new CharNameBin(_fc.GetFile(@"rootR.cpk/str/ja/CharName.bin", Version.W));
 
 			List<string> mappingNextInput = new List<string>();
 
@@ -151,14 +146,6 @@ namespace ToGLocInject {
 					DuplicatableStream jstream = _fc.GetFile(f, Version.J);
 					DuplicatableStream ustream = _fc.GetFile(f, Version.U);
 					DuplicatableStream wstream = _fc.TryGetFile(f, Version.W)?.DataStream;
-					List<int> jmappingoverride = null;
-					List<int> umappingoverride = null;
-					List<int> wmappingoverride = null;
-					if (f == @"rootR.cpk/str/ja/CharName.bin") {
-						(jstream, jmappingoverride) = EvaluateCharNameBin(jstream);
-						(ustream, umappingoverride) = EvaluateCharNameBin(ustream);
-						(wstream, wmappingoverride) = wstream != null ? EvaluateCharNameBin(wstream) : (null, null);
-					}
 					SCS jscs;
 					SCS uscs;
 					SCS wscs;
@@ -174,6 +161,10 @@ namespace ToGLocInject {
 						jscs = ReadBattleNames(jstream, Version.J);
 						uscs = ReadBattleNames(ustream, Version.U);
 						wscs = ReadBattleNames(wstream, Version.W);
+					} else if (f == @"rootR.cpk/str/ja/CharName.bin") {
+						jscs = new SCS(BuildCharnameList(new CharNameBin(jstream)));
+						uscs = new SCS(BuildCharnameList(new CharNameBin(ustream)));
+						wscs = new SCS(BuildCharnameList(new CharNameBin(wstream)));
 					} else {
 						jscs = new SCS(jstream);
 						uscs = new SCS(ustream);
@@ -193,7 +184,7 @@ namespace ToGLocInject {
 							if (true) {
 								Stream utssstream = null;
 								Stream jtssstream = null;
-								if (umappingoverride == null || jmappingoverride == null) {
+								if (f != @"rootR.cpk/str/ja/CharName.bin") {
 									if (isSkitFile) {
 										string chdpath = "chat/chd/" + Path.GetFileNameWithoutExtension(f) + ".chd";
 										DuplicatableStream uchdstream = _fc.TryGetFile("rootR.cpk/" + chdpath, Version.U)?.AsFile?.DataStream;
@@ -218,23 +209,19 @@ namespace ToGLocInject {
 										}
 									}
 								}
-								List<int> utss = umappingoverride;
-								List<int> jtss = jmappingoverride;
-								if (utss == null) {
-									if (utssstream != null) {
-										utss = ParseTss(utssstream, isSkitFile);
-									} else {
-										Console.WriteLine("WARNING: Failed to find TSS script for US " + f);
-										utss = new List<int>();
-									}
+								List<int> utss;
+								List<int> jtss;
+								if (utssstream != null) {
+									utss = ParseTss(utssstream, isSkitFile);
+								} else {
+									Console.WriteLine("WARNING: Failed to find TSS script for US " + f);
+									utss = null;
 								}
-								if (jtss == null) {
-									if (jtssstream != null) {
-										jtss = ParseTss(jtssstream, isSkitFile);
-									} else {
-										Console.WriteLine("WARNING: Failed to find TSS script for JP " + f);
-										jtss = new List<int>();
-									}
+								if (jtssstream != null) {
+									jtss = ParseTss(jtssstream, isSkitFile);
+								} else {
+									Console.WriteLine("WARNING: Failed to find TSS script for JP " + f);
+									jtss = null;
 								}
 								var utssapplied = Apply(utss, uscs.Entries);
 								var jtssapplied = Apply(jtss, jscs.Entries);
@@ -416,30 +403,26 @@ namespace ToGLocInject {
 					List<MainDolString> elf_u_text = null;
 					List<MainDolString> elf_j_text = null;
 					SortedSet<int> multidefined_j_idxs = null;
+					CharNameBin jcharbin = null;
+					CharNameBin ucharbin = null;
+					CharNameBin wcharbin = null;
 					if (f == @"rootR.cpk/str/ja/CharName.bin") {
-						var jcharbin = EvaluateCharNameBin(jstream.Duplicate());
-						var jchars = BuildCharnameMapping(new SCS(jcharbin.Item1), jcharbin.Item2);
-						var ucharbin = EvaluateCharNameBin(ustream.Duplicate());
-						var uchars = BuildCharnameMapping(new SCS(ucharbin.Item1), ucharbin.Item2);
-						var wcharbin = EvaluateCharNameBin(wstream.Duplicate());
-						var wchars = BuildCharnameMapping(new SCS(wcharbin.Item1), wcharbin.Item2);
+						jcharbin = new CharNameBin(jstream.Duplicate());
+						ucharbin = new CharNameBin(ustream.Duplicate());
+						wcharbin = new CharNameBin(wstream.Duplicate());
+						var jchars = BuildCharnameList(jcharbin);
+						var uchars = BuildCharnameList(ucharbin);
+						var wchars = BuildCharnameList(wcharbin);
 						j = new List<(int index, string entry)>();
 						u = new List<(int index, string entry)>();
 						if (jchars.Count != uchars.Count) {
 							throw new Exception();
 						}
 						for (int aaaa = 0; aaaa < jchars.Count; ++aaaa) {
-							j.Add((aaaa * 2, jchars[aaaa].regular));
-							j.Add((aaaa * 2 + 1, jchars[aaaa].alt));
-							u.Add((aaaa * 2, uchars[aaaa].regular));
-							u.Add((aaaa * 2 + 1, uchars[aaaa].alt));
+							j.Add((aaaa, jchars[aaaa]));
+							u.Add((aaaa, uchars[aaaa]));
 						}
-						var wscslist = new List<string>();
-						for (int aaaa = 0; aaaa < wchars.Count; ++aaaa) {
-							wscslist.Add(wchars[aaaa].regular);
-							wscslist.Add(wchars[aaaa].alt);
-						}
-						wscs = new SCS(wscslist);
+						wscs = new SCS(wchars);
 					} else if (f == @"rootR.cpk/SysSub/JA/TOG_SS_ChatName.dat") {
 						j = InsertAdds(ReadChatNames(jstream), kvp.Value.J, false, false);
 						u = InsertAdds(ReadChatNames(ustream), kvp.Value.U, true, false);
@@ -531,29 +514,26 @@ namespace ToGLocInject {
 							for (int aaa = 0; aaa < wscs.Entries.Count; ++aaa) {
 								string str = wscs.Entries[aaa];
 								if (str == null || str == "") {
-									indicesToNames.Add(-1);
+									indicesToNames.Add(0);
 								} else {
 									int ifxof = deduplicatedNames.IndexOf(str);
 									if (ifxof == -1) {
 										ifxof = deduplicatedNames.Count;
 										deduplicatedNames.Add(str);
 									}
-									indicesToNames.Add(ifxof);
+									indicesToNames.Add(ifxof + 1);
 								}
 							}
 
-							SCS newscs = new SCS(deduplicatedNames);
-							MemoryStream ms = new MemoryStream();
-							wstream.ReStart();
-							for (int bbb = 0; bbb < 0x48; ++bbb) {
-								ms.WriteByte(wstream.ReadUInt8());
+							Dictionary<int, (ushort reg, ushort alt)> idToScsMappings = new Dictionary<int, (ushort reg, ushort alt)>();
+							foreach (CharNameBinSection section in wcharbin.Sections) {
+								for (int numbercountcounter = 0; numbercountcounter < section.NumberCount; ++numbercountcounter) {
+									int n = section.NumberStart + numbercountcounter;
+									idToScsMappings.Add(n, ((ushort)indicesToNames[n * 2], (ushort)indicesToNames[n * 2 + 1]));
+								}
 							}
-							foreach (int ccc in indicesToNames) {
-								ms.WriteUInt16((ushort)(((ushort)(ccc + 1)).ToEndian(EndianUtils.Endianness.BigEndian)));
-							}
-							Stream newscss = newscs.WriteToScs();
-							StreamUtils.CopyStream(newscss, ms, newscss.Length);
 
+							MemoryStream ms = new CharNameBin(wcharbin.Sections, idToScsMappings, new SCS(deduplicatedNames)).GenerateFile();
 							ms.Position = 0;
 							scsstr = ms;
 						} else if (kvp.Value.ReplaceInWiiV0) {

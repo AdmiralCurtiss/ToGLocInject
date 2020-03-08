@@ -441,7 +441,7 @@ namespace ToGLocInject {
 			files.Add(@"rootR.cpk/movie/str/ja/TOG_S10.bin", new MappingData(c: true));
 			files.Add(@"rootR.cpk/movie/str/ja/TOG_S11.bin", new MappingData(c: true));
 			files.Add(@"rootR.cpk/str/ja/ActInfo.bin", new MappingData(c: true, w: new W().Un(4).Un(5).Un(6).Un(8).Un(12).Un(13).Un(15).Un(21)));
-			files.Add(@"rootR.cpk/str/ja/CharName.bin", new MappingData(c: true, u: new M().A(25, 24).A(60, 59).A(70, 56).A(71, 64).A(84, 59).A(86, 57).A(110, 54).A(118, 59).A(149, 101, 99, 54, 135).A(163, 117, 102, 104, 119).A(173, 135).A(174, 63).A(182, 94, 94).A(192, 152).A(194, 125, 125, 44), j: new M().A(134, 52).A(214, 133)));
+			files.Add(@"rootR.cpk/str/ja/CharName.bin", new MappingData(c: true));
 			files.Add(@"rootR.cpk/str/ja/MapName.bin", new MappingData(c: true, w: new W().RP(431, 439, (o, r) => r.Substring(0, 11) + o.Substring(6)).RP(433, 439, (o, r) => r.Substring(0, 11) + o.Substring(6)).RP(435, 439, (o, r) => r.Substring(0, 11) + o.Substring(6))));
 			files.Add(@"rootR.cpk/str/ja/Navigation.bin", new MappingData(c: true));
 			files.Add(@"rootR.cpk/SysSub/JA/TitleTexture.tex", new MappingData(c: true, skipTextMapping: true));

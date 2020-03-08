@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using HyoutaPluginBase;
 using HyoutaTools.Generic;
+using HyoutaTools.Tales.Graces;
 using HyoutaTools.Tales.Graces.SCS;
 using HyoutaUtils;
 using HyoutaUtils.Streams;
@@ -67,6 +68,13 @@ namespace ToGLocInject {
 
 		public static List<(int index, string entry)> Apply(List<int> indices, List<string> scs) {
 			List<(int index, string entry)> data = new List<(int index, string entry)>();
+			if (indices == null) {
+				for (int i = 0; i < scs.Count; ++i) {
+					data.Add((i, scs[i]));
+				}
+				return data;
+			}
+
 			for (int i = 0; i < indices.Count; ++i) {
 				string v = indices[i] == -1 ? "" : scs[indices[i]];
 				data.Add((indices[i], v));
@@ -349,7 +357,7 @@ namespace ToGLocInject {
 			return (unreplacedCounter, unmappedIndices, juConsumedGlobal, widx_with_multidefined_j);
 		}
 
-		private static void ReplaceStringsWMultipliedOut(SCS wscs, List<(int index, string entry)> j, List<(int index, string entry)> u, List<(int widx, int jidx)> widx_with_multidefined_j, List<List<int>> new_multidefined_widxs, List<(string regular, string alt)> charnames) {
+		private static void ReplaceStringsWMultipliedOut(SCS wscs, List<(int index, string entry)> j, List<(int index, string entry)> u, List<(int widx, int jidx)> widx_with_multidefined_j, List<List<int>> new_multidefined_widxs, CharNameBin charnames) {
 			foreach (var nmw in new_multidefined_widxs) {
 				int old_widx = nmw[0];
 				int juidx = widx_with_multidefined_j.Find(x => x.widx == old_widx).jidx;
@@ -483,32 +491,18 @@ namespace ToGLocInject {
 			return new SCS(strings);
 		}
 
-		private static List<(string regular, string alt)> BuildCharnameMapping(SCS charnameJ, List<int> charnamemappingsJ) {
-			var m = new List<(string regular, string alt)>();
-			for (int i = 0; i < charnamemappingsJ.Count; i += 2) {
-				int reg = charnamemappingsJ[i];
-				int alt = charnamemappingsJ[i + 1];
-				m.Add((reg >= 0 ? charnameJ.Entries[reg] : "", alt >= 0 ? charnameJ.Entries[alt] : ""));
+		private static List<string> BuildCharnameList(CharNameBin bin) {
+			var nameMap = bin.GenerateNameMap();
+			int requiredCount = (nameMap.Keys.Max() + 1) * 2;
+			var m = new List<string>(requiredCount);
+			for (int i = 0; i < requiredCount; ++i) {
+				m.Add(null);
+			}
+			foreach (var kvp in nameMap) {
+				m[kvp.Key * 2] = kvp.Value.regular;
+				m[kvp.Key * 2 + 1] = kvp.Value.alt;
 			}
 			return m;
-		}
-
-		private static (DuplicatableStream, List<int>) EvaluateCharNameBin(DuplicatableStream jstream) {
-			List<int> jmappingoverride;
-			jstream.ReStart();
-			long jstreamsize = jstream.Length;
-			jstream.DiscardBytes(4);
-			uint jstreamoffset = jstream.ReadUInt32().FromEndian(EndianUtils.Endianness.BigEndian);
-			jstream.DiscardBytes(4);
-			uint jstreammappingstart = jstream.ReadUInt32().FromEndian(EndianUtils.Endianness.BigEndian);
-			jstream.Position = jstreammappingstart;
-			jmappingoverride = new List<int>();
-			while (jstream.Position < jstreamoffset) {
-				jmappingoverride.Add(((int)jstream.ReadUInt16().FromEndian(EndianUtils.Endianness.BigEndian)) - 1);
-			}
-			jstream.End();
-			jstream = new PartialStream(jstream, jstreamoffset, jstreamsize - jstreamoffset);
-			return (jstream, jmappingoverride);
 		}
 
 		private static bool IsValid(int? v, List<(int index, string entry)> tssa) {
@@ -552,7 +546,7 @@ namespace ToGLocInject {
 			return -1;
 		}
 
-		private static string CsvEscape(string jp, List<(string regular, string alt)> charnames) {
+		private static string CsvEscape(string jp, CharNameBin charnames) {
 			if (jp == null) {
 				return "[null]";
 			}
@@ -569,7 +563,7 @@ namespace ToGLocInject {
 			return s;
 		}
 
-		private static string ReplaceNames(this string input, List<(string regular, string alt)> charnames) {
+		private static string ReplaceNames(this string input, CharNameBin charnames) {
 			string s = input;
 			StringBuilder sb = new StringBuilder();
 			while (true) {
@@ -588,16 +582,13 @@ namespace ToGLocInject {
 					int braceclose = s1.IndexOf(')');
 					string inbrace = s1.Substring(1, braceclose - 1);
 					string postbrace = s1.Substring(braceclose + 1);
-					int decodednumber = SCS.DecodeNumber(inbrace) - 1001;
-					if (decodednumber >= 0 && decodednumber < charnames.Count) {
-						sb.Append(charnames[decodednumber].regular);
-					} else {
-						sb.Append(decodednumber);
-					}
+					int decodednumber = SCS.DecodeNumber(inbrace);
+					sb.Append(decodednumber).Append(":").Append(charnames.GetName(decodednumber).regular ?? "???");
 					s = postbrace;
 					sb.Append("}");
 				} else {
-					sb.Append("CHAR");
+					Console.WriteLine("WARNING: Found charname control code without ID.");
+					sb.Append("{???}");
 					s = s1;
 				}
 			}
