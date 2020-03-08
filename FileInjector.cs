@@ -27,7 +27,6 @@ namespace ToGLocInject {
 
 		private CpkContainer Cpk;
 		private Stream OutputStream;
-		private long ModifiedDataStartOffset;
 		public long CurrentInjectionOffset { get; private set; }
 
 		private Dictionary<string, SubcpkData> RemappedSubcpks;
@@ -195,6 +194,10 @@ namespace ToGLocInject {
 		}
 
 		public void GenerateRiivolutionData(StringBuilder xml, string outputPath, string fileOnDisc, bool isV2) {
+			if (DisableInjection) {
+				return;
+			}
+
 			string basename = Path.GetFileNameWithoutExtension(fileOnDisc);
 			string dataname = string.Format("{0}_v{1}_data", basename, isV2 ? 2 : 0);
 			long pos = Cpk.toc_offset;

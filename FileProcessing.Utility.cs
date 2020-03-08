@@ -708,7 +708,8 @@ namespace ToGLocInject {
 
 				MappingType mappingType = MappingType.NotMatched;
 				List<string> tmpval;
-				if (directCompare.TryGetValue(j[jpos].entry, out tmpval)) {
+				string jentry = j[jpos].entry;
+				if (jentry != null && directCompare.TryGetValue(jentry, out tmpval)) {
 					if (tmpval.Contains(u[upos].entry)) {
 						mappingType = MappingType.DirectMatched;
 					}
@@ -772,6 +773,9 @@ namespace ToGLocInject {
 		}
 
 		private static bool DoMatchByVoiceLine(string jp, string en) {
+			if (jp == null || en == null) {
+				return false;
+			}
 			var jv = ExtractVoiceLines(jp);
 			if (jv.Count > 0) {
 				var ev = ExtractVoiceLines(en);

@@ -145,8 +145,9 @@ namespace ToGLocInject {
 
 			foreach (var kvp in files) {
 				string f = kvp.Key;
-				bool writeAll = false;
-				if (!kvp.Value.SkipTextMapping && (writeAll || !kvp.Value.Confirmed)) {
+				bool writeAny = config.PS3CompareCsvOutputPath != null;
+				bool writeAll = writeAny && !config.PS3CompareCsvWriteOnlyUnmatched;
+				if (writeAny && !kvp.Value.SkipTextMapping && (writeAll || !kvp.Value.Confirmed)) {
 					DuplicatableStream jstream = _fc.GetFile(f, Version.J);
 					DuplicatableStream ustream = _fc.GetFile(f, Version.U);
 					DuplicatableStream wstream = _fc.TryGetFile(f, Version.W)?.DataStream;
@@ -183,7 +184,7 @@ namespace ToGLocInject {
 					var u = InsertAdds(uscs, kvp.Value.U, true, isSkitFile);
 					var w = wscs != null ? InsertAdds(wscs, new M(), false, isSkitFile) : null;
 
-					if (compare != null && (writeAll || !kvp.Value.Confirmed)) {
+					if (compare != null) {
 						List<MappedEntry> entries = MapCompare(compare, j, u, directCompare);
 
 						if (config.PS3CompareCsvOutputPath != null) {
@@ -195,13 +196,17 @@ namespace ToGLocInject {
 								if (umappingoverride == null || jmappingoverride == null) {
 									if (isSkitFile) {
 										string chdpath = "chat/chd/" + Path.GetFileNameWithoutExtension(f) + ".chd";
-										DuplicatableStream uchdstream = _fc.GetFile("rootR.cpk/" + chdpath, Version.U);
-										var uchd = new FPS4(uchdstream.Duplicate());
-										utssstream = uchd.GetChildByIndex(0).AsFile.DataStream.Duplicate();
-										DuplicatableStream jchdstream = _fc.GetFile("rootR.cpk/" + chdpath, Version.J);
-										var jchd = new FPS4(jchdstream.Duplicate());
-										jtssstream = jchd.GetChildByIndex(0).AsFile.DataStream.Duplicate();
-									} else {
+										DuplicatableStream uchdstream = _fc.TryGetFile("rootR.cpk/" + chdpath, Version.U)?.AsFile?.DataStream;
+										DuplicatableStream jchdstream = _fc.TryGetFile("rootR.cpk/" + chdpath, Version.J)?.AsFile?.DataStream;
+										if (uchdstream != null) {
+											var uchd = new FPS4(uchdstream.Duplicate());
+											utssstream = uchd.GetChildByIndex(0).AsFile.DataStream.Duplicate();
+										}
+										if (jchdstream != null) {
+											var jchd = new FPS4(jchdstream.Duplicate());
+											jtssstream = jchd.GetChildByIndex(0).AsFile.DataStream.Duplicate();
+										}
+									} else if (f != "boot.elf") {
 										string sopath = Path.Combine(Path.GetDirectoryName(Path.GetDirectoryName(f)), Path.GetFileNameWithoutExtension(f) + ".so").Replace('\\', '/');
 										HyoutaPluginBase.FileContainer.IFile ufile = _fc.TryGetFile(sopath, Version.U);
 										HyoutaPluginBase.FileContainer.IFile jfile = _fc.TryGetFile(sopath, Version.J);

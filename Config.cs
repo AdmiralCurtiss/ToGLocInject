@@ -22,6 +22,7 @@ namespace ToGLocInject {
 		public IFile EbootBinPS3EU;
 
 		public string PS3CompareCsvOutputPath;
+		public bool PS3CompareCsvWriteOnlyUnmatched;
 		public string WiiCompareCsvOutputPath;
 		public bool WiiCompareCsvWriteOnlyUnmatched;
 		public string DebugFontOutputPath;
