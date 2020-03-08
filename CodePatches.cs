@@ -19,8 +19,8 @@ namespace ToGLocInject {
 			List<(uint where, uint count, uint skip)> patches = new List<(uint where, uint count, uint skip)>();
 			patches.Add((mapper.MapRomToRam(0x5742A8u), 35, 0x04));
 			patches.Add((mapper.MapRomToRam(0x574338u), 218, 0x0C));
-			patches.Add((mapper.MapRomToRam(0x585F14u), 252, 0x24));
 			patches.Add((mapper.MapRomToRam(0x585F18u), 252, 0x24));
+			patches.Add((mapper.MapRomToRam(0x585F1Cu), 252, 0x24));
 			return patches;
 		}
 
