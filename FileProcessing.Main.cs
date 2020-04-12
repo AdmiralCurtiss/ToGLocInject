@@ -125,6 +125,7 @@ namespace ToGLocInject {
 			CharNameBin charnamesU = new CharNameBin(_fc.GetFile(@"rootR.cpk/str/ja/CharName.bin", Version.U));
 			CharNameBin charnamesW = new CharNameBin(_fc.GetFile(@"rootR.cpk/str/ja/CharName.bin", Version.W));
 			CharNameBin charnamesWE = charnamesW;
+			CharNameMapping charnameMapping = CharNameMapping.BuildPs3ToWiiCharNameIdMapping(charnamesW, charnamesJ);
 
 			List<string> mappingNextInput = new List<string>();
 
@@ -455,6 +456,10 @@ namespace ToGLocInject {
 						multidefined_j_idxs = FilterMultidefinedJs(GetDefinedAddsSet(kvp.Value.J), j, u, prefilterStringMultidefinedJHack);
 					}
 
+					List<(int index, string entry)> j_orig_name_ids = j;
+					List<(int index, string entry)> u_orig_name_ids = u;
+					j = charnameMapping.MapAllPs3ToWii(j);
+					u = charnameMapping.MapAllPs3ToWii(u);
 
 					if (j.Count == u.Count) {
 						if (kvp.Value.MultiplyOutSkit) {
@@ -890,7 +895,7 @@ namespace ToGLocInject {
 							csv.Add("\t\tUnconsumed:\t");
 							for (int hhhh2 = 0; hhhh2 < unmappedStrings.juConsumed.Count; ++hhhh2) {
 								if (!unmappedStrings.juConsumed[hhhh2]) {
-									csv.Add(string.Format("{0}\t{1}\t{2}\t{3}", "", u[hhhh2].index, CsvEscape(j[hhhh2].entry, charnamesJ), CsvEscape(u[hhhh2].entry, charnamesU)));
+									csv.Add(string.Format("{0}\t{1}\t{2}\t{3}", "", u[hhhh2].index, CsvEscape(j_orig_name_ids[hhhh2].entry, charnamesJ), CsvEscape(u_orig_name_ids[hhhh2].entry, charnamesU)));
 								}
 							}
 							Directory.CreateDirectory(config.WiiCompareCsvOutputPath);
