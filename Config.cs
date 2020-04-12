@@ -25,6 +25,7 @@ namespace ToGLocInject {
 		public bool PS3CompareCsvWriteOnlyUnmatched;
 		public string WiiCompareCsvOutputPath;
 		public bool WiiCompareCsvWriteOnlyUnmatched;
+		public string WiiRawCsvOutputPath;
 		public string DebugFontOutputPath;
 		public string DebugTextOutputPath;
 	}

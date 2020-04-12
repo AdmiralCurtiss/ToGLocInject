@@ -896,6 +896,19 @@ namespace ToGLocInject {
 							File.WriteAllLines(csvp, csv);
 						}
 
+						if (config.WiiRawCsvOutputPath != null && !kvp.Value.SkipTextMapping) {
+							List<string> csv = new List<string>();
+							for (int hhh = 0; hhh < wscsorig.Entries.Count; ++hhh) {
+								int entry = hhh;
+								string orig = wscsorig.Entries[entry];
+								string repl = wscs.Entries[entry];
+								csv.Add(string.Format("{0}\t{1}\t{2}", entry, CsvEscape(orig, charnamesW), CsvEscape(repl, charnamesW)));
+							}
+							Directory.CreateDirectory(config.WiiRawCsvOutputPath);
+							string csvp = Path.Combine(config.WiiRawCsvOutputPath, f.Replace("/", "_") + ".csv");
+							File.WriteAllLines(csvp, csv);
+						}
+
 						bool writeResultsToFileForWiiInject = true;
 						if (writeResultsToFileForWiiInject) {
 							if (v0outpath != null && f == "rootR.cpk/module/mainRR.sel") {

@@ -63,6 +63,7 @@ namespace ToGLocInject {
 			//config.PS3CompareCsvOutputPath = @"c:\_graces\_ps3-us-jp-compare";
 			//config.WiiCompareCsvOutputPath = @"c:\_graces\_wii-replaced-strings";
 			//config.WiiCompareCsvWriteOnlyUnmatched = false;
+			//config.WiiRawCsvOutputPath = @"c:\_graces\_wii-out-csv";
 			//config.DebugFontOutputPath = @"c:\_graces\_font";
 			//config.DebugTextOutputPath = @"c:\_graces\_debug";
 
