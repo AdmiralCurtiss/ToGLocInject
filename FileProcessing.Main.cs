@@ -124,6 +124,7 @@ namespace ToGLocInject {
 			CharNameBin charnamesJ = new CharNameBin(_fc.GetFile(@"rootR.cpk/str/ja/CharName.bin", Version.J));
 			CharNameBin charnamesU = new CharNameBin(_fc.GetFile(@"rootR.cpk/str/ja/CharName.bin", Version.U));
 			CharNameBin charnamesW = new CharNameBin(_fc.GetFile(@"rootR.cpk/str/ja/CharName.bin", Version.W));
+			CharNameBin charnamesWE = charnamesW;
 
 			List<string> mappingNextInput = new List<string>();
 
@@ -533,7 +534,8 @@ namespace ToGLocInject {
 								}
 							}
 
-							MemoryStream ms = new CharNameBin(wcharbin.Sections, idToScsMappings, new SCS(deduplicatedNames)).GenerateFile();
+							charnamesWE = new CharNameBin(wcharbin.Sections, idToScsMappings, new SCS(deduplicatedNames));
+							MemoryStream ms = charnamesWE.GenerateFile();
 							ms.Position = 0;
 							scsstr = ms;
 						} else if (kvp.Value.ReplaceInWiiV0) {
@@ -878,7 +880,7 @@ namespace ToGLocInject {
 									if (unmapped || hhhh2 == 1) {
 										string orig = wscsorig.Entries[entry];
 										string repl = wscs.Entries[entry];
-										csv.Add(string.Format("{0}\t{1}\t{2}\t{3}", unmapped ? "!!!!!!" : "", entry, CsvEscape(orig, charnamesW), CsvEscape(repl, charnamesW)));
+										csv.Add(string.Format("{0}\t{1}\t{2}\t{3}", unmapped ? "!!!!!!" : "", entry, CsvEscape(orig, charnamesW), CsvEscape(repl, charnamesWE)));
 									}
 								}
 								csv.Add("");
@@ -902,7 +904,7 @@ namespace ToGLocInject {
 								int entry = hhh;
 								string orig = wscsorig.Entries[entry];
 								string repl = wscs.Entries[entry];
-								csv.Add(string.Format("{0}\t{1}\t{2}", entry, CsvEscape(orig, charnamesW), CsvEscape(repl, charnamesW)));
+								csv.Add(string.Format("{0}\t{1}\t{2}", entry, CsvEscape(orig, charnamesW), CsvEscape(repl, charnamesWE)));
 							}
 							Directory.CreateDirectory(config.WiiRawCsvOutputPath);
 							string csvp = Path.Combine(config.WiiRawCsvOutputPath, f.Replace("/", "_") + ".csv");

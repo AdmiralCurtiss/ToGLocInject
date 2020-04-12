@@ -18,6 +18,7 @@ namespace ToGLocInject {
 
 		public static Dictionary<string, MappingData> GetFileMappings(FileFetcher _fc) {
 			var files = new Dictionary<string, MappingData>();
+			files.Add(@"rootR.cpk/str/ja/CharName.bin", new MappingData(c: true));
 			GetFileMappingsMap0(_fc, files);
 			GetFileMappingsMap1(_fc, files);
 			GetFileMappingsRoot(_fc, files);

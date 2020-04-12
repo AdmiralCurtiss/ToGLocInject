@@ -441,7 +441,6 @@ namespace ToGLocInject {
 			files.Add(@"rootR.cpk/movie/str/ja/TOG_S10.bin", new MappingData(c: true));
 			files.Add(@"rootR.cpk/movie/str/ja/TOG_S11.bin", new MappingData(c: true));
 			files.Add(@"rootR.cpk/str/ja/ActInfo.bin", new MappingData(c: true, w: new W().Un(4).Un(5).Un(6).Un(8).Un(12).Un(13).Un(15).Un(21)));
-			files.Add(@"rootR.cpk/str/ja/CharName.bin", new MappingData(c: true));
 			files.Add(@"rootR.cpk/str/ja/MapName.bin", new MappingData(c: true, w: new W().RP(431, 439, (o, r) => r.Substring(0, 11) + o.Substring(6)).RP(433, 439, (o, r) => r.Substring(0, 11) + o.Substring(6)).RP(435, 439, (o, r) => r.Substring(0, 11) + o.Substring(6))));
 			files.Add(@"rootR.cpk/str/ja/Navigation.bin", new MappingData(c: true));
 			files.Add(@"rootR.cpk/SysSub/JA/TitleTexture.tex", new MappingData(c: true, skipTextMapping: true));
