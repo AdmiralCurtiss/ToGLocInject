@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using HyoutaPluginBase;
 using HyoutaTools.GameCube;
 using HyoutaTools.Generic;
 using HyoutaUtils;

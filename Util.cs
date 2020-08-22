@@ -202,7 +202,7 @@ namespace ToGLocInject {
 		public uint Address;
 		public uint FreeBytes;
 		public System.IO.MemoryStream File;
-		public HyoutaTools.Generic.IRomMapper Mapper;
+		public HyoutaPluginBase.IRomMapper Mapper;
 		public bool IsInternal;
 
 		public override string ToString() {
@@ -241,13 +241,13 @@ namespace ToGLocInject {
 		}
 	}
 
-	internal class Ps3ElfMapper : HyoutaTools.Generic.IRomMapper {
-		public bool TryMapRamToRom(uint ramAddress, out uint value) {
+	internal class Ps3ElfMapper : HyoutaPluginBase.IRomMapper {
+		public bool TryMapRamToRom(ulong ramAddress, out ulong value) {
 			value = ramAddress - 0x10000;
 			return value < 0x881600;
 		}
 
-		public bool TryMapRomToRam(uint romAddress, out uint value) {
+		public bool TryMapRomToRam(ulong romAddress, out ulong value) {
 			value = romAddress + 0x10000;
 			return true;
 		}

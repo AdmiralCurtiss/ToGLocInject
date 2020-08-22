@@ -142,18 +142,18 @@ namespace ToGLocInject {
 		}
 	}
 
-	internal class FontMapper : HyoutaTools.Generic.IRomMapper {
+	internal class FontMapper : HyoutaPluginBase.IRomMapper {
 		public uint RamBaseAddress;
 
 		public FontMapper(uint baseAddr) {
 			RamBaseAddress = baseAddr;
 		}
 
-		public bool TryMapRamToRom(uint ramAddress, out uint value) {
+		public bool TryMapRamToRom(ulong ramAddress, out ulong value) {
 			throw new NotImplementedException();
 		}
 
-		public bool TryMapRomToRam(uint romAddress, out uint value) {
+		public bool TryMapRomToRam(ulong romAddress, out ulong value) {
 			value = RamBaseAddress + romAddress;
 			return true;
 		}
