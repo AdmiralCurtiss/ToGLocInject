@@ -17,7 +17,7 @@ namespace ToGLocInject {
 			// - there might be more buffer overflows for sprintf'd strings
 			// - password treasure chests don't work cause the menu doesn't allow letters to be entered
 			// - text in card minigame, is in module/Mg1RR.rso and/or module/Mg2RR.rso
-			// - text in music player
+			// - text in music player (rootR/mnu/bin/snd_test.bin and/or soundTest.bin)
 			// - don't inject the v0-inject files into the v2 archives
 			// - mainRR.sel for riivolution in v0
 
