@@ -26,6 +26,27 @@ namespace ToGLocInject {
 			new NubInfo() { Name = "VOSCE16", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3", EngFileCount = 1579 },
 		};
 
+		private static ContainedVoiceInfo[] ContainedVoices = new ContainedVoiceInfo[] {
+			new ContainedVoiceInfo() { BaseName = "btl/acf/vav{0:D3}.acf", StartNumber = 1, EndNumber = 97, SE3Index = 0, WiiType = "dsp", WiiSampleRate = 24000, EngType = "vag" },
+			new ContainedVoiceInfo() { BaseName = "btl/acf/skt{0:D3}.acf", StartNumber = 1, EndNumber = 45, SE3Index = 0, WiiType = "dsp", WiiSampleRate = 24000, EngType = "vag" },
+			new ContainedVoiceInfo() { BaseName = "chat/chd/CHT_MS{0:D3}.chd", StartNumber = 1, EndNumber = 242, SE3Index = 1, WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3" },
+			new ContainedVoiceInfo() { BaseName = "chat/chd/CHT_SB{0:D3}.chd", StartNumber = 1, EndNumber = 72, SE3Index = 1, WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3" },
+		};
+
+		private static void GenerateConversion(StringBuilder sb, string folder, string file, string ext, string targetType, int targetSampleRate) {
+			sb.AppendFormat("test {0}\\{1}.{2} -o {0}\\{1}.wav", folder, file, ext).AppendLine();
+
+			if (targetType == "bnsf") {
+				sb.AppendFormat("ToGLocInject --prepare-raw-bnsf-from-wav {0}\\{1} {2}", folder, file, targetSampleRate).AppendLine();
+				sb.AppendFormat("encode 0 {0}\\{1}.raw {0}\\{1}.rawbnsf 48000 14000", folder, file).AppendLine();
+				sb.AppendFormat("del {0}\\{1}.wav", folder, file).AppendLine();
+				sb.AppendFormat("del {0}\\{1}.raw", folder, file).AppendLine();
+			} else if (targetType == "dsp") {
+				sb.AppendFormat("gc-dspadpcm-encode {0}\\{1}.wav {0}\\{1}.dsp", folder, file).AppendLine();
+				sb.AppendFormat("del {0}\\{1}.wav", folder, file).AppendLine();
+			}
+		}
+
 		public static void Setup(Config config, string targetpath) {
 			Directory.CreateDirectory(targetpath);
 			var _fc = new FileFetcher(config);
@@ -39,17 +60,22 @@ namespace ToGLocInject {
 
 			foreach (var nub in Nubs) {
 				for (int i = 0; i < nub.EngFileCount; ++i) {
-					sb.AppendFormat("test {0}\\{1:D8}.{2} -o {0}\\{1:D8}.wav", nub.Name, i, nub.EngType).AppendLine();
+					GenerateConversion(sb, nub.Name, i.ToString("D8"), nub.EngType, nub.WiiType, nub.WiiSampleRate);
+				}
+			}
 
-					if (nub.WiiType == "bnsf") {
-						sb.AppendFormat("ToGLocInject --prepare-raw-bnsf-from-wav {0}\\{1:D8} {2}", nub.Name, i, nub.WiiSampleRate).AppendLine();
-						sb.AppendFormat("encode 0 {0}\\{1:D8}.raw {0}\\{1:D8}.rawbnsf 48000 14000", nub.Name, i).AppendLine();
-						sb.AppendFormat("del {0}\\{1:D8}.wav", nub.Name, i).AppendLine();
-						sb.AppendFormat("del {0}\\{1:D8}.raw", nub.Name, i).AppendLine();
-					} else if (nub.WiiType == "dsp") {
-						sb.AppendFormat("gc-dspadpcm-encode {0}\\{1:D8}.wav {0}\\{1:D8}.dsp", nub.Name, i).AppendLine();
-						sb.AppendFormat("del {0}\\{1:D8}.wav", nub.Name, i).AppendLine();
-					}
+			foreach (var cvi in ContainedVoices) {
+				for (int i = cvi.StartNumber; i <= cvi.EndNumber; ++i) {
+					string path = string.Format(cvi.BaseName, i);
+					var fps4stream = rootR.GetChildByName(path).AsFile.DataStream;
+					var fps4 = new HyoutaTools.Tales.Vesperia.FPS4.FPS4(fps4stream);
+					var se3stream = fps4.GetChildByIndex(cvi.SE3Index).AsFile.DataStream;
+					var ms = new MemoryStream();
+					new HyoutaTools.Tales.Vesperia.SE3.SE3(se3stream.Duplicate(), EndianUtils.Endianness.BigEndian, TextUtils.GameTextEncoding.ASCII).ExtractToNub(ms);
+					var nubstream = new DuplicatableByteArrayStream(ms.CopyToByteArrayAndDispose());
+					HyoutaTools.Tales.Vesperia.NUB.NUB.ExtractNub(nubstream, Path.Combine(targetpath, "other"), HyoutaUtils.EndianUtils.Endianness.BigEndian);
+					File.Move(Path.Combine(targetpath, "other", "00000000." + cvi.EngType), Path.Combine(targetpath, "other", Path.GetFileNameWithoutExtension(path) + "." + cvi.EngType));
+					GenerateConversion(sb, "other", Path.GetFileNameWithoutExtension(path), cvi.EngType, cvi.WiiType, cvi.WiiSampleRate);
 				}
 			}
 
@@ -207,5 +233,15 @@ namespace ToGLocInject {
 		public int WiiSampleRate;
 		public string EngType;
 		public int EngFileCount;
+	}
+
+	public class ContainedVoiceInfo {
+		public string BaseName;
+		public int StartNumber;
+		public int EndNumber;
+		public int SE3Index;
+		public string WiiType;
+		public int WiiSampleRate;
+		public string EngType;
 	}
 }
