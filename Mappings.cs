@@ -78,6 +78,7 @@ namespace ToGLocInject {
 		}
 
 		private static void GetFileMappingsVoices(Dictionary<string, MappingData> files) {
+			files.Add(@"rootR.cpk/snd/strpck/VOBTL.nub", new MappingData(c: true, skipTextMapping: true));
 			files.Add(@"rootR.cpk/snd/strpck/VOCHT.nub", new MappingData(c: true, skipTextMapping: true));
 			files.Add(@"rootR.cpk/snd/strpck/VOSCE01.nub", new MappingData(c: true, skipTextMapping: true));
 			files.Add(@"rootR.cpk/snd/strpck/VOSCE02.nub", new MappingData(c: true, skipTextMapping: true));

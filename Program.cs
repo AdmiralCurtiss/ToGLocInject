@@ -48,10 +48,13 @@ namespace ToGLocInject {
 			//   - I used r1050-3086-gc9dc860c but the most recent is probably good
 			// - grab the bnsf encoder from https://www.itu.int/rec/T-REC-G.722.1-200505-I/en and compile Software/Fixed-200505-Rel.2.1/encode
 			//   - you'll need to fix some compile errors here in VS2019 at least, rename all calls to 'round' to 'custom_round' or whatever
+			// - grab the dsp encoder from https://github.com/AdmiralCurtiss/gc-dspadpcm-encode
+			//   - just compile the visual studio project
 			// then do:
 			// - run "ToGLocInject --setup-voices tempfolder" to extract the english voices from the US PS3 version and generate a bunch of batch files
 			// - copy the contents of test.zip to the tempfolder
 			// - copy the compiled encode.exe to the tempfolder
+			// - copy the compiled gc-dspadpcm-encode.exe to the tempfolder
 			// - copy this tool (ToGLocInject and its dlls) to the tempfolder
 			// - run the generated convert_voices.bat in the tempfolder
 

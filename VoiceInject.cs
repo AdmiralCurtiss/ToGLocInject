@@ -14,6 +14,7 @@ namespace ToGLocInject {
 		private static NubInfo[] Nubs = new NubInfo[] {
 			new NubInfo() { Name = "VOCHT", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3", EngFileCount = 419 },
 			new NubInfo() { Name = "VOBTL", WiiType = "dsp", WiiSampleRate = 24000, EngType = "vag", EngFileCount = 1917 },
+			new NubInfo() { Name = "VOBTLETC", WiiType = "dsp", WiiSampleRate = 24000, EngType = "vag", EngFileCount = 533 },
 			new NubInfo() { Name = "VOSCE01", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3", EngFileCount = 1002 },
 			new NubInfo() { Name = "VOSCE02", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3", EngFileCount = 658 },
 			new NubInfo() { Name = "VOSCE03", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3", EngFileCount = 760 },
@@ -43,6 +44,11 @@ namespace ToGLocInject {
 					if (nub.WiiType == "bnsf") {
 						sb.AppendFormat("ToGLocInject --prepare-raw-bnsf-from-wav {0}\\{1:D8} {2}", nub.Name, i, nub.WiiSampleRate).AppendLine();
 						sb.AppendFormat("encode 0 {0}\\{1:D8}.raw {0}\\{1:D8}.rawbnsf 48000 14000", nub.Name, i).AppendLine();
+						sb.AppendFormat("del {0}\\{1:D8}.wav", nub.Name, i).AppendLine();
+						sb.AppendFormat("del {0}\\{1:D8}.raw", nub.Name, i).AppendLine();
+					} else if (nub.WiiType == "dsp") {
+						sb.AppendFormat("gc-dspadpcm-encode {0}\\{1:D8}.wav {0}\\{1:D8}.dsp", nub.Name, i).AppendLine();
+						sb.AppendFormat("del {0}\\{1:D8}.wav", nub.Name, i).AppendLine();
 					}
 				}
 			}
@@ -154,6 +160,28 @@ namespace ToGLocInject {
 							outstream.Position = entryLoc + 0xbc + 0x2c;
 							outstream.WriteUInt32((uint)(bnsfstream.Length), e);
 
+							outstream.Position = entryLoc + 0x14;
+							outstream.WriteUInt32((uint)filelen, e);
+							outstream.WriteUInt32((uint)(filestart - header.StartOfFiles), e);
+
+							outstream.Position = fileend;
+						}
+					} else if (nub.WiiType == "dsp") {
+						// TODO: mapping is clearly wrong here but for now just see if this even works
+						string dspfilename = File.Exists(Path.Combine(nubdir, i.ToString("D8") + ".dsp")) ? Path.Combine(nubdir, i.ToString("D8") + ".dsp") : Path.Combine(nubdir, 0.ToString("D8") + ".dsp");
+						using (var fs = new DuplicatableFileStream(dspfilename)) {
+							byte[] dspheader = fs.ReadUInt8Array(0x60);
+
+							// write file to outstream
+							long filestart = outstream.Position;
+							StreamUtils.CopyStream(fs, outstream, fs.Length - 0x60);
+							outstream.WriteAlign(0x10);
+							long fileend = outstream.Position;
+							long filelen = fileend - filestart;
+
+							// update headers
+							outstream.Position = entryLoc + 0xbc;
+							outstream.Write(dspheader);
 							outstream.Position = entryLoc + 0x14;
 							outstream.WriteUInt32((uint)filelen, e);
 							outstream.WriteUInt32((uint)(filestart - header.StartOfFiles), e);
