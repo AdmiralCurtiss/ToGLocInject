@@ -16,6 +16,8 @@ namespace ToGLocInject {
 		public string PatchedFileOutputPath;
 		public string RiivolutionOutputPath;
 
+		public string EnglishVoiceProcessingDir;
+
 		public string CachePath;
 		public IContainer GamefileContainerWiiV0;
 		public IContainer GamefileContainerPS3EU;

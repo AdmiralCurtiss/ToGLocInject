@@ -3,7 +3,12 @@ using System;
 
 namespace ToGLocInject {
 	public static class Program {
-		public static int Main() {
+		public static int Main(string[] args) {
+			if (args.Length == 3 && args[0] == "--prepare-raw-bnsf-from-wav") {
+				VoiceInject.PrepareRawBnsfFromWav(args[1], int.Parse(args[2]));
+				return 0;
+			}
+
 			// TODO:
 			// - see if we have a realistic possibility of modifying the actual scenario string pointers to inject the strings where J is identical but U is different
 			//   - did this for skits, would be nice for map files too but probably a lot of work
@@ -37,6 +42,19 @@ namespace ToGLocInject {
 			//     - just start emulating the game, then search in the emulator's 'data' directory for a 'boot.elf' in the subdirectory of the game's serial
 			//   - point the EbootBin at the decrypted eboot
 
+
+			// to get english voices working you'll need:
+			// - grab the vgmstream test.zip from https://github.com/losnoco/vgmstream/releases
+			//   - I used r1050-3086-gc9dc860c but the most recent is probably good
+			// - grab the bnsf encoder from https://www.itu.int/rec/T-REC-G.722.1-200505-I/en and compile Software/Fixed-200505-Rel.2.1/encode
+			//   - you'll need to fix some compile errors here in VS2019 at least, rename all calls to 'round' to 'custom_round' or whatever
+			// then do:
+			// - run "ToGLocInject --setup-voices tempfolder" to extract the english voices from the US PS3 version and generate a bunch of batch files
+			// - copy the contents of test.zip to the tempfolder
+			// - copy the compiled encode.exe to the tempfolder
+			// - copy this tool (ToGLocInject and its dlls) to the tempfolder
+			// - run the generated convert_voices.bat in the tempfolder
+
 			var config = new Config();
 
 			// all of these are needed for generating the patched data; this will generate patched files for v2 of the Wii disc
@@ -49,8 +67,11 @@ namespace ToGLocInject {
 			config.PatchedFileOutputPath = @"c:\_graces\wii-en-patched";
 			config.RiivolutionOutputPath = @"c:\_graces\wii-en-patched\riivolution";
 
+			// can be set to get transfer the english voice clips as well, see comment above for how to set this up
+			config.EnglishVoiceProcessingDir = @"c:\_graces\voiceworkdir\";
+
 			// can be set to speed up multiple runs of the tool by caching decompressed files
-			//config.CachePath = @"c:\_graces\_cache";
+			config.CachePath = @"c:\_graces\_cache";
 
 			// can be set to also generate patched files for v0 of the Wii disc; note that you cannot generate files for v0 only!
 			//config.GamefileContainerWiiV0 = new DirectoryOnDisk(@"c:\_graces\wii-jp-v0\files\");
@@ -66,6 +87,11 @@ namespace ToGLocInject {
 			//config.WiiRawCsvOutputPath = @"c:\_graces\_wii-out-csv";
 			//config.DebugFontOutputPath = @"c:\_graces\_font";
 			//config.DebugTextOutputPath = @"c:\_graces\_debug";
+
+			if (args.Length >= 1 && args[0] == "--setup-voices" && config.EnglishVoiceProcessingDir != null) {
+				VoiceInject.Setup(config, config.EnglishVoiceProcessingDir);
+				return 0;
+			}
 
 			FileProcessing.GenerateTranslatedFiles(config);
 

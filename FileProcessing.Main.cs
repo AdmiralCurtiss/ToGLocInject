@@ -17,7 +17,7 @@ namespace ToGLocInject {
 		public static void GenerateTranslatedFiles(Config config) {
 			bool generateNew = config.PatchedFileOutputPath != null;
 			var _fc = new FileFetcher(config);
-			var files = Mappings.GetFileMappings(_fc);
+			var files = Mappings.GetFileMappings(_fc, config.EnglishVoiceProcessingDir != null);
 
 			FileInjectorV0V2 map0inject = null;
 			FileInjectorV0V2 map1inject = null;
@@ -512,6 +512,8 @@ namespace ToGLocInject {
 							scsstr = TextureProcessing.ProcessTexture(_fc, f, jstream, ustream);
 						} else if (f.EndsWith(".ani")) {
 							scsstr = TextureProcessing.ProcessAreaNameTexture(_fc, f, jstream, ustream);
+						} else if (f.EndsWith(".nub")) {
+							scsstr = VoiceInject.InjectEnglishVoicesToWiiNub(config, _fc, f, wstream, jstream, ustream);
 						} else if (f == @"rootR.cpk/str/ja/CharName.bin") {
 							// rebuild char mapping from new wscs
 							List<string> deduplicatedNames = new List<string>();

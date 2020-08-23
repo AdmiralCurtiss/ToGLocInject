@@ -16,7 +16,7 @@ namespace ToGLocInject {
 			return new M(new List<E> { new E(60, 36), new E(81, 11) });
 		}
 
-		public static Dictionary<string, MappingData> GetFileMappings(FileFetcher _fc) {
+		public static Dictionary<string, MappingData> GetFileMappings(FileFetcher _fc, bool patchVoices) {
 			var files = new Dictionary<string, MappingData>();
 			files.Add(@"rootR.cpk/str/ja/CharName.bin", new MappingData(c: true));
 			GetFileMappingsMap0(_fc, files);
@@ -25,6 +25,9 @@ namespace ToGLocInject {
 			files.Add("boot.elf", new MappingData(c: true));
 			GetFileMappingsWiiV0(files);
 			GetFileMappingsAreaNameTextures(files);
+			if (patchVoices) {
+				GetFileMappingsVoices(files);
+			}
 			return files;
 		}
 
@@ -72,6 +75,19 @@ namespace ToGLocInject {
 			files.Add(@"map1R.cpk/mapfile_strtR.cpk/map/chr/R/e420_010.ani", new MappingData(c: true, skipTextMapping: true));
 			files.Add(@"map1R.cpk/mapfile_supaR.cpk/map/chr/R/supa_r01.ani", new MappingData(c: true, skipTextMapping: true));
 			files.Add(@"map1R.cpk/mapfile_winR.cpk/map/chr/R/e104_010.ani", new MappingData(c: true, skipTextMapping: true));
+		}
+
+		private static void GetFileMappingsVoices(Dictionary<string, MappingData> files) {
+			files.Add(@"rootR.cpk/snd/strpck/VOCHT.nub", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"rootR.cpk/snd/strpck/VOSCE01.nub", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"rootR.cpk/snd/strpck/VOSCE02.nub", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"rootR.cpk/snd/strpck/VOSCE03.nub", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"rootR.cpk/snd/strpck/VOSCE04.nub", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"rootR.cpk/snd/strpck/VOSCE05.nub", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"rootR.cpk/snd/strpck/VOSCE06.nub", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"rootR.cpk/snd/strpck/VOSCE07.nub", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"rootR.cpk/snd/strpck/VOSCE08.nub", new MappingData(c: true, skipTextMapping: true));
+			files.Add(@"rootR.cpk/snd/strpck/VOSCE16.nub", new MappingData(c: true, skipTextMapping: true));
 		}
 	}
 }
