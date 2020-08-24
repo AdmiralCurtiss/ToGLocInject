@@ -29,8 +29,12 @@ namespace ToGLocInject {
 		public static ContainedVoiceInfo[] ContainedVoices = new ContainedVoiceInfo[] {
 			new ContainedVoiceInfo() { BaseName = "btl/acf/vav{0:D3}.acf", StartNumber = 1, EndNumber = 97, SE3Index = 0, WiiType = "dsp", WiiSampleRate = 24000, EngType = "vag" },
 			new ContainedVoiceInfo() { BaseName = "btl/acf/skt{0:D3}.acf", StartNumber = 1, EndNumber = 45, SE3Index = 0, WiiType = "dsp", WiiSampleRate = 24000, EngType = "vag" },
-			new ContainedVoiceInfo() { BaseName = "chat/chd/CHT_MS{0:D3}.chd", StartNumber = 1, EndNumber = 242, SE3Index = 1, WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3" },
-			new ContainedVoiceInfo() { BaseName = "chat/chd/CHT_SB{0:D3}.chd", StartNumber = 1, EndNumber = 72, SE3Index = 1, WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3" },
+			new ContainedVoiceInfo() { BaseName = "chat/chd/CHT_MS{0:D3}.chd", StartNumber = 1, EndNumber = 78, SE3Index = 1, WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3" },
+			new ContainedVoiceInfo() { BaseName = "chat/chd/CHT_MS{0:D3}.chd", StartNumber = 80, EndNumber = 183, SE3Index = 1, WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3" },
+			new ContainedVoiceInfo() { BaseName = "chat/chd/CHT_MS{0:D3}.chd", StartNumber = 185, EndNumber = 242, SE3Index = 1, WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3" },
+			new ContainedVoiceInfo() { BaseName = "chat/chd/CHT_SB{0:D3}.chd", StartNumber = 1, EndNumber = 36, SE3Index = 1, WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3" },
+			new ContainedVoiceInfo() { BaseName = "chat/chd/CHT_SB{0:D3}.chd", StartNumber = 38, EndNumber = 58, SE3Index = 1, WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3" },
+			new ContainedVoiceInfo() { BaseName = "chat/chd/CHT_SB{0:D3}.chd", StartNumber = 60, EndNumber = 72, SE3Index = 1, WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3" },
 		};
 
 		private static void GenerateConversion(StringBuilder sb, string folder, string file, string ext, string targetType, int targetSampleRate) {
