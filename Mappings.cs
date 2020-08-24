@@ -89,6 +89,13 @@ namespace ToGLocInject {
 			files.Add(@"rootR.cpk/snd/strpck/VOSCE07.nub", new MappingData(c: true, skipTextMapping: true));
 			files.Add(@"rootR.cpk/snd/strpck/VOSCE08.nub", new MappingData(c: true, skipTextMapping: true));
 			files.Add(@"rootR.cpk/snd/strpck/VOSCE16.nub", new MappingData(c: true, skipTextMapping: true));
+
+			foreach (var cvi in VoiceInject.ContainedVoices) {
+				for (int i = cvi.StartNumber; i <= cvi.EndNumber; ++i) {
+					string path = string.Format(cvi.BaseName, i);
+					files.Add(@"rootR.cpk/" + path, new MappingData(c: true, skipTextMapping: true, voiceInject: cvi));
+				}
+			}
 		}
 	}
 }

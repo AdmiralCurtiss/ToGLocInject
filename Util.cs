@@ -173,7 +173,9 @@ namespace ToGLocInject {
 		public bool MultiplyOutSkit;
 		public bool SkipTextMapping;
 		public bool ReplaceInWiiV0;
-		public MappingData(bool c = false, M j = null, M u = null, W w = null, bool multiplyOutSkit = false, bool skipTextMapping = false, bool replaceInWiiV0 = false) {
+		public ContainedVoiceInfo VoiceInject;
+
+		public MappingData(bool c = false, M j = null, M u = null, W w = null, bool multiplyOutSkit = false, bool skipTextMapping = false, bool replaceInWiiV0 = false, ContainedVoiceInfo voiceInject = null) {
 			Confirmed = c;
 			J = j ?? new M();
 			U = u ?? new M();
@@ -181,6 +183,7 @@ namespace ToGLocInject {
 			MultiplyOutSkit = multiplyOutSkit;
 			SkipTextMapping = skipTextMapping;
 			ReplaceInWiiV0 = replaceInWiiV0;
+			VoiceInject = voiceInject;
 		}
 	}
 

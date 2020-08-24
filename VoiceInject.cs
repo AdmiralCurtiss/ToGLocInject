@@ -26,7 +26,7 @@ namespace ToGLocInject {
 			new NubInfo() { Name = "VOSCE16", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3", EngFileCount = 1579 },
 		};
 
-		private static ContainedVoiceInfo[] ContainedVoices = new ContainedVoiceInfo[] {
+		public static ContainedVoiceInfo[] ContainedVoices = new ContainedVoiceInfo[] {
 			new ContainedVoiceInfo() { BaseName = "btl/acf/vav{0:D3}.acf", StartNumber = 1, EndNumber = 97, SE3Index = 0, WiiType = "dsp", WiiSampleRate = 24000, EngType = "vag" },
 			new ContainedVoiceInfo() { BaseName = "btl/acf/skt{0:D3}.acf", StartNumber = 1, EndNumber = 45, SE3Index = 0, WiiType = "dsp", WiiSampleRate = 24000, EngType = "vag" },
 			new ContainedVoiceInfo() { BaseName = "chat/chd/CHT_MS{0:D3}.chd", StartNumber = 1, EndNumber = 242, SE3Index = 1, WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3" },
@@ -156,7 +156,12 @@ namespace ToGLocInject {
 		internal static Stream InjectEnglishVoicesToWiiNub(Config config, FileFetcher _fc, string name, DuplicatableStream wstream, DuplicatableStream jstream, DuplicatableStream ustream) {
 			NubInfo nub = Nubs.Where(x => x.Name == Path.GetFileNameWithoutExtension(name)).FirstOrDefault();
 			string nubdir = Path.Combine(config.EnglishVoiceProcessingDir, nub.Name);
+			return RebuildNubStream(wstream, nubdir, nub.WiiType, x => x.ToString("D8"));
+		}
 
+		delegate string GetFilenameDelegate(long i);
+
+		private static Stream RebuildNubStream(DuplicatableStream wstream, string nubdir, string nubtype, GetFilenameDelegate getFilenameDelegate) {
 			MemoryStream outstream = new MemoryStream();
 			EndianUtils.Endianness e = EndianUtils.Endianness.BigEndian;
 			using (var stream = wstream.Duplicate()) {
@@ -168,9 +173,9 @@ namespace ToGLocInject {
 				uint[] entries = stream.ReadUInt32Array(header.EntryCount, e);
 				for (long i = 0; i < entries.LongLength; ++i) {
 					uint entryLoc = entries[i];
-					if (nub.WiiType == "bnsf") {
-						using (var bnsfstream = new DuplicatableFileStream(Path.Combine(nubdir, i.ToString("D8") + ".rawbnsf")))
-						using (var samplecountstream = new DuplicatableFileStream(Path.Combine(nubdir, i.ToString("D8") + ".samplecount"))) {
+					if (nubtype == "bnsf") {
+						using (var bnsfstream = new DuplicatableFileStream(Path.Combine(nubdir, getFilenameDelegate(i) + ".rawbnsf")))
+						using (var samplecountstream = new DuplicatableFileStream(Path.Combine(nubdir, getFilenameDelegate(i) + ".samplecount"))) {
 							// write file to outstream
 							long filestart = outstream.Position;
 							StreamUtils.CopyStream(bnsfstream, outstream, bnsfstream.Length);
@@ -192,9 +197,9 @@ namespace ToGLocInject {
 
 							outstream.Position = fileend;
 						}
-					} else if (nub.WiiType == "dsp") {
+					} else if (nubtype == "dsp") {
 						// TODO: mapping is clearly wrong here but for now just see if this even works
-						string dspfilename = File.Exists(Path.Combine(nubdir, i.ToString("D8") + ".dsp")) ? Path.Combine(nubdir, i.ToString("D8") + ".dsp") : Path.Combine(nubdir, 0.ToString("D8") + ".dsp");
+						string dspfilename = File.Exists(Path.Combine(nubdir, getFilenameDelegate(i) + ".dsp")) ? Path.Combine(nubdir, getFilenameDelegate(i) + ".dsp") : Path.Combine(nubdir, 0.ToString("D8") + ".dsp");
 						using (var fs = new DuplicatableFileStream(dspfilename)) {
 							byte[] dspheader = fs.ReadUInt8Array(0x60);
 
@@ -224,6 +229,55 @@ namespace ToGLocInject {
 				outstream.Position = 0;
 				return outstream;
 			}
+		}
+
+		internal static Stream InjectEnglishContainedVoice(Config config, FileFetcher _fc, string name, DuplicatableStream wstream, DuplicatableStream jstream, DuplicatableStream ustream, ContainedVoiceInfo cvi) {
+			var fps4 = new HyoutaTools.Tales.Vesperia.FPS4.FPS4(wstream.Duplicate());
+			var se3stream = fps4.GetChildByIndex(cvi.SE3Index).AsFile.DataStream;
+			var nubms = new MemoryStream();
+			var se3ms = new MemoryStream();
+			var se3 = new HyoutaTools.Tales.Vesperia.SE3.SE3(se3stream.Duplicate(), EndianUtils.Endianness.BigEndian, TextUtils.GameTextEncoding.ASCII);
+			se3.ExtractSE3Header(se3ms);
+			se3.ExtractToNub(nubms);
+			var nubstream = new DuplicatableByteArrayStream(nubms.CopyToByteArrayAndDispose());
+			var newnubstream = RebuildNubStream(nubstream, Path.Combine(config.EnglishVoiceProcessingDir, "other"), cvi.WiiType, x => Path.GetFileNameWithoutExtension(name));
+			var newse3stream = new MemoryStream();
+			se3ms.Position = 0;
+			newnubstream.Position = 0;
+			StreamUtils.CopyStream(se3ms, newse3stream);
+			StreamUtils.CopyStream(newnubstream, newse3stream);
+
+			newse3stream.Position = 0;
+			MemoryStream newfps4stream = new MemoryStream();
+			{
+				List<HyoutaTools.Tales.Vesperia.FPS4.PackFileInfo> packFileInfos = new List<HyoutaTools.Tales.Vesperia.FPS4.PackFileInfo>(fps4.Files.Count);
+				for (int i = 0; i < fps4.Files.Count - 1; ++i) {
+					var pf = new HyoutaTools.Tales.Vesperia.FPS4.PackFileInfo();
+					pf.Name = fps4.Files[i].FileName;
+					if (i == cvi.SE3Index) {
+						pf.DataStream = new DuplicatableByteArrayStream(newse3stream.CopyToByteArrayAndDispose());
+					} else {
+						pf.DataStream = fps4.GetChildByIndex(i).AsFile.DataStream;
+					}
+					pf.Length = pf.DataStream.Length;
+					packFileInfos.Add(pf);
+				}
+				HyoutaTools.Tales.Vesperia.FPS4.FPS4.Pack(packFileInfos, newfps4stream, fps4.ContentBitmask, EndianUtils.Endianness.BigEndian, fps4.Unknown2, wstream.Duplicate(), fps4.ArchiveName, fps4.FirstFileStart, 0x20);
+			}
+
+			//using (var fs = new FileStream(Path.Combine(@"c:\__graces\______fps4repacktest\", name.Replace("/", "_") + "_old.fps4"), FileMode.Create)) {
+			//	using (var wcpy = wstream.Duplicate()) {
+			//		wcpy.Position = 0;
+			//		StreamUtils.CopyStream(wcpy, fs);
+			//	}
+			//}
+			//using (var fs = new FileStream(Path.Combine(@"c:\__graces\______fps4repacktest\", name.Replace("/", "_") + "_new.fps4"), FileMode.Create)) {
+			//	newfps4stream.Position = 0;
+			//	StreamUtils.CopyStream(newfps4stream, fs);
+			//}
+
+			newfps4stream.Position = 0;
+			return newfps4stream;
 		}
 	}
 

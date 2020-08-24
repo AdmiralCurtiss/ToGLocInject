@@ -15,6 +15,7 @@ using HyoutaUtils.Streams;
 namespace ToGLocInject {
 	internal static partial class FileProcessing {
 		public static void GenerateTranslatedFiles(Config config) {
+			var delayedInjects = new Dictionary<string, Stream>(); // injects that we may need to modify further before injecting
 			bool generateNew = config.PatchedFileOutputPath != null;
 			var _fc = new FileFetcher(config);
 			var files = Mappings.GetFileMappings(_fc, config.EnglishVoiceProcessingDir != null);
@@ -464,7 +465,8 @@ namespace ToGLocInject {
 					if (j.Count == u.Count) {
 						if (kvp.Value.MultiplyOutSkit) {
 							string chdpath = "chat/chd/" + Path.GetFileNameWithoutExtension(f) + ".chd";
-							DuplicatableStream chdstream = _fc.GetFile("rootR.cpk/" + chdpath, Version.W);
+							string chdpathroot = "rootR.cpk/" + chdpath;
+							DuplicatableStream chdstream = _fc.GetFile(chdpathroot, Version.W);
 							var chd = new FPS4(chdstream.Duplicate());
 							var tssstream = chd.GetChildByIndex(0).AsFile.DataStream.Duplicate();
 							var multipliedResult = SkitProcessing.MultiplyOutSkitTss(tssstream, wscs);
@@ -474,7 +476,7 @@ namespace ToGLocInject {
 							chdmodstream.Position = fps4InjectLoc;
 							StreamUtils.CopyStream(multipliedResult.newTssStream, chdmodstream, multipliedResult.newTssStream.Length);
 							chdmodstream.Position = 0;
-							rootinject.InjectFile(chdmodstream, chdpath);
+							delayedInjects.Add(chdpathroot, chdmodstream);
 						}
 
 						SCS wscsorig = new SCS(new List<string>(wscs.Entries));
@@ -514,6 +516,12 @@ namespace ToGLocInject {
 							scsstr = TextureProcessing.ProcessAreaNameTexture(_fc, f, jstream, ustream);
 						} else if (f.EndsWith(".nub")) {
 							scsstr = VoiceInject.InjectEnglishVoicesToWiiNub(config, _fc, f, wstream, jstream, ustream);
+						} else if (kvp.Value.VoiceInject != null) {
+							if (delayedInjects.ContainsKey(f)) {
+								wstream = new DuplicatableByteArrayStream(delayedInjects[f].CopyToByteArrayAndDispose());
+								delayedInjects.Remove(f);
+							}
+							scsstr = VoiceInject.InjectEnglishContainedVoice(config, _fc, f, wstream, jstream, ustream, kvp.Value.VoiceInject);
 						} else if (f == @"rootR.cpk/str/ja/CharName.bin") {
 							// rebuild char mapping from new wscs
 							List<string> deduplicatedNames = new List<string>();
@@ -953,6 +961,11 @@ namespace ToGLocInject {
 					scsstr.Position = 0;
 					InjectFile(map0inject, map1inject, rootinject, "rootR.cpk/sys/FontTexture2.tex", scsstr);
 				}
+
+				foreach (var kvp in delayedInjects) {
+					InjectFile(map0inject, map1inject, rootinject, kvp.Key, kvp.Value);
+				}
+				delayedInjects.Clear();
 
 				if (config.RiivolutionOutputPath != null) {
 					DateTime generationTime = DateTime.Now;
