@@ -1,4 +1,7 @@
 ﻿using HyoutaPluginBase;
+using HyoutaTools.Tales.Graces;
+using HyoutaTools.Tales.Vesperia.NUB;
+using HyoutaTools.Tales.Vesperia.SpkdUnpack;
 using HyoutaUtils;
 using HyoutaUtils.Streams;
 using System;
@@ -12,18 +15,18 @@ using System.Threading.Tasks;
 namespace ToGLocInject {
 	public class VoiceInject {
 		private static NubInfo[] Nubs = new NubInfo[] {
-			new NubInfo() { Name = "VOCHT", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3", EngFileCount = 419 },
-			new NubInfo() { Name = "VOBTL", WiiType = "dsp", WiiSampleRate = 24000, EngType = "vag", EngFileCount = 1917 },
-			new NubInfo() { Name = "VOBTLETC", WiiType = "dsp", WiiSampleRate = 24000, EngType = "vag", EngFileCount = 533 },
-			new NubInfo() { Name = "VOSCE01", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3", EngFileCount = 1002 },
-			new NubInfo() { Name = "VOSCE02", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3", EngFileCount = 658 },
-			new NubInfo() { Name = "VOSCE03", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3", EngFileCount = 760 },
-			new NubInfo() { Name = "VOSCE04", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3", EngFileCount = 719 },
-			new NubInfo() { Name = "VOSCE05", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3", EngFileCount = 968 },
-			new NubInfo() { Name = "VOSCE06", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3", EngFileCount = 499 },
-			new NubInfo() { Name = "VOSCE07", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3", EngFileCount = 453 },
-			new NubInfo() { Name = "VOSCE08", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3", EngFileCount = 1031 },
-			new NubInfo() { Name = "VOSCE16", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3", EngFileCount = 1579 },
+			new NubInfo() { Name = "VOCHT", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3" },
+			new NubInfo() { Name = "VOBTLETC", WiiType = "dsp", WiiSampleRate = 24000, EngType = "vag" },
+			new NubInfo() { Name = "VOBTL", WiiType = "dsp", WiiSampleRate = 24000, EngType = "vag" },
+			new NubInfo() { Name = "VOSCE01", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3" },
+			new NubInfo() { Name = "VOSCE02", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3" },
+			new NubInfo() { Name = "VOSCE03", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3" },
+			new NubInfo() { Name = "VOSCE04", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3" },
+			new NubInfo() { Name = "VOSCE05", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3" },
+			new NubInfo() { Name = "VOSCE06", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3" },
+			new NubInfo() { Name = "VOSCE07", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3" },
+			new NubInfo() { Name = "VOSCE08", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3" },
+			new NubInfo() { Name = "VOSCE16", WiiType = "bnsf", WiiSampleRate = 32000, EngType = "at3" },
 		};
 
 		public static ContainedVoiceInfo[] ContainedVoices = new ContainedVoiceInfo[] {
@@ -54,32 +57,116 @@ namespace ToGLocInject {
 		public static void Setup(Config config, string targetpath) {
 			Directory.CreateDirectory(targetpath);
 			var _fc = new FileFetcher(config);
-			var rootR = _fc.TryGetContainer("rootR.cpk", Version.U);
-			foreach (var nub in Nubs) {
-				var nubstream = rootR.GetChildByName("snd/strpck/" + nub.Name + ".nub").AsFile.DataStream;
-				HyoutaTools.Tales.Vesperia.NUB.NUB.ExtractNub(nubstream, Path.Combine(targetpath, nub.Name), HyoutaUtils.EndianUtils.Endianness.BigEndian);
-			}
+			var rootW = _fc.TryGetContainer("rootR.cpk", Version.W);
+			var rootU = _fc.TryGetContainer("rootR.cpk", Version.U);
 
 			StringBuilder sb = new StringBuilder();
 
-			foreach (var nub in Nubs) {
-				for (int i = 0; i < nub.EngFileCount; ++i) {
-					GenerateConversion(sb, nub.Name, i.ToString("D8"), nub.EngType, nub.WiiType, nub.WiiSampleRate);
+			var defstreamW = rootW.GetChildByName("snd/init/StrConfig.stp").AsFile.DataStream;
+			var defstreamU = rootU.GetChildByName("snd/init/StrConfig.stp").AsFile.DataStream;
+			var defW = new SPKD(defstreamW);
+			var defU = new SPKD(defstreamU);
+
+			SHBP hashVobtletcU = null;
+			iPck lipVobtletcU = null;
+			NUB nubVobtletcU = null;
+			foreach (NubInfo nubInfo in Nubs) {
+				var hashStreamW = defW.GetChildByName(nubInfo.Name + ".1")?.AsFile.DataStream;
+				var hashStreamU = defU.GetChildByName(nubInfo.Name + ".1")?.AsFile.DataStream;
+				var lipStreamU = defU.GetChildByName(nubInfo.Name + ".2")?.AsFile.DataStream;
+				DuplicatableStream lipStreamUDec = null;
+				if (lipStreamU != null) {
+					MemoryStream ms = new MemoryStream();
+					compto.complib.DecodeStream(lipStreamU, ms, 0, 0, true);
+					lipStreamUDec = ms.CopyToByteArrayStreamAndDispose();
+					lipStreamUDec.Position = 0;
+				}
+				var nubStreamU = rootU.GetChildByName("snd/strpck/" + nubInfo.Name + ".nub").AsFile.DataStream;
+
+				var hashW = hashStreamW != null ? new SHBP(hashStreamW) : null;
+				var hashU = hashStreamU != null ? new SHBP(hashStreamU) : null;
+				var lipU = lipStreamUDec != null ? new iPck(lipStreamUDec) : null;
+				var nubU = new NUB(nubStreamU, EndianUtils.Endianness.BigEndian);
+
+				if (nubInfo.Name == "VOBTLETC") {
+					// the Wii VOBTL was split into two files VOBTL and VOBTLETC in PS3, so we need to do some stuff to put them back together
+					hashVobtletcU = hashU;
+					lipVobtletcU = lipU;
+					nubVobtletcU = nubU;
+					continue;
+				}
+
+				Console.WriteLine("Extracting files for " + nubInfo.Name + "...");
+
+				List<NubFileRef> filesToExtract = new List<NubFileRef>();
+				if (hashW != null && hashU != null) {
+					Dictionary<uint, NubFileRef> hashToNubfileMap = new Dictionary<uint, NubFileRef>();
+					for (int i = 0; i < hashU.Hashes.Count; ++i) {
+						uint hash = hashU.Hashes[i];
+						NubFileRef nfr = new NubFileRef() { Nub = nubU, Index = i, Lipsync = lipU.Data[i] };
+						if (hashToNubfileMap.ContainsKey(hash)) {
+							throw new Exception("duplicate hash key");
+						}
+						hashToNubfileMap.Add(hash, nfr);
+					}
+
+					if (nubInfo.Name == "VOBTL") {
+						for (int i = 0; i < hashVobtletcU.Hashes.Count; ++i) {
+							uint hash = hashVobtletcU.Hashes[i];
+							NubFileRef nfr = new NubFileRef() { Nub = nubVobtletcU, Index = i, Lipsync = lipVobtletcU.Data[i] };
+							if (hashToNubfileMap.ContainsKey(hash)) {
+								throw new Exception("duplicate hash key");
+							}
+							hashToNubfileMap.Add(hash, nfr);
+						}
+					}
+
+					for (int i = 0; i < hashW.Hashes.Count; ++i) {
+						uint hash = hashW.Hashes[i];
+						filesToExtract.Add(hashToNubfileMap[hash]);
+					}
+				} else {
+					for (int i = 0; i < nubU.EntryCount; ++i) {
+						filesToExtract.Add(new NubFileRef() { Nub = nubU, Index = i });
+					}
+				}
+
+				string dir = Path.Combine(targetpath, nubInfo.Name);
+				Directory.CreateDirectory(dir);
+				for (int i = 0; i < filesToExtract.Count; ++i) {
+					var nfr = filesToExtract[i];
+					using (var audiofilestream = nfr.Nub.GetChildByIndex(nfr.Index).AsFile.DataStream.Duplicate()) {
+						string path = Path.Combine(dir, string.Format("{0:D8}.{1}", i, nubInfo.EngType));
+						using (var fs = new FileStream(path, FileMode.Create)) {
+							audiofilestream.Position = 0;
+							StreamUtils.CopyStream(audiofilestream, fs);
+						}
+					}
+					GenerateConversion(sb, nubInfo.Name, i.ToString("D8"), nubInfo.EngType, nubInfo.WiiType, nubInfo.WiiSampleRate);
 				}
 			}
 
+			string otherdir = Path.Combine(targetpath, "other");
+			Directory.CreateDirectory(otherdir);
 			foreach (var cvi in ContainedVoices) {
 				for (int i = cvi.StartNumber; i <= cvi.EndNumber; ++i) {
 					string path = string.Format(cvi.BaseName, i);
-					var fps4stream = rootR.GetChildByName(path).AsFile.DataStream;
+					Console.WriteLine("Extracting " + path + "...");
+					string fname = Path.GetFileNameWithoutExtension(path);
+					var fps4stream = rootU.GetChildByName(path).AsFile.DataStream;
 					var fps4 = new HyoutaTools.Tales.Vesperia.FPS4.FPS4(fps4stream);
 					var se3stream = fps4.GetChildByIndex(cvi.SE3Index).AsFile.DataStream;
 					var ms = new MemoryStream();
 					new HyoutaTools.Tales.Vesperia.SE3.SE3(se3stream.Duplicate(), EndianUtils.Endianness.BigEndian, TextUtils.GameTextEncoding.ASCII).ExtractToNub(ms);
-					var nubstream = new DuplicatableByteArrayStream(ms.CopyToByteArrayAndDispose());
-					HyoutaTools.Tales.Vesperia.NUB.NUB.ExtractNub(nubstream, Path.Combine(targetpath, "other"), HyoutaUtils.EndianUtils.Endianness.BigEndian);
-					File.Move(Path.Combine(targetpath, "other", "00000000." + cvi.EngType), Path.Combine(targetpath, "other", Path.GetFileNameWithoutExtension(path) + "." + cvi.EngType));
-					GenerateConversion(sb, "other", Path.GetFileNameWithoutExtension(path), cvi.EngType, cvi.WiiType, cvi.WiiSampleRate);
+					var nub = new NUB(ms.CopyToByteArrayStreamAndDispose(), EndianUtils.Endianness.BigEndian);
+					using (var audiofilestream = nub.GetChildByIndex(0).AsFile.DataStream.Duplicate()) {
+						string otherpath = Path.Combine(otherdir, string.Format("{0}.{1}", fname, cvi.EngType));
+						using (var fs = new FileStream(otherpath, FileMode.Create)) {
+							audiofilestream.Position = 0;
+							StreamUtils.CopyStream(audiofilestream, fs);
+						}
+					}
+					GenerateConversion(sb, "other", fname, cvi.EngType, cvi.WiiType, cvi.WiiSampleRate);
 				}
 			}
 
@@ -87,6 +174,16 @@ namespace ToGLocInject {
 
 			return;
 		}
+
+		private class NubFileRef {
+			public NUB Nub;
+			public int Index;
+			public byte[] Lipsync;
+
+			public override string ToString() {
+				return Index + "/" + Nub.EntryCount + " (lipsync: " + (Lipsync == null ? "no" : "yes") + ")";
+			}
+		};
 
 		public static void PrepareRawBnsfFromWav(string path, int targetSampleRate) {
 			try {
