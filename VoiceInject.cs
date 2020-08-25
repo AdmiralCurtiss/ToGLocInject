@@ -66,6 +66,7 @@ namespace ToGLocInject {
 			var defstreamU = rootU.GetChildByName("snd/init/StrConfig.stp").AsFile.DataStream;
 			var defW = new SPKD(defstreamW);
 			var defU = new SPKD(defstreamU);
+			List<SPKD.SpkdPackFileData> defWPack = defW.GetPackData();
 
 			SHBP hashVobtletcU = null;
 			iPck lipVobtletcU = null;
@@ -131,10 +132,17 @@ namespace ToGLocInject {
 					}
 				}
 
+				List<byte[]> lipData = lipU != null ? new List<byte[]>() : null;
+
 				string dir = Path.Combine(targetpath, nubInfo.Name);
 				Directory.CreateDirectory(dir);
 				for (int i = 0; i < filesToExtract.Count; ++i) {
 					var nfr = filesToExtract[i];
+
+					if (lipData != null) {
+						lipData.Add(nfr.Lipsync);
+					}
+
 					using (var audiofilestream = nfr.Nub.GetChildByIndex(nfr.Index).AsFile.DataStream.Duplicate()) {
 						string path = Path.Combine(dir, string.Format("{0:D8}.{1}", i, nubInfo.EngType));
 						using (var fs = new FileStream(path, FileMode.Create)) {
@@ -144,6 +152,22 @@ namespace ToGLocInject {
 					}
 					GenerateConversion(sb, nubInfo.Name, i.ToString("D8"), nubInfo.EngType, nubInfo.WiiType, nubInfo.WiiSampleRate);
 				}
+
+				if (lipData != null) {
+					using (var newlipstream = new iPck(lipData).WriteToStream(EndianUtils.Endianness.BigEndian)) {
+						newlipstream.Position = 0;
+						using (MemoryStream ms = new MemoryStream()) {
+							compto.complib.EncodeStream(newlipstream, ms, 0, 1, true);
+							defWPack.First(x => x.Name == nubInfo.Name).File2 = ms.CopyToByteArrayStreamAndDispose();
+						}
+					}
+				}
+			}
+
+			using (var newspkd = SPKD.Pack(defWPack))
+			using (var fs = new FileStream(Path.Combine(targetpath, "StrConfig.stp"), FileMode.Create)) {
+				newspkd.Position = 0;
+				StreamUtils.CopyStream(newspkd, fs);
 			}
 
 			string otherdir = Path.Combine(targetpath, "other");

@@ -96,6 +96,8 @@ namespace ToGLocInject {
 					files.Add(@"rootR.cpk/" + path, new MappingData(c: true, skipTextMapping: true, voiceInject: cvi));
 				}
 			}
+
+			files.Add(@"rootR.cpk/snd/init/StrConfig.stp", new MappingData(c: true, skipTextMapping: true));
 		}
 	}
 }

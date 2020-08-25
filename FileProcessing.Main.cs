@@ -516,6 +516,8 @@ namespace ToGLocInject {
 							scsstr = TextureProcessing.ProcessAreaNameTexture(_fc, f, jstream, ustream);
 						} else if (f.EndsWith(".nub")) {
 							scsstr = VoiceInject.InjectEnglishVoicesToWiiNub(config, _fc, f, wstream, jstream, ustream);
+						} else if (f == @"rootR.cpk/snd/init/StrConfig.stp") {
+							scsstr = new DuplicatableFileStream(Path.Combine(config.EnglishVoiceProcessingDir, "StrConfig.stp")).CopyToMemoryAndDispose();
 						} else if (kvp.Value.VoiceInject != null) {
 							if (delayedInjects.ContainsKey(f)) {
 								wstream = new DuplicatableByteArrayStream(delayedInjects[f].CopyToByteArrayAndDispose());
