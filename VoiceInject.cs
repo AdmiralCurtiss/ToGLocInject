@@ -323,9 +323,7 @@ namespace ToGLocInject {
 							outstream.Position = fileend;
 						}
 					} else if (nubtype == "dsp") {
-						// TODO: mapping is clearly wrong here but for now just see if this even works
-						string dspfilename = File.Exists(Path.Combine(nubdir, getFilenameDelegate(i) + ".dsp")) ? Path.Combine(nubdir, getFilenameDelegate(i) + ".dsp") : Path.Combine(nubdir, 0.ToString("D8") + ".dsp");
-						using (var fs = new DuplicatableFileStream(dspfilename)) {
+						using (var fs = new DuplicatableFileStream(Path.Combine(nubdir, getFilenameDelegate(i) + ".dsp"))) {
 							byte[] dspheader = fs.ReadUInt8Array(0x60);
 
 							// write file to outstream
