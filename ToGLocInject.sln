@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "utf_tab-sharp", "HyoutaTool
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HyoutaToolsLib", "HyoutaTools\HyoutaToolsLib.csproj", "{4E99D787-3847-49AF-978A-A76FD0162D8A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "complib-sharp", "compto-sharp\compto-sharp\complib-sharp\complib-sharp.csproj", "{CAD998FE-E59C-403B-AE88-E1BF57EF983D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{4E99D787-3847-49AF-978A-A76FD0162D8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E99D787-3847-49AF-978A-A76FD0162D8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E99D787-3847-49AF-978A-A76FD0162D8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAD998FE-E59C-403B-AE88-E1BF57EF983D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAD998FE-E59C-403B-AE88-E1BF57EF983D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAD998FE-E59C-403B-AE88-E1BF57EF983D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAD998FE-E59C-403B-AE88-E1BF57EF983D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

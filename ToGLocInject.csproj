@@ -75,6 +75,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="compto-sharp\compto-sharp\complib-sharp\complib-sharp.csproj">
+      <Project>{cad998fe-e59c-403b-ae88-e1bf57ef983d}</Project>
+      <Name>complib-sharp</Name>
+    </ProjectReference>
     <ProjectReference Include="HyoutaTools\HyoutaToolsLib.csproj">
       <Project>{4e99d787-3847-49af-978a-a76fd0162d8a}</Project>
       <Name>HyoutaToolsLib</Name>
