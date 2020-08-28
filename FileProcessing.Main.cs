@@ -34,6 +34,7 @@ namespace ToGLocInject {
 			DuplicatableStream newFontMetrics = null;
 			DuplicatableStream newFontTexture = null;
 			Dictionary<char, (int w1, int w2)> charToWidthMap = null;
+			SkitTexCache skitTexCache = new SkitTexCache();
 			bool fontTextureInjected = false;
 			bool executableProcessed = false;
 
@@ -525,7 +526,7 @@ namespace ToGLocInject {
 								wstream = new DuplicatableByteArrayStream(delayedInjects[f].CopyToByteArrayAndDispose());
 								delayedInjects.Remove(f);
 							}
-							scsstr = VoiceInject.InjectEnglishContainedVoice(config, _fc, f, wstream, jstream, ustream, kvp.Value.VoiceInject);
+							scsstr = VoiceInject.InjectEnglishContainedVoice(config, _fc, f, wstream, jstream, ustream, kvp.Value.VoiceInject, skitTexCache);
 							if (kvp.Value.VoiceInject.IsSkit) {
 								string skitScsPath = f.Replace("/chd/", "/scs/JA/").Replace(".chd", ".scs");
 								if (delayedInjects.ContainsKey(skitScsPath)) {

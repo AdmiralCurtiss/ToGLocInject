@@ -354,7 +354,7 @@ namespace ToGLocInject {
 			}
 		}
 
-		internal static Stream InjectEnglishContainedVoice(Config config, FileFetcher _fc, string name, DuplicatableStream wstream, DuplicatableStream jstream, DuplicatableStream ustream, ContainedVoiceInfo cvi) {
+		internal static Stream InjectEnglishContainedVoice(Config config, FileFetcher _fc, string name, DuplicatableStream wstream, DuplicatableStream jstream, DuplicatableStream ustream, ContainedVoiceInfo cvi, SkitTexCache skitTexCache) {
 			var fps4 = new HyoutaTools.Tales.Vesperia.FPS4.FPS4(wstream.Duplicate());
 			var se3stream = fps4.GetChildByIndex(cvi.SE3Index).AsFile.DataStream;
 			var nubms = new MemoryStream();
@@ -370,36 +370,53 @@ namespace ToGLocInject {
 			StreamUtils.CopyStream(se3ms, newse3stream);
 			StreamUtils.CopyStream(newnubstream, newse3stream);
 
+			if (cvi.IsSkit) {
+				using (var texIdStream = fps4.GetChildByIndex(3).AsFile.DataStream.Duplicate().CopyToByteArrayStreamAndDispose()) {
+					int idx = 4;
+					uint[] texIds = texIdStream.ReadUInt32Array(texIdStream.Length / 4, EndianUtils.Endianness.BigEndian);
+					foreach (uint texId in texIds) {
+						skitTexCache.AddTextureIfNotExists(texId, fps4.GetChildByIndex(idx).AsFile.DataStream.Duplicate().CopyToByteArrayStreamAndDispose());
+						++idx;
+					}
+				}
+			}
+
 			newse3stream.Position = 0;
 			MemoryStream newfps4stream = new MemoryStream();
 			using (var ufps4 = new HyoutaTools.Tales.Vesperia.FPS4.FPS4(ustream.Duplicate())) {
-				List<HyoutaTools.Tales.Vesperia.FPS4.PackFileInfo> packFileInfos = new List<HyoutaTools.Tales.Vesperia.FPS4.PackFileInfo>(fps4.Files.Count);
-				if (ufps4.Files.Count != fps4.Files.Count) {
-					Console.WriteLine("WARNING: file count mismatch in " + name);
+				uint[] utexIds = null;
+				if (cvi.IsSkit) {
+					using (var texIdStream = ufps4.GetChildByIndex(3).AsFile.DataStream.Duplicate().CopyToByteArrayStreamAndDispose()) {
+						utexIds = texIdStream.ReadUInt32Array(texIdStream.Length / 4, EndianUtils.Endianness.BigEndian);
+					}
 				}
-				for (int i = 0; i < fps4.Files.Count - 1; ++i) {
+
+				List<HyoutaTools.Tales.Vesperia.FPS4.PackFileInfo> packFileInfos = new List<HyoutaTools.Tales.Vesperia.FPS4.PackFileInfo>(fps4.Files.Count);
+				for (int i = 0; i < (cvi.IsSkit ? ufps4 : fps4).Files.Count - 1; ++i) {
 					var pf = new HyoutaTools.Tales.Vesperia.FPS4.PackFileInfo();
-					pf.Name = fps4.Files[i].FileName;
+					pf.Name = (cvi.IsSkit ? ufps4 : fps4).Files[i].FileName;
 					if (i == cvi.SE3Index) {
 						pf.DataStream = new DuplicatableByteArrayStream(newse3stream.CopyToByteArrayAndDispose());
 					} else if (cvi.IsSkit && (i == 0 || i == 2 || i == 3)) {
-						if (i == 3) {
-							var aaa = ufps4.GetChildByIndex(i).AsFile.DataStream.Duplicate().CopyToByteArrayAndDispose();
-							var bbb = fps4.GetChildByIndex(i).AsFile.DataStream.Duplicate().CopyToByteArrayAndDispose();
-							if (!aaa.SequenceEqual(bbb)) {
-								Console.WriteLine("WARNING: mismatch in texture ID data in " + name);
-							}
-						}
-
 						// copy over the actual skit script/timing from the EN version so the voice timing and lipsync matches with the skit
 						pf.DataStream = ufps4.GetChildByIndex(i).AsFile.DataStream.Duplicate();
+					} else if (cvi.IsSkit && i >= 4) {
+						uint texId = NormalizePs3SkitTextureIdForWii(utexIds[i - 4]);
+						try {
+							pf.DataStream = skitTexCache.GetTextureStream(texId);
+						} catch (Exception ex) {
+							Console.WriteLine("ERROR: Failed to get skit texture with ID 0x" + texId.ToString("x4"));
+							Console.WriteLine("       tex name: " + new SkitTexCache.SkitTex() { Stream = ufps4.GetChildByIndex(i).AsFile.DataStream.Duplicate() }.ToString());
+							throw ex;
+						}
 					} else {
-						pf.DataStream = fps4.GetChildByIndex(i).AsFile.DataStream;
+						pf.DataStream = fps4.GetChildByIndex(i).AsFile.DataStream.Duplicate();
 					}
 					pf.Length = pf.DataStream.Length;
 					packFileInfos.Add(pf);
 				}
-				HyoutaTools.Tales.Vesperia.FPS4.FPS4.Pack(packFileInfos, newfps4stream, fps4.ContentBitmask, EndianUtils.Endianness.BigEndian, fps4.Unknown2, wstream.Duplicate(), fps4.ArchiveName, fps4.FirstFileStart, 0x20);
+				packFileInfos = HyoutaTools.Tales.Vesperia.FPS4.FPS4.DetectDuplicates(packFileInfos);
+				HyoutaTools.Tales.Vesperia.FPS4.FPS4.Pack(packFileInfos, newfps4stream, fps4.ContentBitmask, EndianUtils.Endianness.BigEndian, fps4.Unknown2, cvi.IsSkit ? null : wstream.Duplicate(), fps4.ArchiveName, fps4.FirstFileStart, 0x20);
 			}
 
 			//using (var fs = new FileStream(Path.Combine(@"c:\__graces\______fps4repacktest\", name.Replace("/", "_") + "_old.fps4"), FileMode.Create)) {
@@ -415,6 +432,22 @@ namespace ToGLocInject {
 
 			newfps4stream.Position = 0;
 			return newfps4stream;
+		}
+
+		private static uint NormalizePs3SkitTextureIdForWii(uint texId) {
+			if (texId >= 0xf9 && texId <= 0x10b) {
+				return texId - 0xf9;
+			}
+			if (texId >= 0x10c && texId <= 0x11e) {
+				return texId - 0x10c;
+			}
+			if (texId >= 0x11f && texId <= 0x124) {
+				return texId - 0x11f + 0x86;
+			}
+			if (texId >= 0x125 && texId <= 0x12a) {
+				return texId - 0x125 + 0x86;
+			}
+			return texId;
 		}
 	}
 
