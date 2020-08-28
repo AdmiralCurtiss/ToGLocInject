@@ -377,6 +377,8 @@ namespace ToGLocInject {
 					bool isFontMetrics = f == "rootR.cpk/sys/FontBinary2.bin";
 					bool isExecutable = f == "boot.elf";
 					bool isGenericTexture = f.StartsWith("rootR.cpk/mg/tex") || f.StartsWith("rootR.cpk/mnu/tex") || f == "rootR.cpk/SysSub/JA/TitleTexture.tex";
+					bool isSkitText = f.StartsWith("rootR.cpk/chat/scs/JA/");
+					bool delayInjection = isSkitText;
 
 					Console.WriteLine("Processing and injecting " + f + "...");
 					DuplicatableStream jstream;
@@ -524,6 +526,15 @@ namespace ToGLocInject {
 								delayedInjects.Remove(f);
 							}
 							scsstr = VoiceInject.InjectEnglishContainedVoice(config, _fc, f, wstream, jstream, ustream, kvp.Value.VoiceInject);
+							if (kvp.Value.VoiceInject.IsSkit) {
+								string skitScsPath = f.Replace("/chd/", "/scs/JA/").Replace(".chd", ".scs");
+								if (delayedInjects.ContainsKey(skitScsPath)) {
+									// we copied the skit script from the EN version, so we need to also use the english skit text so the text IDs match
+									var uskitscs = _fc.TryGetFile(skitScsPath, Version.U);
+									delayedInjects.Remove(skitScsPath);
+									delayedInjects.Add(skitScsPath, uskitscs.AsFile.DataStream.Duplicate());
+								}
+							}
 						} else if (f == @"rootR.cpk/str/ja/CharName.bin") {
 							// rebuild char mapping from new wscs
 							List<string> deduplicatedNames = new List<string>();
@@ -948,7 +959,11 @@ namespace ToGLocInject {
 									WritePatchedFile(Path.Combine(config.RiivolutionOutputPath, "main.dol"), scsstr);
 								}
 							} else {
-								InjectFile(map0inject, map1inject, rootinject, f, scsstr);
+								if (delayInjection) {
+									delayedInjects.Add(f, scsstr);
+								} else {
+									InjectFile(map0inject, map1inject, rootinject, f, scsstr);
+								}
 							}
 						}
 					} else {
