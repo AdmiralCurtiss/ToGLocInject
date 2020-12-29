@@ -242,7 +242,7 @@ namespace ToGLocInject {
 			files.Add(@"map1R.cpk/mapfile_lanR.cpk/map/sce/R/ja/s450_001.scs", new MappingData(c: true, u: GenerateDefault().A(270, -5)));
 			files.Add(@"map1R.cpk/mapfile_nekoR.cpk/map/sce/R/ja/neko_e01.scs", new MappingData(c: true, u: GenerateDefault().A(283, -2), w: new W().Sys(104).RP(489, 269, (o, r) => r.ReplaceSubstring(0, 12, o, 0, 18)).RP(492, 272, (o, r) => r.ReplaceSubstring(18, 6, o, 16, 9).ReplaceSubstring(0, 6, o, 0, 9)).RP(494, 274, (o, r) => r.ReplaceSubstring(19, 6, o, 16, 9).ReplaceSubstring(0, 6, o, 0, 9))));
 			files.Add(@"map1R.cpk/mapfile_nekoR.cpk/map/sce/R/ja/neko_i01.scs", new MappingData(c: true, u: GenerateDefault(), j: new M().A(288, 284), w: new W().RP(489, 270, (o, r) => r.ReplaceSubstring(0, 12, o, 0, 18)).RP(492, 273, (o, r) => r.ReplaceSubstring(18, 6, o, 16, 9).ReplaceSubstring(0, 6, o, 0, 9)).RP(494, 275, (o, r) => r.ReplaceSubstring(19, 6, o, 16, 9).ReplaceSubstring(0, 6, o, 0, 9))));
-			files.Add(@"map1R.cpk/mapfile_nekoR.cpk/map/sce/R/ja/neko_t01.scs", new MappingData(c: true, u: GenerateDefault()));
+			files.Add(@"map1R.cpk/mapfile_nekoR.cpk/map/sce/R/ja/neko_t01.scs", new MappingData(c: true, u: GenerateDefault().FeedSplit(283), j: new M().FeedSplit(285)));
 			files.Add(@"map1R.cpk/mapfile_nekoR.cpk/map/sce/R/ja/s245_001.scs", new MappingData(c: true, u: GenerateDefault()));
 			files.Add(@"map1R.cpk/mapfile_nekoR.cpk/map/sce/R/ja/s246_001.scs", new MappingData(c: true, u: GenerateDefault()));
 			files.Add(@"map1R.cpk/mapfile_nekoR.cpk/map/sce/R/ja/s247_001.scs", new MappingData(c: true, u: GenerateDefault()));
