@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using HyoutaTools.Tales.Graces.SCS;
 using HyoutaUtils;
 
 namespace ToGLocInject {
@@ -616,19 +617,52 @@ namespace ToGLocInject {
 			files.Add(@"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/s426_011.scs", new MappingData(c: true, u: GenerateDefault(), j: new M().A(345, 31), w: new W().R(541, 322)));
 			files.Add(@"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/s426_012.scs", new MappingData(c: true, u: GenerateDefault(), j: new M().A(335, 31)));
 			files.Add(@"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/s426_013.scs", new MappingData(c: true, u: GenerateDefault(), j: new M().A(398, 31)));
-			files.Add(@"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d01.scs", new MappingData(c: true, u: GenerateDefault().A(324, -4).A(325, -2).A(365, -1), j: new M().A(286, 31).A(385, -1)));
-			files.Add(@"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d01_01.scs", new MappingData(c: true, u: GenerateDefault().A(363, -4).A(364, -2).A(408, -1), j: new M().A(325, 31).A(428, -1)));
-			files.Add(@"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d01_02.scs", new MappingData(c: true, u: GenerateDefault().A(363, -4).A(364, -2).A(408, -1), j: new M().A(325, 31).A(428, -1)));
-			files.Add(@"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d01_03.scs", new MappingData(c: true, u: GenerateDefault().A(363, -4).A(364, -2).A(408, -1), j: new M().A(325, 31).A(428, -1)));
-			files.Add(@"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d01_04.scs", new MappingData(c: true, u: GenerateDefault().A(363, -4).A(364, -2).A(408, -1), j: new M().A(325, 31).A(428, -1)));
-			files.Add(@"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d01_05.scs", new MappingData(c: true, u: GenerateDefault().A(363, -4).A(364, -2).A(408, -1), j: new M().A(325, 31).A(428, -1)));
-			files.Add(@"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d01_06.scs", new MappingData(c: true, u: GenerateDefault().A(363, -4).A(364, -2).A(408, -1), j: new M().A(325, 31).A(428, -1)));
-			files.Add(@"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d01_07.scs", new MappingData(c: true, u: GenerateDefault().A(363, -4).A(364, -2).A(408, -1), j: new M().A(325, 31).A(428, -1)));
-			files.Add(@"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d01_08.scs", new MappingData(c: true, u: GenerateDefault().A(363, -4).A(364, -2).A(408, -1), j: new M().A(325, 31).A(428, -1)));
-			files.Add(@"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d01_09.scs", new MappingData(c: true, u: GenerateDefault().A(363, -4).A(364, -2).A(408, -1), j: new M().A(325, 31).A(428, -1)));
-			files.Add(@"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d01_10.scs", new MappingData(c: true, u: GenerateDefault().A(363, -4).A(364, -2).A(408, -1), j: new M().A(325, 31).A(428, -1)));
-			files.Add(@"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d02.scs", new MappingData(c: true, u: GenerateDefault().A(313, -2).A(321, -1).A(327, -1).A(328, -1).A(333, -3).A(335, -1), j: new M().A(314, 31).A(330, 33).A(338, -2).A(340, 32), w: new W().Sys(541)));
+
+			// bonus dungeon system strings were moved in the PS3 US version, use this to match them back to their Wii locations
+			var uscssys = new SCS(_fc.GetFile(@"rootR.cpk/sys/ja/SysString.bin", Version.U));
+			AddZoneD01(_fc, uscssys, files, @"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d01.scs", new MappingData(c: true, u: GenerateDefault().A(324, -4).A(325, -2).A(365, -1), j: new M().A(286, 31).A(385, -1)), -35, -38);
+			AddZoneD01(_fc, uscssys, files, @"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d01_01.scs", new MappingData(c: true, u: GenerateDefault().A(363, -4).A(364, -2).A(408, -1), j: new M().A(325, 31).A(428, -1)));
+			AddZoneD01(_fc, uscssys, files, @"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d01_02.scs", new MappingData(c: true, u: GenerateDefault().A(363, -4).A(364, -2).A(408, -1), j: new M().A(325, 31).A(428, -1)));
+			AddZoneD01(_fc, uscssys, files, @"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d01_03.scs", new MappingData(c: true, u: GenerateDefault().A(363, -4).A(364, -2).A(408, -1), j: new M().A(325, 31).A(428, -1)));
+			AddZoneD01(_fc, uscssys, files, @"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d01_04.scs", new MappingData(c: true, u: GenerateDefault().A(363, -4).A(364, -2).A(408, -1), j: new M().A(325, 31).A(428, -1)));
+			AddZoneD01(_fc, uscssys, files, @"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d01_05.scs", new MappingData(c: true, u: GenerateDefault().A(363, -4).A(364, -2).A(408, -1), j: new M().A(325, 31).A(428, -1)));
+			AddZoneD01(_fc, uscssys, files, @"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d01_06.scs", new MappingData(c: true, u: GenerateDefault().A(363, -4).A(364, -2).A(408, -1), j: new M().A(325, 31).A(428, -1)));
+			AddZoneD01(_fc, uscssys, files, @"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d01_07.scs", new MappingData(c: true, u: GenerateDefault().A(363, -4).A(364, -2).A(408, -1), j: new M().A(325, 31).A(428, -1)));
+			AddZoneD01(_fc, uscssys, files, @"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d01_08.scs", new MappingData(c: true, u: GenerateDefault().A(363, -4).A(364, -2).A(408, -1), j: new M().A(325, 31).A(428, -1)));
+			AddZoneD01(_fc, uscssys, files, @"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d01_09.scs", new MappingData(c: true, u: GenerateDefault().A(363, -4).A(364, -2).A(408, -1), j: new M().A(325, 31).A(428, -1)));
+			AddZoneD01(_fc, uscssys, files, @"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d01_10.scs", new MappingData(c: true, u: GenerateDefault().A(363, -4).A(364, -2).A(408, -1), j: new M().A(325, 31).A(428, -1)));
+			{
+				string name = @"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d02.scs";
+				var mapping = new MappingData(c: true, u: GenerateDefault().A(313, -2).A(321, -1).A(327, -1).A(328, -1).A(333, -3).A(335, -1), j: new M().A(314, 31).A(330, 33).A(338, -2).A(340, 32), w: new W().Sys(541));
+				var uscs = new SCS(_fc.GetFile(name, Version.U));
+				var wscs = new SCS(_fc.GetFile(name, Version.W));
+				mapping.W = mapping.W.R(544, wscs.Entries[544].Substring(0, 10) + uscs.Entries[324] + wscs.Entries[544].Substring(15));
+				mapping.W = mapping.W.R(532, uscssys.Entries[535]);
+				mapping.W = mapping.W.R(533, uscssys.Entries[536]);
+				mapping.W = mapping.W.R(542, uscssys.Entries[537]);
+				mapping.W = mapping.W.R(546, uscssys.Entries[538]);
+				mapping.W = mapping.W.R(547, uscssys.Entries[539].ReplaceSubstring(39, 1, uscssys.Entries[539], 1, 1));
+				mapping.W = mapping.W.R(553, uscssys.Entries[540]);
+				mapping.W = mapping.W.R(555, uscssys.Entries[541]);
+				files.Add(name, mapping);
+			}
 			files.Add(@"map0R.cpk/mapfile_zoneR.cpk/map/sce/R/ja/zone_d03.scs", new MappingData(c: true, u: GenerateDefault()));
+		}
+
+		private static void AddZoneD01(FileFetcher _fc, SCS uscssys, Dictionary<string, MappingData> files, string name, MappingData baseMapping, int offset1 = 0, int offset2 = 0) {
+			MappingData mapping = baseMapping;
+			mapping.W = mapping.W.R(577 + offset1, uscssys.Entries[542]);
+			mapping.W = mapping.W.R(578 + offset1, uscssys.Entries[543]);
+			mapping.W = mapping.W.R(579 + offset1, uscssys.Entries[544]);
+			mapping.W = mapping.W.R(580 + offset1, uscssys.Entries[545]);
+			mapping.W = mapping.W.R(581 + offset1, uscssys.Entries[546].ReplaceSubstring(24, 1, uscssys.Entries[546], 7, 1));
+			mapping.W = mapping.W.R(583 + offset1, uscssys.Entries[547]);
+			mapping.W = mapping.W.R(584 + offset1, uscssys.Entries[548]);
+			mapping.W = mapping.W.R(629 + offset2, uscssys.Entries[549]);
+			for (int i = 0; i < 10; ++i) {
+				mapping.W = mapping.W.R(632 + offset2 + i, (i + 1).ToString() + " " + uscssys.Entries[553] + " " + uscssys.Entries[552].Substring(0, 6) + (i + 1).ToString());
+			}
+			files.Add(name, mapping);
 		}
 	}
 }
