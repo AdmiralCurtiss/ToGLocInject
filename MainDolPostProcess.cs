@@ -294,6 +294,7 @@ namespace ToGLocInject {
 			w.Entries[6437] = u[5906].entry;
 
 			// TODO: are these right?
+			w.Entries[6527] = u[6012].entry.Remove(26, 12);
 			w.Entries[6533] = u[6018].entry.ReplaceSubstring(26, 2, worig.Entries[6533].ConvertFullwidthToAscii(), 6, 1);
 			w.Entries[6575] = u[6060].entry.Remove(38, 16).ReplaceSubstring(39, 1, worig.Entries[6575], 18, 1);
 			w.Entries[6579] = u[6064].entry.Remove(38, 16).ReplaceSubstring(39, 1, worig.Entries[6579], 18, 1);
