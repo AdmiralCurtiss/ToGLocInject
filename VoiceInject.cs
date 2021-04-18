@@ -180,8 +180,7 @@ namespace ToGLocInject {
 					var fps4stream = rootU.GetChildByName(path).AsFile.DataStream;
 					var fps4 = new HyoutaTools.Tales.Vesperia.FPS4.FPS4(fps4stream);
 					var se3stream = fps4.GetChildByIndex(cvi.SE3Index).AsFile.DataStream;
-					var ms = new MemoryStream();
-					new HyoutaTools.Tales.Vesperia.SE3.SE3(se3stream.Duplicate(), EndianUtils.Endianness.BigEndian, TextUtils.GameTextEncoding.ASCII).ExtractToNub(ms);
+					var ms = new HyoutaTools.Tales.Vesperia.SE3.SE3(se3stream.Duplicate(), EndianUtils.Endianness.BigEndian, TextUtils.GameTextEncoding.ASCII).ExtractNubStream();
 					var nub = new NUB(ms.CopyToByteArrayStreamAndDispose(), EndianUtils.Endianness.BigEndian);
 					using (var audiofilestream = nub.GetChildByIndex(0).AsFile.DataStream.Duplicate()) {
 						string otherpath = Path.Combine(otherdir, string.Format("{0}.{1}", fname, cvi.EngType));
@@ -357,11 +356,9 @@ namespace ToGLocInject {
 		internal static Stream InjectEnglishContainedVoice(Config config, FileFetcher _fc, string name, DuplicatableStream wstream, DuplicatableStream jstream, DuplicatableStream ustream, ContainedVoiceInfo cvi, SkitTexCache skitTexCache) {
 			var fps4 = new HyoutaTools.Tales.Vesperia.FPS4.FPS4(wstream.Duplicate());
 			var se3stream = fps4.GetChildByIndex(cvi.SE3Index).AsFile.DataStream;
-			var nubms = new MemoryStream();
-			var se3ms = new MemoryStream();
 			var se3 = new HyoutaTools.Tales.Vesperia.SE3.SE3(se3stream.Duplicate(), EndianUtils.Endianness.BigEndian, TextUtils.GameTextEncoding.ASCII);
-			se3.ExtractSE3Header(se3ms);
-			se3.ExtractToNub(nubms);
+			var se3ms = se3.ExtractSe3HeaderStream();
+			var nubms = se3.ExtractNubStream();
 			var nubstream = new DuplicatableByteArrayStream(nubms.CopyToByteArrayAndDispose());
 			var newnubstream = RebuildNubStream(nubstream, Path.Combine(config.EnglishVoiceProcessingDir, "other"), cvi.WiiType, x => Path.GetFileNameWithoutExtension(name));
 			var newse3stream = new MemoryStream();
