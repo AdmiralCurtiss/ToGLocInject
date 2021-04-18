@@ -9,6 +9,16 @@ namespace ToGLocInject {
 				return 0;
 			}
 
+			if (args.Length >= 4 && args[0] == "--generate-undub-us") {
+				Undub.GenerateUndub(args[1], args[2], args[3], Undub.UndubVersion.JpVoicesToUs);
+				return 0;
+			}
+
+			if (args.Length >= 4 && args[0] == "--generate-undub-eu") {
+				Undub.GenerateUndub(args[1], args[2], args[3], Undub.UndubVersion.JpVoicesToEu);
+				return 0;
+			}
+
 			// TODO:
 			// - see if we have a realistic possibility of modifying the actual scenario string pointers to inject the strings where J is identical but U is different
 			//   - did this for skits, would be nice for map files too but probably a lot of work
@@ -96,9 +106,26 @@ namespace ToGLocInject {
 				return 0;
 			}
 
-			FileProcessing.GenerateTranslatedFiles(config);
+			if (args.Length >= 1 && args[0] == "--generate-english-wii") {
+				FileProcessing.GenerateTranslatedFiles(config);
+				return 0;
+			}
 
-			return 0;
+			Console.WriteLine("Available features:");
+			Console.WriteLine();
+			Console.WriteLine("  --setup-voices");
+			Console.WriteLine("    Prepare US PS3 voice files for injecting into JP Wii game.");
+			Console.WriteLine();
+			Console.WriteLine("  --generate-undub-us disc-root-us disc-root-jp disc-root-output");
+			Console.WriteLine("    Create an undub of the US PS3 version.");
+			Console.WriteLine();
+			Console.WriteLine("  --generate-undub-eu disc-root-eu disc-root-jp disc-root-output");
+			Console.WriteLine("    Create an undub of the EU PS3 version.");
+			Console.WriteLine();
+			Console.WriteLine("  --generate-english-wii");
+			Console.WriteLine("    Create an English Wii version.");
+			Console.WriteLine();
+			return -1;
 		}
 	}
 }

@@ -69,6 +69,7 @@
     <Compile Include="SkitProcessing.cs" />
     <Compile Include="SkitTexCache.cs" />
     <Compile Include="TextureProcessing.cs" />
+    <Compile Include="Undub.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="VoiceInject.cs" />
   </ItemGroup>

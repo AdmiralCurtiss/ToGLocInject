@@ -37,8 +37,12 @@ namespace ToGLocInject {
 			}
 
 			Cpk = cpk;
-			Directory.CreateDirectory(Path.GetDirectoryName(outpath));
-			OutputStream = new FileStream(outpath, FileMode.Create);
+			if (outpath != null) {
+				Directory.CreateDirectory(Path.GetDirectoryName(outpath));
+				OutputStream = new FileStream(outpath, FileMode.Create);
+			} else {
+				OutputStream = new HyoutaUtils.Streams.MemoryStream64();
+			}
 			CurrentInjectionOffset = injectionOffset;
 
 			using (Stream instream = cpk.DuplicateStream()) {
@@ -216,6 +220,13 @@ namespace ToGLocInject {
 			}
 
 			OutputStream.Close();
+		}
+
+		public Stream RelinquishOutputStream() {
+			var outstream = OutputStream;
+			OutputStream = null;
+			DisableInjection = true;
+			return outstream;
 		}
 	}
 }
