@@ -23,8 +23,10 @@ namespace ToGLocInject {
 		}
 
 		private static void CreateDirectory(string outdir) {
-			Console.WriteLine(string.Format("creating empty directory {0}", outdir));
-			Directory.CreateDirectory(outdir);
+			if (!Directory.Exists(outdir)) {
+				Console.WriteLine(string.Format("creating empty directory {0}", outdir));
+				Directory.CreateDirectory(outdir);
+			}
 		}
 
 		private static void CopyFileOrDirectory(string outdir, FileSystemInfo file) {
@@ -45,6 +47,21 @@ namespace ToGLocInject {
 			using (var fs = new FileStream(outfile, FileMode.Create)) {
 				stream.Position = 0;
 				StreamUtils.CopyStream(stream, fs);
+			}
+		}
+
+		private static void WriteCpk(string outfile, HyoutaTools.Tales.CPK.CpkBuilder cpk) {
+			Console.WriteLine(string.Format("writing {0}", outfile));
+			using (var fs = new FileStream(outfile, FileMode.Create)) {
+				cpk.Build(fs);
+
+				// ToGf is buggy and fails to boot if bit 31 of the file length is set
+				// (probably something somewhere is interpreted incorrectly as a signed 32 bit integer)
+				// so work around that
+				long length = fs.Length;
+				if ((length % 0x100000000L) >= 0x80000000L) {
+					fs.WriteAlign(0x80000000L);
+				}
 			}
 		}
 
@@ -96,75 +113,73 @@ namespace ToGLocInject {
 			public string[] Subpaths;
 		}
 
-		private static void GenerateUndubMap0(string datadir, string voicedir, string outdir, UndubVersion undubVersion) {
-			Console.WriteLine(string.Format("processing {0}", "map0R.cpk"));
-			var datastream = new DuplicatableFileStream(Path.Combine(datadir, "map0R.cpk"));
-			var voicestream = new DuplicatableFileStream(Path.Combine(voicedir, "map0R.cpk"));
-			var datacpk = new HyoutaTools.Tales.CPK.CpkContainer(datastream);
+		private static void GenerateUndubMap01(string datadir, string voicedir, string outdir, string mapcpkname, SubcpkInjectData[] injects) {
+			Console.WriteLine(string.Format("processing {0}", mapcpkname));
+			var datastream = new DuplicatableFileStream(Path.Combine(datadir, mapcpkname));
+			var voicestream = new DuplicatableFileStream(Path.Combine(voicedir, mapcpkname));
+			var datacpk = new HyoutaTools.Tales.CPK.CpkContainer(datastream.Duplicate());
 			var voicecpk = new HyoutaTools.Tales.CPK.CpkContainer(voicestream);
-			string outfile = Path.Combine(outdir, "map0R.cpk");
-			var injector = new FileInjector(datacpk, null, datastream.Length.Align(0x4000));
+			string outfile = Path.Combine(outdir, mapcpkname);
+			var builder = new HyoutaTools.Tales.CPK.CpkBuilder(datastream.Duplicate());
 
-			foreach (var subdata in new SubcpkInjectData[] {
-				new SubcpkInjectData() { Name = "mapfile_bridR.cpk", Subpaths = new string[] { "snd/se3/DYC_E314_060A.se3" } },
-				new SubcpkInjectData() { Name = "mapfile_wf01R.cpk", Subpaths = new string[] { "snd/se3/DYC_E210_150.se3", "snd/se3/DYC_WF01.se3" } },
-				new SubcpkInjectData() { Name = "mapfile_wf04R.cpk", Subpaths = new string[] { "snd/se3/DYC_E208_020.se3" } },
-			}) {
-				var subcpk = new HyoutaTools.Tales.CPK.CpkContainer(voicecpk.GetChildByName(subdata.Name).AsFile.DataStream);
+			foreach (var subdata in injects) {
+				var subbuilder = new HyoutaTools.Tales.CPK.CpkBuilder(datacpk.GetChildByName(subdata.Name).AsFile.DataStream);
+				var subvoicecpk = new HyoutaTools.Tales.CPK.CpkContainer(voicecpk.GetChildByName(subdata.Name).AsFile.DataStream);
 				foreach (string subpath in subdata.Subpaths) {
 					Console.WriteLine(string.Format("injecting {0}/{1}", subdata.Name, subpath));
-					var substream = subcpk.GetChildByName(subpath).AsFile.DataStream;
-					injector.InjectFileSubcpk(substream, subdata.Name, subpath);
+					var subvoicestream = subvoicecpk.GetChildByName(subpath).AsFile.DataStream.Duplicate();
+					var subfile = subbuilder.Files.Where(x => (x.Directory + "/" + x.Name) == subpath).First();
+					subfile.FileStream = subvoicestream.CopyToByteArrayStreamAndDispose();
+					subfile.DecompressedSize = (uint)subfile.FileStream.Length;
 				}
+				MemoryStream subbuild = new MemoryStream();
+				subbuilder.Build(subbuild);
+				var file = builder.Files.Where(x => x.Name == subdata.Name).First();
+				file.FileStream = subbuild.CopyToByteArrayStreamAndDispose();
+				file.DecompressedSize = (uint)file.FileStream.Length;
 			}
 
 			CreateDirectory(outdir);
-			WriteStream(outfile, injector.RelinquishOutputStream());
+			WriteCpk(outfile, builder);
+		}
+
+		private static void GenerateUndubMap0(string datadir, string voicedir, string outdir, UndubVersion undubVersion) {
+			GenerateUndubMap01(datadir, voicedir, outdir, "map0R.cpk", new SubcpkInjectData[] {
+				new SubcpkInjectData() { Name = "mapfile_bridR.cpk", Subpaths = new string[] { "snd/se3/DYC_E314_060A.se3" } },
+				new SubcpkInjectData() { Name = "mapfile_wf01R.cpk", Subpaths = new string[] { "snd/se3/DYC_E210_150.se3", "snd/se3/DYC_WF01.se3" } },
+				new SubcpkInjectData() { Name = "mapfile_wf04R.cpk", Subpaths = new string[] { "snd/se3/DYC_E208_020.se3" } },
+			});
 		}
 
 		private static void GenerateUndubMap1(string datadir, string voicedir, string outdir, UndubVersion undubVersion) {
-			Console.WriteLine(string.Format("processing {0}", "map1R.cpk"));
-			var datastream = new DuplicatableFileStream(Path.Combine(datadir, "map1R.cpk"));
-			var voicestream = new DuplicatableFileStream(Path.Combine(voicedir, "map1R.cpk"));
-			var datacpk = new HyoutaTools.Tales.CPK.CpkContainer(datastream);
-			var voicecpk = new HyoutaTools.Tales.CPK.CpkContainer(voicestream);
-			string outfile = Path.Combine(outdir, "map1R.cpk");
-			var injector = new FileInjector(datacpk, null, datastream.Length.Align(0x4000));
-
-			foreach (var subdata in new SubcpkInjectData[] {
+			GenerateUndubMap01(datadir, voicedir, outdir, "map1R.cpk", new SubcpkInjectData[] {
 				new SubcpkInjectData() { Name = "mapfile_anmaR.cpk", Subpaths = new string[] { "snd/se3/DYC_S455_001.se3" } },
 				new SubcpkInjectData() { Name = "mapfile_beraR.cpk", Subpaths = new string[] { "snd/se3/DYC_S408_003.se3" } },
 				new SubcpkInjectData() { Name = "mapfile_lanR.cpk", Subpaths = new string[] { "snd/se3/DYC_E208_010.se3", "snd/se3/DYC_E210_061.se3" } },
 				new SubcpkInjectData() { Name = "mapfile_otheR.cpk", Subpaths = new string[] { "snd/se3/DYC_E944_012.se3" } },
 				new SubcpkInjectData() { Name = "mapfile_sablR.cpk", Subpaths = new string[] { "snd/se3/DYC_E419_030.se3" } },
 				new SubcpkInjectData() { Name = "mapfile_winR.cpk", Subpaths = new string[] { "snd/se3/DYC_E104_010.se3" } },
-			}) {
-				var subcpk = new HyoutaTools.Tales.CPK.CpkContainer(voicecpk.GetChildByName(subdata.Name).AsFile.DataStream);
-				foreach (string subpath in subdata.Subpaths) {
-					Console.WriteLine(string.Format("injecting {0}/{1}", subdata.Name, subpath));
-					var substream = subcpk.GetChildByName(subpath).AsFile.DataStream;
-					injector.InjectFileSubcpk(substream, subdata.Name, subpath);
-				}
-			}
-
-			CreateDirectory(outdir);
-			WriteStream(outfile, injector.RelinquishOutputStream());
+			});
 		}
 
 		private static void GenerateUndubRoot(string datadir, string voicedir, string outdir, UndubVersion undubVersion) {
 			Console.WriteLine(string.Format("processing {0}", "rootR.cpk"));
 			var datastream = new DuplicatableFileStream(Path.Combine(datadir, "rootR.cpk"));
 			var voicestream = new DuplicatableFileStream(Path.Combine(voicedir, "rootR.cpk"));
-			var datacpk = new HyoutaTools.Tales.CPK.CpkContainer(datastream);
+			var datacpk = new HyoutaTools.Tales.CPK.CpkContainer(datastream.Duplicate());
 			var voicecpk = new HyoutaTools.Tales.CPK.CpkContainer(voicestream);
 			string outfile = Path.Combine(outdir, "rootR.cpk");
-			var injector = new FileInjector(datacpk, null, datastream.Length.Align(0x4000));
+			var builder = new HyoutaTools.Tales.CPK.CpkBuilder(datastream.Duplicate());
 
 			// audio containers: we can direct-copy these, no need to un/repack
 			foreach (string name in new string[] { "RTS.nub", "VOBTL.nub", "VOBTLETC.nub", "VOCHT.nub", "VOSCE01.nub", "VOSCE02.nub", "VOSCE03.nub", "VOSCE04.nub", "VOSCE05.nub", "VOSCE06.nub", "VOSCE07.nub", "VOSCE08.nub", "VOSCE09.nub", "VOSCE15.nub", "VOSCE16.nub" }) {
-				string subpath = "snd/strpck/" + name;
+				string subdir = "snd/strpck";
+				string subpath = subdir + "/" + name;
 				Console.WriteLine(string.Format("injecting {0}", subpath));
-				injector.InjectFile(voicecpk.GetChildByName(subpath).AsFile.DataStream, subpath);
+				var subfile = builder.Files.Where(x => x.Directory == subdir && x.Name == name).First();
+				subfile.FileStream = voicecpk.GetChildByName(subpath).AsFile.DataStream.Duplicate().CopyToByteArrayStreamAndDispose();
+				subfile.DecompressedSize = (uint)subfile.FileStream.Length;
+				subfile.WriteOrderPriority = 1;
 			}
 
 			// skits: for all of these unpack them (FPS4 containers), copy over file with index 1, repack
@@ -197,7 +212,11 @@ namespace ToGLocInject {
 						MemoryStream newfps4stream = new MemoryStream();
 						FPS4.Pack(packFileInfos, newfps4stream, fps4en.ContentBitmask, EndianUtils.Endianness.BigEndian, fps4en.Unknown2, null, fps4en.ArchiveName, fps4en.FirstFileStart, 0x20);
 						newfps4stream.Position = 0;
-						injector.InjectFile(newfps4stream, subpath);
+
+						var subfile = builder.Files.Where(x => x.Directory == entry.dir_name && x.Name == entry.file_name).First();
+						subfile.FileStream = newfps4stream.CopyToByteArrayStreamAndDispose();
+						subfile.DecompressedSize = (uint)subfile.FileStream.Length;
+						subfile.WriteOrderPriority = 10;
 					}
 				}
 			}
@@ -211,12 +230,14 @@ namespace ToGLocInject {
 				)) {
 					string subpath = entry.dir_name + "/" + entry.file_name;
 					Console.WriteLine(string.Format("injecting {0}", subpath));
-					injector.InjectFile(voicecpk.GetChildByName(subpath).AsFile.DataStream, subpath);
+					var subfile = builder.Files.Where(x => x.Directory == entry.dir_name && x.Name == entry.file_name).First();
+					subfile.FileStream = voicecpk.GetChildByName(subpath).AsFile.DataStream.Duplicate().CopyToByteArrayStreamAndDispose();
+					subfile.DecompressedSize = (uint)subfile.FileStream.Length;
 				}
 			}
 
 			CreateDirectory(outdir);
-			WriteStream(outfile, injector.RelinquishOutputStream());
+			WriteCpk(outfile, builder);
 		}
 	}
 }
