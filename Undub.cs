@@ -113,6 +113,21 @@ namespace ToGLocInject {
 			public string[] Subpaths;
 		}
 
+		private static void ReplaceFile(HyoutaTools.Tales.CPK.CpkFile file, DuplicatableByteArrayStream stream, bool tryCompress = false) {
+			if (tryCompress && stream.Length > 0x100) {
+				MemoryStream ms = new MemoryStream();
+				long len = utf_tab_sharp.CpkCompress.compress(stream, 0, stream.Length, ms);
+				if (len < stream.Length) {
+					file.FileStream = ms.CopyToByteArrayStreamAndDispose();
+					file.DecompressedSize = (uint)stream.Length;
+					return;
+				}
+			}
+
+			file.FileStream = stream;
+			file.DecompressedSize = (uint)stream.Length;
+		}
+
 		private static void GenerateUndubMap01(string datadir, string voicedir, string outdir, string mapcpkname, SubcpkInjectData[] injects) {
 			Console.WriteLine(string.Format("processing {0}", mapcpkname));
 			var datastream = new DuplicatableFileStream(Path.Combine(datadir, mapcpkname));
@@ -129,14 +144,12 @@ namespace ToGLocInject {
 					Console.WriteLine(string.Format("injecting {0}/{1}", subdata.Name, subpath));
 					var subvoicestream = subvoicecpk.GetChildByName(subpath).AsFile.DataStream.Duplicate();
 					var subfile = subbuilder.Files.Where(x => (x.Directory + "/" + x.Name) == subpath).First();
-					subfile.FileStream = subvoicestream.CopyToByteArrayStreamAndDispose();
-					subfile.DecompressedSize = (uint)subfile.FileStream.Length;
+					ReplaceFile(subfile, subvoicestream.CopyToByteArrayStreamAndDispose());
 				}
 				MemoryStream subbuild = new MemoryStream();
 				subbuilder.Build(subbuild);
 				var file = builder.Files.Where(x => x.Name == subdata.Name).First();
-				file.FileStream = subbuild.CopyToByteArrayStreamAndDispose();
-				file.DecompressedSize = (uint)file.FileStream.Length;
+				ReplaceFile(file, subbuild.CopyToByteArrayStreamAndDispose());
 			}
 
 			CreateDirectory(outdir);
@@ -177,9 +190,7 @@ namespace ToGLocInject {
 				string subpath = subdir + "/" + name;
 				Console.WriteLine(string.Format("injecting {0}", subpath));
 				var subfile = builder.Files.Where(x => x.Directory == subdir && x.Name == name).First();
-				subfile.FileStream = voicecpk.GetChildByName(subpath).AsFile.DataStream.Duplicate().CopyToByteArrayStreamAndDispose();
-				subfile.DecompressedSize = (uint)subfile.FileStream.Length;
-				subfile.WriteOrderPriority = 1;
+				ReplaceFile(subfile, voicecpk.GetChildByName(subpath).AsFile.DataStream.Duplicate().CopyToByteArrayStreamAndDispose());
 			}
 
 			// skits: for all of these unpack them (FPS4 containers), copy over file with index 1, repack
@@ -214,9 +225,7 @@ namespace ToGLocInject {
 						newfps4stream.Position = 0;
 
 						var subfile = builder.Files.Where(x => x.Directory == entry.dir_name && x.Name == entry.file_name).First();
-						subfile.FileStream = newfps4stream.CopyToByteArrayStreamAndDispose();
-						subfile.DecompressedSize = (uint)subfile.FileStream.Length;
-						subfile.WriteOrderPriority = 10;
+						ReplaceFile(subfile, newfps4stream.CopyToByteArrayStreamAndDispose(), true);
 					}
 				}
 			}
@@ -231,8 +240,7 @@ namespace ToGLocInject {
 					string subpath = entry.dir_name + "/" + entry.file_name;
 					Console.WriteLine(string.Format("injecting {0}", subpath));
 					var subfile = builder.Files.Where(x => x.Directory == entry.dir_name && x.Name == entry.file_name).First();
-					subfile.FileStream = voicecpk.GetChildByName(subpath).AsFile.DataStream.Duplicate().CopyToByteArrayStreamAndDispose();
-					subfile.DecompressedSize = (uint)subfile.FileStream.Length;
+					ReplaceFile(subfile, voicecpk.GetChildByName(subpath).AsFile.DataStream.Duplicate().CopyToByteArrayStreamAndDispose());
 				}
 			}
 
