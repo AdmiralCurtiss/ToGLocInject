@@ -81,10 +81,11 @@ namespace ToGLocInject {
 			config.RiivolutionOutputPath = @"c:\_graces\wii-en-patched\riivolution";
 
 			// can be set to get transfer the english voice clips as well, see comment above for how to set this up
-			config.EnglishVoiceProcessingDir = @"c:\_graces\voiceworkdir\";
+			//config.EnglishVoiceProcessingDir = @"c:\_graces\voiceworkdir\";
 
 			// can be set to speed up multiple runs of the tool by caching decompressed files
-			config.CachePath = @"c:\_graces\_cache";
+			// this is no longer super useful after the optimization of the decompression logic
+			//config.CachePath = @"c:\_graces\_cache";
 
 			// can be set to also generate patched files for v0 of the Wii disc; note that you cannot generate files for v0 only!
 			//config.GamefileContainerWiiV0 = new DirectoryOnDisk(@"c:\_graces\wii-jp-v0\files\");
