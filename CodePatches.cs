@@ -147,5 +147,30 @@ namespace ToGLocInject {
 			}
 			return (sb1.ToString(), sb2.ToString());
 		}
+
+		public static void IncreaseNoticeBoxBufferSize(MemoryStream ms, Dol dol) {
+			// default stack space is too small, overflows on the shuttle tutorial message (and possibly elsewhere?)
+			// so increase it by a bit
+			const short extraBufferSpace = 0x100;
+
+			SubtractFromInt16AtAddress(ms, dol, 0x8029b128 + 2, extraBufferSpace);
+			AddToInt16AtAddress(ms, dol, 0x8029b130 + 2, extraBufferSpace);
+			AddToInt16AtAddress(ms, dol, 0x8029b134 + 2, extraBufferSpace);
+			AddToInt16AtAddress(ms, dol, 0x8029b378 + 2, extraBufferSpace);
+			AddToInt16AtAddress(ms, dol, 0x8029b380 + 2, extraBufferSpace);
+			AddToInt16AtAddress(ms, dol, 0x8029b388 + 2, extraBufferSpace);
+		}
+
+		private static void AddToInt16AtAddress(MemoryStream ms, Dol dol, uint position, short value) {
+			ms.Position = dol.MapRamToRom(position);
+			short result = (short)(ms.PeekInt16(EndianUtils.Endianness.BigEndian) + value);
+			ms.WriteInt16(result, EndianUtils.Endianness.BigEndian);
+		}
+
+		private static void SubtractFromInt16AtAddress(MemoryStream ms, Dol dol, uint position, short value) {
+			ms.Position = dol.MapRamToRom(position);
+			short result = (short)(ms.PeekInt16(EndianUtils.Endianness.BigEndian) - value);
+			ms.WriteInt16(result, EndianUtils.Endianness.BigEndian);
+		}
 	}
 }
