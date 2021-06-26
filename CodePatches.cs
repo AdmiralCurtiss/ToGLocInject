@@ -133,7 +133,10 @@ namespace ToGLocInject {
 
 			// TODO: text entry style 0 (generic) should hide the 2nd (of 3) input field
 			// TODO: text entry style 3 (chest pass) should hide the 2nd (of 2) input field
-			// TODO: text entry needs to allow spaces, a chest password uses one!
+
+			// allow spaces to be entered mid-string
+			ms.Position = dol.MapRamToRom(0x80251374);
+			ms.WriteUInt16(0x4800, EndianUtils.Endianness.BigEndian);
 		}
 
 		private static (string, string) ConvertToHalves(string alphanumeric) {
