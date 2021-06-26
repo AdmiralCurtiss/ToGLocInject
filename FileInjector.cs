@@ -69,7 +69,7 @@ namespace ToGLocInject {
 			CurrentInjectionOffset = pos;
 		}
 
-		public void InjectFile(Stream generatedFile, string relativePath) {
+		public void InjectFile(Stream generatedFile, string relativePath, CompressionStyle compressionStyle) {
 			if (DisableInjection) {
 				return;
 			}
@@ -80,16 +80,27 @@ namespace ToGLocInject {
 			var esize = Cpk.QueryChildInfoByIndex(idx, "ExtractSize");
 			var foffs = Cpk.QueryChildInfoByIndex(idx, "FileOffset");
 
-			generatedFile.Position = 0;
-			uint newFilesize = (uint)generatedFile.Length;
+			// maybe compress
+			OutputStream.Position = fsize.data_position;
+			uint oldfsize = OutputStream.ReadUInt32(EndianUtils.Endianness.BigEndian);
+			OutputStream.Position = esize.data_position;
+			uint oldesize = OutputStream.ReadUInt32(EndianUtils.Endianness.BigEndian);
+			Stream maybeCompressedFile = MaybeCompress(generatedFile, oldfsize, oldesize, compressionStyle, relativePath);
+
+			// inject data
+			maybeCompressedFile.Position = 0;
+			uint newFilesize = (uint)maybeCompressedFile.Length;
+			uint newExtractsize = (uint)generatedFile.Length;
 			long newFileoffs = CurrentInjectionOffset;
 			OutputStream.Position = newFileoffs;
-			StreamUtils.CopyStream(generatedFile, OutputStream, generatedFile.Length);
+			StreamUtils.CopyStream(maybeCompressedFile, OutputStream, maybeCompressedFile.Length);
+
+			// update header
 			CurrentInjectionOffset = OutputStream.Position;
 			OutputStream.Position = fsize.data_position;
 			OutputStream.WriteUInt32(newFilesize.ToEndian(EndianUtils.Endianness.BigEndian));
 			OutputStream.Position = esize.data_position;
-			OutputStream.WriteUInt32(newFilesize.ToEndian(EndianUtils.Endianness.BigEndian));
+			OutputStream.WriteUInt32(newExtractsize.ToEndian(EndianUtils.Endianness.BigEndian));
 			OutputStream.Position = foffs.data_position;
 			OutputStream.WriteUInt64(((ulong)(newFileoffs - Math.Min(Cpk.content_offset, Cpk.toc_offset))).ToEndian(EndianUtils.Endianness.BigEndian));
 			EnsureAligned();
@@ -169,7 +180,7 @@ namespace ToGLocInject {
 			return data;
 		}
 
-		public void InjectFileSubcpk(Stream generatedFile, string subcpkPath, string relativePath) {
+		public void InjectFileSubcpk(Stream generatedFile, string subcpkPath, string relativePath, CompressionStyle compressionStyle) {
 			if (DisableInjection) {
 				return;
 			}
@@ -179,22 +190,72 @@ namespace ToGLocInject {
 			SubcpkData data = GetOrCreateSubcpkData(subcpkPath);
 			var filedata = data.Files.Where(x => x.name == relativePath).First();
 
+			// maybe compress
+			OutputStream.Position = filedata.fsizepos;
+			uint oldfsize = OutputStream.ReadUInt32(EndianUtils.Endianness.BigEndian);
+			OutputStream.Position = filedata.esizepos;
+			uint oldesize = OutputStream.ReadUInt32(EndianUtils.Endianness.BigEndian);
+			Stream maybeCompressedFile = MaybeCompress(generatedFile, oldfsize, oldesize, compressionStyle, subcpkPath + "/" + relativePath);
+
 			// copy file into output stream
-			generatedFile.Position = 0;
-			uint newFilesize = (uint)generatedFile.Length;
+			maybeCompressedFile.Position = 0;
+			uint newFilesize = (uint)maybeCompressedFile.Length;
+			uint newExtractsize = (uint)generatedFile.Length;
 			long newFileoffs = CurrentInjectionOffset;
 			OutputStream.Position = newFileoffs;
-			StreamUtils.CopyStream(generatedFile, OutputStream, generatedFile.Length);
+			StreamUtils.CopyStream(maybeCompressedFile, OutputStream, maybeCompressedFile.Length);
 			EnsureAligned();
 
 			// fix sizes and offset
 			OutputStream.Position = filedata.fsizepos;
 			OutputStream.WriteUInt32(newFilesize.ToEndian(EndianUtils.Endianness.BigEndian));
 			OutputStream.Position = filedata.esizepos;
-			OutputStream.WriteUInt32(newFilesize.ToEndian(EndianUtils.Endianness.BigEndian));
+			OutputStream.WriteUInt32(newExtractsize.ToEndian(EndianUtils.Endianness.BigEndian));
 			OutputStream.Position = filedata.foffspos;
 			OutputStream.WriteUInt64(((ulong)(newFileoffs - (data.SubcpkOffset + data.ContentTocOffset))).ToEndian(EndianUtils.Endianness.BigEndian));
 			OutputStream.Position = CurrentInjectionOffset;
+		}
+
+		private static Stream MaybeCompress(Stream generatedFile, uint oldfsize, uint oldesize, CompressionStyle compressionStyle, string filename) {
+			if (!ShouldCompress(generatedFile, oldfsize, oldesize, compressionStyle, filename)) {
+				Console.WriteLine("Injecting {0} uncompressed...", filename);
+				return generatedFile;
+			}
+
+			try {
+				Console.WriteLine("Injecting {0} compressed...", filename);
+				MemoryStream ms = new MemoryStream();
+				utf_tab_sharp.CpkCompress.compress(generatedFile, 0, generatedFile.Length, ms);
+				if (generatedFile.Length <= ms.Length) {
+					Console.WriteLine("Compression didn't reduce size, using uncompressed instead...", filename);
+					return generatedFile;
+				}
+				return ms;
+			} catch (Exception ex) {
+				Console.WriteLine("Error while compressing, injecting uncompressed instead: " + ex.ToString());
+				return generatedFile;
+			}
+		}
+
+		private static bool ShouldCompress(Stream generatedFile, uint oldfsize, uint oldesize, CompressionStyle compressionStyle, string filename) {
+			if (generatedFile.Length <= 0x100) {
+				return false;
+			}
+
+			switch (compressionStyle) {
+				case CompressionStyle.NeverCompress:
+					return false;
+				case CompressionStyle.AlwaysCompress:
+					return true;
+				case CompressionStyle.CompressIfOriginallyCompressed:
+					return oldfsize != oldesize;
+				case CompressionStyle.CompressIfOriginallyCompressedPlus:
+					return oldfsize != oldesize
+					    || (filename.StartsWith("movie/str/ja/TOG_") && filename.EndsWith(".bin"))
+					    || (filename.StartsWith("chat/scs/JA/CHT_") && filename.EndsWith(".scs"));
+				default:
+					return false;
+			}
 		}
 
 		public void GenerateRiivolutionData(StringBuilder xml, string outputPath, string fileOnDisc, bool isV2) {

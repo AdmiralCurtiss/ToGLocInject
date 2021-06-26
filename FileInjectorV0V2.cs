@@ -14,21 +14,21 @@ namespace ToGLocInject {
 			Injector2 = cpkv2 == null ? null : new FileInjector(cpkv2, outpathv2, injectionOffset);
 		}
 
-		public void InjectFile(Stream generatedFile, string relativePath) {
+		public void InjectFile(Stream generatedFile, string relativePath, CompressionStyle compressionStyle) {
 			if (Injector0 != null) {
-				Injector0.InjectFile(generatedFile, relativePath);
+				Injector0.InjectFile(generatedFile, relativePath, compressionStyle);
 			}
 			if (Injector2 != null) {
-				Injector2.InjectFile(generatedFile, relativePath);
+				Injector2.InjectFile(generatedFile, relativePath, compressionStyle);
 			}
 		}
 
-		public void InjectFileSubcpk(Stream generatedFile, string subcpkPath, string relativePath) {
+		public void InjectFileSubcpk(Stream generatedFile, string subcpkPath, string relativePath, CompressionStyle compressionStyle) {
 			if (Injector0 != null) {
-				Injector0.InjectFileSubcpk(generatedFile, subcpkPath, relativePath);
+				Injector0.InjectFileSubcpk(generatedFile, subcpkPath, relativePath, compressionStyle);
 			}
 			if (Injector2 != null) {
-				Injector2.InjectFileSubcpk(generatedFile, subcpkPath, relativePath);
+				Injector2.InjectFileSubcpk(generatedFile, subcpkPath, relativePath, compressionStyle);
 			}
 		}
 

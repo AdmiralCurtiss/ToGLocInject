@@ -381,7 +381,7 @@ namespace ToGLocInject {
 					bool isSkitText = f.StartsWith("rootR.cpk/chat/scs/JA/");
 					bool delayInjection = isSkitText;
 
-					Console.WriteLine("Processing and injecting " + f + "...");
+					Console.WriteLine("Processing " + f + "...");
 					DuplicatableStream jstream;
 					DuplicatableStream ustream;
 
@@ -499,7 +499,7 @@ namespace ToGLocInject {
 										wscs = multiplyOutResult.wscsnew;
 										Console.WriteLine("Appended " + newStringCount + " strings in " + f);
 										ReplaceStringsWMultipliedOut(wscs, p.j, p.u, p.widx_with_multidefined_j, multiplyOutResult.new_multidefined_widxs, charnamesW);
-										InjectFile(map0inject, map1inject, rootinject, multiplyOutResult.newScenarioFilePath, multiplyOutResult.newScenarioFileStream);
+										InjectFile(map0inject, map1inject, rootinject, multiplyOutResult.newScenarioFilePath, multiplyOutResult.newScenarioFileStream, config.CompressionStyle);
 
 										for (int nsc = 0; nsc < newStringCount; ++nsc) {
 											p.wOverwritten.Add(true);
@@ -964,7 +964,7 @@ namespace ToGLocInject {
 
 							if (isFontTexture) {
 								if (executableProcessed) {
-									InjectFile(map0inject, map1inject, rootinject, f, scsstr);
+									InjectFile(map0inject, map1inject, rootinject, f, scsstr, config.CompressionStyle);
 									fontTextureInjected = true;
 								}
 							} else if (isExecutable) {
@@ -979,7 +979,7 @@ namespace ToGLocInject {
 								if (delayInjection) {
 									delayedInjects.Add(f, scsstr);
 								} else {
-									InjectFile(map0inject, map1inject, rootinject, f, scsstr);
+									InjectFile(map0inject, map1inject, rootinject, f, scsstr, config.CompressionStyle);
 								}
 							}
 						}
@@ -993,11 +993,11 @@ namespace ToGLocInject {
 				if (newFontTexture != null && !fontTextureInjected) {
 					var scsstr = newFontTexture.Duplicate();
 					scsstr.Position = 0;
-					InjectFile(map0inject, map1inject, rootinject, "rootR.cpk/sys/FontTexture2.tex", scsstr);
+					InjectFile(map0inject, map1inject, rootinject, "rootR.cpk/sys/FontTexture2.tex", scsstr, config.CompressionStyle);
 				}
 
 				foreach (var kvp in delayedInjects) {
-					InjectFile(map0inject, map1inject, rootinject, kvp.Key, kvp.Value);
+					InjectFile(map0inject, map1inject, rootinject, kvp.Key, kvp.Value, config.CompressionStyle);
 				}
 				delayedInjects.Clear();
 

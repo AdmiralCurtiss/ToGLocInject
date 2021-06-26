@@ -31,6 +31,15 @@ namespace ToGLocInject {
 		public string DebugFontOutputPath;
 		public string DebugTextOutputPath;
 
+		public CompressionStyle CompressionStyle = CompressionStyle.CompressIfOriginallyCompressedPlus;
+
 		public bool TrivializeEnemies = false;
+	}
+
+	public enum CompressionStyle {
+		NeverCompress,
+		AlwaysCompress,
+		CompressIfOriginallyCompressed,
+		CompressIfOriginallyCompressedPlus, // if originally compressed + extra marked files; this is the setting that likely matches the original intent
 	}
 }

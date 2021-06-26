@@ -102,7 +102,7 @@ namespace ToGLocInject {
 			return false;
 		}
 
-		private static void InjectFile(FileInjectorV0V2 map0inject, FileInjectorV0V2 map1inject, FileInjectorV0V2 rootinject, string f, Stream scsstr) {
+		private static void InjectFile(FileInjectorV0V2 map0inject, FileInjectorV0V2 map1inject, FileInjectorV0V2 rootinject, string f, Stream scsstr, CompressionStyle compressionStyle) {
 			string[] splitf = f.Split(new char[] { '/' });
 			FileInjectorV0V2 injector;
 			switch (splitf[0]) {
@@ -113,9 +113,9 @@ namespace ToGLocInject {
 			}
 			string subcpk = splitf[1].EndsWith(".cpk") ? splitf[1] : null;
 			if (subcpk == null) {
-				injector.InjectFile(scsstr, f.Split(new char[] { '/' }, 2)[1]);
+				injector.InjectFile(scsstr, f.Split(new char[] { '/' }, 2)[1], compressionStyle);
 			} else {
-				injector.InjectFileSubcpk(scsstr, subcpk, f.Split(new char[] { '/' }, 3)[2]);
+				injector.InjectFileSubcpk(scsstr, subcpk, f.Split(new char[] { '/' }, 3)[2], compressionStyle);
 			}
 		}
 

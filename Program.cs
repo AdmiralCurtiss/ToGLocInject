@@ -86,6 +86,9 @@ namespace ToGLocInject {
 			// this is no longer super useful after the optimization of the decompression logic
 			//config.CachePath = @"c:\_graces\_cache";
 
+			// can be set to speed up runs by skipping recompression of files
+			//config.CompressionStyle = CompressionStyle.NeverCompress;
+
 			// can be set to also generate patched files for v0 of the Wii disc; note that you cannot generate files for v0 only!
 			//config.GamefileContainerWiiV0 = new DirectoryOnDisk(@"c:\_graces\wii-jp-v0\files\");
 
