@@ -709,6 +709,17 @@ namespace ToGLocInject {
 							ReservedMemchunk reservedSpaceFontTexPointerFix = ReserveMemory(memchunks, CodePatches.CodeSizeForFontTexPointerFix());
 							ReservedMemchunk reservedSpaceBattleChallengeDescription = ReserveMemory(memchunks, 0x60);
 
+							ms.Position = 0x5327a6;
+							string oldSprintfStringItemReward = ms.ReadShiftJisNullterm();
+							ms.Position = 0x532790;
+							string oldSprintfStringGaldReward = ms.ReadShiftJisNullterm();
+							ReservedMemchunk memoryAreaSprintfStringItemReward = InjectStringShiftJisNullterm(ms, memchunks,
+								oldSprintfStringItemReward.Remove(13, 4).Insert(8, " ").ReplaceSubstring(11, 1, " x", 0, 2).Insert(18, " ").Insert(21, " ")
+							);
+							ReservedMemchunk memoryAreaSprintfStringGaldReward = InjectStringShiftJisNullterm(ms, memchunks,
+								oldSprintfStringGaldReward.Remove(12, 2).Insert(8, " ").Insert(11, " ").Insert(17, " ").Insert(20, " ")
+							);
+
 							// actually write strings to executable
 							List<string> failedToFinds = new List<string>();
 							long requiredExtraBytes = 0;
@@ -872,6 +883,8 @@ namespace ToGLocInject {
 							CodePatches.ModifyTextInputForEnglish(ms, dol);
 
 							CodePatches.IncreaseNoticeBoxBufferSize(ms, dol);
+
+							CodePatches.FixRequestRewardMesssages(ms, dol, memoryAreaSprintfStringItemReward, memoryAreaSprintfStringGaldReward);
 
 							fontStream.Position = 0;
 							newFontTexture = new DuplicatableByteArrayStream(fontStream.CopyToByteArrayAndDispose());
@@ -1039,6 +1052,16 @@ namespace ToGLocInject {
 			}
 
 			return;
+		}
+
+		private static ReservedMemchunk InjectStringShiftJisNullterm(MemoryStream bin, List<MemChunk> memchunks, string str) {
+			MemoryStream ms = new MemoryStream();
+			ms.WriteShiftJisNullterm(str);
+			var chunk = ReserveMemory(memchunks, (uint)ms.Length, 1);
+			ms.Position = 0;
+			bin.Position = chunk.AddressRom;
+			StreamUtils.CopyStream(ms, bin);
+			return chunk;
 		}
 
 		private static void ApplyPrefilter(List<(int index, string entry)> j, List<(int index, string entry)> u, List<(string j, string expectedU, string replacementU)> prefilterStrings) {

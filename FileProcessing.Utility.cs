@@ -1000,8 +1000,8 @@ namespace ToGLocInject {
 			return entry.Split(new char[] { ch });
 		}
 
-		private static ReservedMemchunk ReserveMemory(List<MemChunk> memchunks, uint size) {
-			MemChunk scratchChunk = memchunks.FirstOrDefault(x => x.FreeBytes >= size && x.IsInternal && (x.Mapper.MapRomToRam(x.Address) % 4) == 0);
+		private static ReservedMemchunk ReserveMemory(List<MemChunk> memchunks, uint size, uint alignment = 4) {
+			MemChunk scratchChunk = memchunks.FirstOrDefault(x => x.FreeBytes >= size && x.IsInternal && (x.Mapper.MapRomToRam(x.Address) % alignment) == 0);
 			if (scratchChunk != null) {
 				uint addressRom = scratchChunk.Address;
 				uint addressRam = scratchChunk.Mapper.MapRomToRam(addressRom);

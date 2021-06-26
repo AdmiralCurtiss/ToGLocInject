@@ -23,7 +23,6 @@ namespace ToGLocInject {
 			// - see if we have a realistic possibility of modifying the actual scenario string pointers to inject the strings where J is identical but U is different
 			//   - did this for skits, would be nice for map files too but probably a lot of work
 			// - dualize result message is slightly broken, see if we can fix that
-			// - request reward message is super broken, suspected culprit is the printf string at 0x5327A6, dunno if this is easily fixable
 			// - there might be more buffer overflows for sprintf'd strings
 			// - text in card minigame, is in module/Mg1RR.rso and/or module/Mg2RR.rso
 			// - text in music player (rootR/mnu/bin/snd_test.bin and/or soundTest.bin)

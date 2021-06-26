@@ -175,5 +175,57 @@ namespace ToGLocInject {
 			short result = (short)(ms.PeekInt16(EndianUtils.Endianness.BigEndian) - value);
 			ms.WriteInt16(result, EndianUtils.Endianness.BigEndian);
 		}
+
+		public static uint AssembleMR(uint rA, uint rS) {
+			return AssembleOR(rA, rS, rS);
+		}
+
+		public static uint AssembleOR(uint rA, uint rS, uint rB) {
+			return 0x7c000378 | (rS << 21) | (rA << 16) | (rB << 11);
+		}
+
+		public static void FixRequestRewardMesssages(MemoryStream ms, Dol dol, ReservedMemchunk memoryAreaSprintfStringItemReward, ReservedMemchunk memoryAreaSprintfStringGaldReward) {
+			var be = EndianUtils.Endianness.BigEndian;
+			// function at 80290d44 builds these
+
+			// adjust sprintf for message with item reward
+			{
+				uint addressSprintfStringItemReward = memoryAreaSprintfStringItemReward.AddressRam;
+				var imm = GenerateHighLowImmediatesFor32BitLoad(addressSprintfStringItemReward);
+
+				ms.Position = dol.MapRamToRom(0x80291118);
+				ms.WriteUInt32((ms.PeekUInt32(be) & 0xfc1fffff) | (9 << 21), be); // replace target register with r9
+				ms.WriteUInt32(0x3c800000u | (imm.high & 0xffffu), be); // lis r4, imm.high
+				ms.WriteUInt32(0x60000000, be);                         // nop
+				ms.WriteUInt32(0x38840000u | (imm.low & 0xffffu), be);  // addi r4, r4, imm.low
+				ms.WriteUInt32(AssembleMR(5, 27), be);                  // mr r5,r27
+				ms.Position += 4;
+				ms.WriteUInt32(0x60000000, be);                         // nop
+				ms.WriteUInt32(AssembleMR(8, 29), be);                  // mr r8,r29
+				ms.WriteUInt32(0x60000000, be);                         // nop
+				ms.Position += 4;
+				ms.Position += 4;
+				ms.Position += 4;
+				ms.WriteUInt32(0x60000000, be);                         // nop
+			}
+
+			// adjust sprintf parameters for message with gald reward
+			{
+				uint addressSprintfStringGaldReward = memoryAreaSprintfStringGaldReward.AddressRam;
+				var imm = GenerateHighLowImmediatesFor32BitLoad(addressSprintfStringGaldReward);
+
+				ms.Position = dol.MapRamToRom(0x8029106c);
+				ms.WriteUInt32(0x60000000, be);                         // nop
+				ms.WriteUInt32(0x3c800000u | (imm.high & 0xffffu), be); // lis r4, imm.high
+				ms.WriteUInt32(0x38840000u | (imm.low & 0xffffu), be);  // addi r4, r4, imm.low
+				ms.WriteUInt32(AssembleMR(5, 24), be);                  // mr r5,r24
+				ms.Position += 8;
+				ms.WriteUInt32((ms.PeekUInt32(be) & 0xfc1fffff) | (9 << 21), be); // replace target register with r9
+				ms.WriteUInt32(AssembleMR(8, 28), be);                  // mr r8,r28
+				ms.WriteUInt32(AssembleMR(10, 27), be);                 // mr r10,r27
+				ms.Position += 4;
+				ms.WriteUInt32(0x60000000, be);                         // nop
+			}
+		}
 	}
 }
