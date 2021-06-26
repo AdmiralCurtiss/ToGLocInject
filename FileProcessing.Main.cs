@@ -144,12 +144,15 @@ namespace ToGLocInject {
 
 			foreach (var kvp in files) {
 				string f = kvp.Key;
+				bool isInMap0OnWiiButMap1OnPs3 = f.StartsWith("map1R.cpk/mapfile_fallR.cpk");
+				string fwii = isInMap0OnWiiButMap1OnPs3 ? f.ReplaceSubstring(3, 1, "0", 0, 1) : f;
+
 				bool writeAny = config.PS3CompareCsvOutputPath != null;
 				bool writeAll = writeAny && !config.PS3CompareCsvWriteOnlyUnmatched;
 				if (writeAny && !kvp.Value.SkipTextMapping && (writeAll || !kvp.Value.Confirmed)) {
 					DuplicatableStream jstream = _fc.GetFile(f, Version.J);
 					DuplicatableStream ustream = _fc.GetFile(f, Version.U);
-					DuplicatableStream wstream = _fc.TryGetFile(f, Version.W)?.DataStream;
+					DuplicatableStream wstream = _fc.TryGetFile(fwii, Version.W)?.DataStream;
 					SCS jscs;
 					SCS uscs;
 					SCS wscs;
@@ -372,7 +375,7 @@ namespace ToGLocInject {
 					}
 				}
 
-				var currentFileW = generateNew ? _fc.TryGetFile(f, Version.W) : null;
+				var currentFileW = generateNew ? _fc.TryGetFile(fwii, Version.W) : null;
 				if (generateNew && kvp.Value.Confirmed && currentFileW != null) {
 					bool isFontTexture = f == "rootR.cpk/sys/FontTexture2.tex";
 					bool isFontMetrics = f == "rootR.cpk/sys/FontBinary2.bin";
@@ -381,7 +384,7 @@ namespace ToGLocInject {
 					bool isSkitText = f.StartsWith("rootR.cpk/chat/scs/JA/");
 					bool delayInjection = isSkitText;
 
-					Console.WriteLine("Processing " + f + "...");
+					Console.WriteLine("Processing " + fwii + "...");
 					DuplicatableStream jstream;
 					DuplicatableStream ustream;
 
@@ -493,7 +496,7 @@ namespace ToGLocInject {
 								wscs = p.wscs;
 								int newStringCount = 0;
 								if (f.StartsWith("map") && f.EndsWith(".scs") && p.widx_with_multidefined_j.Count > 0) {
-									var multiplyOutResult = ScenarioProcessing.MultiplyOutScenarioFile(p.widx_with_multidefined_j, _fc, f, wscs, j, u);
+									var multiplyOutResult = ScenarioProcessing.MultiplyOutScenarioFile(p.widx_with_multidefined_j, _fc, fwii, wscs, j, u);
 									if (multiplyOutResult.newScenarioFileStream != null) {
 										newStringCount = multiplyOutResult.wscsnew.Entries.Count - wscs.Entries.Count;
 										wscs = multiplyOutResult.wscsnew;
@@ -522,9 +525,9 @@ namespace ToGLocInject {
 						} else if (f == @"rootR.cpk/snd/init/StrConfig.stp") {
 							scsstr = new DuplicatableFileStream(Path.Combine(config.EnglishVoiceProcessingDir, "StrConfig.stp")).CopyToMemoryAndDispose();
 						} else if (kvp.Value.VoiceInject != null) {
-							if (delayedInjects.ContainsKey(f)) {
-								wstream = new DuplicatableByteArrayStream(delayedInjects[f].CopyToByteArrayAndDispose());
-								delayedInjects.Remove(f);
+							if (delayedInjects.ContainsKey(fwii)) {
+								wstream = new DuplicatableByteArrayStream(delayedInjects[fwii].CopyToByteArrayAndDispose());
+								delayedInjects.Remove(fwii);
 							}
 							scsstr = VoiceInject.InjectEnglishContainedVoice(config, _fc, f, wstream, jstream, ustream, kvp.Value.VoiceInject, skitTexCache);
 							if (kvp.Value.VoiceInject.IsSkit) {
@@ -966,7 +969,7 @@ namespace ToGLocInject {
 
 							if (isFontTexture) {
 								if (executableProcessed) {
-									InjectFile(map0inject, map1inject, rootinject, f, scsstr, config.CompressionStyle);
+									InjectFile(map0inject, map1inject, rootinject, fwii, scsstr, config.CompressionStyle);
 									fontTextureInjected = true;
 								}
 							} else if (isExecutable) {
@@ -979,9 +982,9 @@ namespace ToGLocInject {
 								}
 							} else {
 								if (delayInjection) {
-									delayedInjects.Add(f, scsstr);
+									delayedInjects.Add(fwii, scsstr);
 								} else {
-									InjectFile(map0inject, map1inject, rootinject, f, scsstr, config.CompressionStyle);
+									InjectFile(map0inject, map1inject, rootinject, fwii, scsstr, config.CompressionStyle);
 								}
 							}
 						}
