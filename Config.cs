@@ -30,5 +30,7 @@ namespace ToGLocInject {
 		public string WiiRawCsvOutputPath;
 		public string DebugFontOutputPath;
 		public string DebugTextOutputPath;
+
+		public bool TrivializeEnemies = false;
 	}
 }

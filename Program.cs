@@ -102,6 +102,9 @@ namespace ToGLocInject {
 			//config.DebugFontOutputPath = @"c:\_graces\_font";
 			//config.DebugTextOutputPath = @"c:\_graces\_debug";
 
+			// for debugging the game without having to actually engage with the combat
+			//config.TrivializeEnemies = true;
+
 			if (args.Length >= 1 && args[0] == "--setup-voices" && config.EnglishVoiceProcessingDir != null) {
 				VoiceInject.Setup(config, config.EnglishVoiceProcessingDir);
 				return 0;

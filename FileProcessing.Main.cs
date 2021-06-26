@@ -889,6 +889,20 @@ namespace ToGLocInject {
 									ms.WriteByte(b);
 								}
 								ms.WriteByte(0);
+
+								if (config.TrivializeEnemies) {
+									// set max hp and stats to 1
+									ms.Position = tmp + 0x18;
+									ms.WriteUInt32(1, EndianUtils.Endianness.BigEndian);
+									ms.Position = tmp + 0x3e;
+									ms.WriteUInt16(1, EndianUtils.Endianness.BigEndian);
+									ms.WriteUInt16(1, EndianUtils.Endianness.BigEndian);
+									ms.WriteUInt16(1, EndianUtils.Endianness.BigEndian);
+									ms.WriteUInt16(1, EndianUtils.Endianness.BigEndian);
+									ms.WriteUInt16(1, EndianUtils.Endianness.BigEndian);
+									ms.WriteUInt16(1, EndianUtils.Endianness.BigEndian);
+								}
+
 								ms.Position = tmp + 0x88;
 							}
 
