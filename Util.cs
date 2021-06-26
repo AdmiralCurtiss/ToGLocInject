@@ -12,6 +12,123 @@ namespace ToGLocInject {
 			}
 			throw new Exception("Wrong component index.");
 		}
+
+		public static string ConvertToFullwidth(string str) {
+			System.Text.StringBuilder sb = new System.Text.StringBuilder();
+			foreach (char c in str) {
+				char? cc = ConvertToFullwidth(c);
+				if (cc == null)
+					throw new Exception("conversion failed");
+				sb.Append(cc.Value);
+			}
+			return sb.ToString();
+		}
+
+		public static char? ConvertToFullwidth(char c) {
+			switch (c) {
+				case ' ': return '　';
+				case '0': return '０';
+				case '1': return '１';
+				case '2': return '２';
+				case '3': return '３';
+				case '4': return '４';
+				case '5': return '５';
+				case '6': return '６';
+				case '7': return '７';
+				case '8': return '８';
+				case '9': return '９';
+				case 'A': return 'Ａ';
+				case 'B': return 'Ｂ';
+				case 'C': return 'Ｃ';
+				case 'D': return 'Ｄ';
+				case 'E': return 'Ｅ';
+				case 'F': return 'Ｆ';
+				case 'G': return 'Ｇ';
+				case 'H': return 'Ｈ';
+				case 'I': return 'Ｉ';
+				case 'J': return 'Ｊ';
+				case 'K': return 'Ｋ';
+				case 'L': return 'Ｌ';
+				case 'M': return 'Ｍ';
+				case 'N': return 'Ｎ';
+				case 'O': return 'Ｏ';
+				case 'P': return 'Ｐ';
+				case 'Q': return 'Ｑ';
+				case 'R': return 'Ｒ';
+				case 'S': return 'Ｓ';
+				case 'T': return 'Ｔ';
+				case 'U': return 'Ｕ';
+				case 'V': return 'Ｖ';
+				case 'W': return 'Ｗ';
+				case 'X': return 'Ｘ';
+				case 'Y': return 'Ｙ';
+				case 'Z': return 'Ｚ';
+				case 'a': return 'ａ';
+				case 'b': return 'ｂ';
+				case 'c': return 'ｃ';
+				case 'd': return 'ｄ';
+				case 'e': return 'ｅ';
+				case 'f': return 'ｆ';
+				case 'g': return 'ｇ';
+				case 'h': return 'ｈ';
+				case 'i': return 'ｉ';
+				case 'j': return 'ｊ';
+				case 'k': return 'ｋ';
+				case 'l': return 'ｌ';
+				case 'm': return 'ｍ';
+				case 'n': return 'ｎ';
+				case 'o': return 'ｏ';
+				case 'p': return 'ｐ';
+				case 'q': return 'ｑ';
+				case 'r': return 'ｒ';
+				case 's': return 'ｓ';
+				case 't': return 'ｔ';
+				case 'u': return 'ｕ';
+				case 'v': return 'ｖ';
+				case 'w': return 'ｗ';
+				case 'x': return 'ｘ';
+				case 'y': return 'ｙ';
+				case 'z': return 'ｚ';
+				case '!': return '！';
+				case '"': return '＂';
+				case '#': return '＃';
+				case '$': return '＄';
+				case '%': return '％';
+				case '&': return '＆';
+				case '\'': return '＇';
+				case '(': return '（';
+				case ')': return '）';
+				case '*': return '＊';
+				case '+': return '＋';
+				case ',': return '，';
+				case '-': return '－';
+				case '.': return '．';
+				case '/': return '／';
+				case ':': return '：';
+				case ';': return '；';
+				case '<': return '＜';
+				case '=': return '＝';
+				case '>': return '＞';
+				case '?': return '？';
+				case '@': return '＠';
+				case '[': return '［';
+				case '\\': return '＼';
+				case ']': return '］';
+				case '^': return '＾';
+				case '_': return '＿';
+				case '`': return '｀';
+				case '{': return '｛';
+				case '|': return '｜';
+				case '}': return '｝';
+				case '~': return '～';
+				case '¢': return '￠';
+				case '£': return '￡';
+				case '¬': return '￢';
+				case '¦': return '￤';
+				case '¥': return '￥';
+				default: return null;
+			}
+		}
 	}
 
 	internal enum Version {
@@ -162,6 +279,14 @@ namespace ToGLocInject {
 					throw new Exception("multiple definitions for explicit string replacements");
 				}
 			}
+		}
+
+		public W Password(int widx) {
+			return P(widx, ConvertToFullwidth);
+		}
+
+		private static string ConvertToFullwidth(string original, string replacement) {
+			return Util.ConvertToFullwidth(replacement);
 		}
 	}
 

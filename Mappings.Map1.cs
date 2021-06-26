@@ -7,7 +7,7 @@ namespace ToGLocInject {
 		private static void GetFileMappingsMap1(FileFetcher _fc, Dictionary<string, MappingData> files) {
 			files.Add(@"map1R.cpk/mapfile_anmaR.cpk/map/sce/R/ja/anma_e01.scs", new MappingData(c: true, u: GenerateDefault()));
 			files.Add(@"map1R.cpk/mapfile_anmaR.cpk/map/sce/R/ja/anma_i01.scs", new MappingData(c: true, u: GenerateDefault()));
-			files.Add(@"map1R.cpk/mapfile_anmaR.cpk/map/sce/R/ja/anma_i02.scs", new MappingData(c: true, u: GenerateDefault()));
+			files.Add(@"map1R.cpk/mapfile_anmaR.cpk/map/sce/R/ja/anma_i02.scs", new MappingData(c: true, u: GenerateDefault(), w: new W().Password(486)));
 			files.Add(@"map1R.cpk/mapfile_anmaR.cpk/map/sce/R/ja/anma_i03.scs", new MappingData(c: true, u: GenerateDefault().A(293, -1)));
 			files.Add(@"map1R.cpk/mapfile_anmaR.cpk/map/sce/R/ja/anma_i04.scs", new MappingData(c: true, u: GenerateDefault()));
 			files.Add(@"map1R.cpk/mapfile_anmaR.cpk/map/sce/R/ja/anma_t01.scs", new MappingData(c: true, u: GenerateCommonU(703).A(274, -1).A(304, 36).A(501, -1), j: GenerateCommonJ(705).A(448, 447), w: new W().R(799, 679).R(801, 681).Sys(493).R(576, 407)));
@@ -28,7 +28,7 @@ namespace ToGLocInject {
 			files.Add(@"map1R.cpk/mapfile_anmaR.cpk/map/sce/R/ja/s455_001.scs", new MappingData(c: true, u: GenerateDefault()));
 			files.Add(@"map1R.cpk/mapfile_beraR.cpk/map/sce/R/ja/bera_i01.scs", new MappingData(c: true, u: GenerateDefault()));
 			files.Add(@"map1R.cpk/mapfile_beraR.cpk/map/sce/R/ja/bera_i02.scs", new MappingData(c: true, u: GenerateDefault().A(300, 36), j: new M().A(370, -1)));
-			files.Add(@"map1R.cpk/mapfile_beraR.cpk/map/sce/R/ja/bera_i03.scs", new MappingData(c: true, u: GenerateDefault().A(297, -1), w: new W().R(504, 295)));
+			files.Add(@"map1R.cpk/mapfile_beraR.cpk/map/sce/R/ja/bera_i03.scs", new MappingData(c: true, u: GenerateDefault().A(297, -1), w: new W().R(504, 295).Password(487)));
 			files.Add(@"map1R.cpk/mapfile_beraR.cpk/map/sce/R/ja/bera_t01.scs", new MappingData(c: true, u: GenerateCommonU(604).A(384, -3), j: GenerateCommonJ(606).A(380, 379).A(758, -1), w: new W().R(497, 282).R(522, 327).R(560, 392).R(644, 476).R(746, 580).R(748, 582)));
 			files.Add(@"map1R.cpk/mapfile_beraR.cpk/map/sce/R/ja/e523_030.scs", new MappingData(c: true, u: GenerateDefault().A(276, -5), j: new M().A(272, 271), w: new W().R(506, 284)));
 			files.Add(@"map1R.cpk/mapfile_beraR.cpk/map/sce/R/ja/e523_040.scs", new MappingData(c: true, u: GenerateDefault().A(276, -5), j: new M().A(272, 271), w: new W().R(506, 284)));
@@ -63,7 +63,7 @@ namespace ToGLocInject {
 			files.Add(@"map1R.cpk/mapfile_fendR.cpk/map/sce/R/ja/fend_i01.scs", new MappingData(c: true, u: GenerateDefault(), w: new W().R(488, 269).R(520, 313)));
 			files.Add(@"map1R.cpk/mapfile_fendR.cpk/map/sce/R/ja/fend_i02.scs", new MappingData(c: true, u: GenerateDefault()));
 			files.Add(@"map1R.cpk/mapfile_fendR.cpk/map/sce/R/ja/fend_i03.scs", new MappingData(c: true, u: GenerateDefault(), w: new W().R(487, 268)));
-			files.Add(@"map1R.cpk/mapfile_fendR.cpk/map/sce/R/ja/fend_i04.scs", new MappingData(c: true, u: GenerateDefault()));
+			files.Add(@"map1R.cpk/mapfile_fendR.cpk/map/sce/R/ja/fend_i04.scs", new MappingData(c: true, u: GenerateDefault(), w: new W().Password(487)));
 			files.Add(@"map1R.cpk/mapfile_fendR.cpk/map/sce/R/ja/fend_i05.scs", new MappingData(c: true, u: GenerateDefault()));
 			files.Add(@"map1R.cpk/mapfile_fendR.cpk/map/sce/R/ja/fend_i06.scs", new MappingData(c: true, u: GenerateDefault().A(291, 36, 286).A(326, 310).A(327, 312, 313), j: new M().A(294, 288).A(329, 313, 314, 315, 316), w: new W().R(518, 298).R(521, 302)));
 			files.Add(@"map1R.cpk/mapfile_fendR.cpk/map/sce/R/ja/fend_i07.scs", new MappingData(c: true, u: GenerateDefault(), j: new M().A(408, 381)));
@@ -102,7 +102,7 @@ namespace ToGLocInject {
 			files.Add(@"map1R.cpk/mapfile_lakeR.cpk/map/sce/R/ja/lake_i01.scs", new MappingData(c: true, u: GenerateDefault(), w: new W().R(492, 273)));
 			files.Add(@"map1R.cpk/mapfile_lakeR.cpk/map/sce/R/ja/lake_i02.scs", new MappingData(c: true, u: GenerateDefault(), j: new M().A(325, 268, 269)));
 			files.Add(@"map1R.cpk/mapfile_lakeR.cpk/map/sce/R/ja/lake_i03.scs", new MappingData(c: true, u: GenerateDefault(), w: new W().R(491, 272)));
-			files.Add(@"map1R.cpk/mapfile_lakeR.cpk/map/sce/R/ja/lake_i04.scs", new MappingData(c: true, u: GenerateDefault()));
+			files.Add(@"map1R.cpk/mapfile_lakeR.cpk/map/sce/R/ja/lake_i04.scs", new MappingData(c: true, u: GenerateDefault(), w: new W().Password(485)));
 			files.Add(@"map1R.cpk/mapfile_lakeR.cpk/map/sce/R/ja/lake_t01.scs", new MappingData(c: true, u: GenerateDefault().A(546, 539).A(571, 564, 565).A(574, -2), j: new M().A(539, 536).A(561, 557).A(568, 563).A(571, 565).A(592, 588), w: new W().R(494, 275).R(495, 276).R(496, 277).R(497, 278).R(530, 311).R(557, 342).R(590, 397).R(680, 530).R(681, 531).R(683, 533).R(692, 545)));
 			files.Add(@"map1R.cpk/mapfile_lakeR.cpk/map/sce/R/ja/lake_t02.scs", new MappingData(c: true, u: GenerateDefault()));
 			files.Add(@"map1R.cpk/mapfile_lakeR.cpk/map/sce/R/ja/lake_t03.scs", new MappingData(c: true, u: GenerateDefault().A(268, -18).A(291, 36), w: new W().R(557, 327)));
@@ -190,7 +190,7 @@ namespace ToGLocInject {
 			files.Add(@"map1R.cpk/mapfile_lanR.cpk/map/sce/R/ja/lan2_i01.scs", new MappingData(c: true, u: GenerateCommonU(500).A(322, -1).A(329, -3), j: GenerateCommonJ(504), w: new W().R(667, 476).R(669, 478)));
 			files.Add(@"map1R.cpk/mapfile_lanR.cpk/map/sce/R/ja/lan2_i02.scs", new MappingData(c: true, u: GenerateDefault().A(281, -1)));
 			files.Add(@"map1R.cpk/mapfile_lanR.cpk/map/sce/R/ja/lan2_i03.scs", new MappingData(c: true, u: GenerateDefault().A(303, -1)));
-			files.Add(@"map1R.cpk/mapfile_lanR.cpk/map/sce/R/ja/lan2_i04.scs", new MappingData(c: true, u: GenerateDefault().A(339, -1), w: new W().R(526, 308).R(530, 312)));
+			files.Add(@"map1R.cpk/mapfile_lanR.cpk/map/sce/R/ja/lan2_i04.scs", new MappingData(c: true, u: GenerateDefault().A(339, -1), w: new W().R(526, 308).R(530, 312).Password(497)));
 			files.Add(@"map1R.cpk/mapfile_lanR.cpk/map/sce/R/ja/lan2_i05.scs", new MappingData(c: true, u: GenerateDefault().A(338, -1).A(345, -1), j: new M().A(345, 341).A(346, 341), w: new W().R(535, 334).R(536, 335)));
 			files.Add(@"map1R.cpk/mapfile_lanR.cpk/map/sce/R/ja/lan2_i06.scs", new MappingData(c: true, u: GenerateDefault().A(272, -1)));
 			files.Add(@"map1R.cpk/mapfile_lanR.cpk/map/sce/R/ja/lan2_i07.scs", new MappingData(c: true, u: GenerateDefault().A(307, -1), w: new W().R(490, 271)));
@@ -242,7 +242,7 @@ namespace ToGLocInject {
 			files.Add(@"map1R.cpk/mapfile_lanR.cpk/map/sce/R/ja/s450_001.scs", new MappingData(c: true, u: GenerateDefault().A(270, -5)));
 			files.Add(@"map1R.cpk/mapfile_nekoR.cpk/map/sce/R/ja/neko_e01.scs", new MappingData(c: true, u: GenerateDefault().A(283, -2), w: new W().Sys(104).RP(489, 269, (o, r) => r.ReplaceSubstring(0, 12, o, 0, 18)).RP(492, 272, (o, r) => r.ReplaceSubstring(18, 6, o, 16, 9).ReplaceSubstring(0, 6, o, 0, 9)).RP(494, 274, (o, r) => r.ReplaceSubstring(19, 6, o, 16, 9).ReplaceSubstring(0, 6, o, 0, 9))));
 			files.Add(@"map1R.cpk/mapfile_nekoR.cpk/map/sce/R/ja/neko_i01.scs", new MappingData(c: true, u: GenerateDefault(), j: new M().A(288, 284), w: new W().RP(489, 270, (o, r) => r.ReplaceSubstring(0, 12, o, 0, 18)).RP(492, 273, (o, r) => r.ReplaceSubstring(18, 6, o, 16, 9).ReplaceSubstring(0, 6, o, 0, 9)).RP(494, 275, (o, r) => r.ReplaceSubstring(19, 6, o, 16, 9).ReplaceSubstring(0, 6, o, 0, 9))));
-			files.Add(@"map1R.cpk/mapfile_nekoR.cpk/map/sce/R/ja/neko_t01.scs", new MappingData(c: true, u: GenerateDefault().FeedSplit(283), j: new M().FeedSplit(285)));
+			files.Add(@"map1R.cpk/mapfile_nekoR.cpk/map/sce/R/ja/neko_t01.scs", new MappingData(c: true, u: GenerateDefault().FeedSplit(283), j: new M().FeedSplit(285), w: new W().Password(496)));
 			files.Add(@"map1R.cpk/mapfile_nekoR.cpk/map/sce/R/ja/s245_001.scs", new MappingData(c: true, u: GenerateDefault()));
 			files.Add(@"map1R.cpk/mapfile_nekoR.cpk/map/sce/R/ja/s246_001.scs", new MappingData(c: true, u: GenerateDefault()));
 			files.Add(@"map1R.cpk/mapfile_nekoR.cpk/map/sce/R/ja/s247_001.scs", new MappingData(c: true, u: GenerateDefault()));
@@ -251,7 +251,7 @@ namespace ToGLocInject {
 			files.Add(@"map1R.cpk/mapfile_olleR.cpk/map/sce/R/ja/e628_010.scs", new MappingData(c: true, u: GenerateDefault().A(277, -5)));
 			files.Add(@"map1R.cpk/mapfile_olleR.cpk/map/sce/R/ja/e628_050.scs", new MappingData(c: true, u: GenerateDefault().A(277, -5)));
 			files.Add(@"map1R.cpk/mapfile_olleR.cpk/map/sce/R/ja/olle_i01.scs", new MappingData(c: true, u: GenerateDefault().A(289, 36)));
-			files.Add(@"map1R.cpk/mapfile_olleR.cpk/map/sce/R/ja/olle_t01.scs", new MappingData(c: true, u: GenerateDefault().A(353, -1).A(470, 345), j: new M().A(542, -1), w: new W().R(508, 293).R(517, 306).R(522, 318).R(704, 520)));
+			files.Add(@"map1R.cpk/mapfile_olleR.cpk/map/sce/R/ja/olle_t01.scs", new MappingData(c: true, u: GenerateDefault().A(353, -1).A(470, 345), j: new M().A(542, -1), w: new W().R(508, 293).R(517, 306).R(522, 318).R(704, 520).Password(494)));
 			files.Add(@"map1R.cpk/mapfile_olleR.cpk/map/sce/R/ja/s218_001.scs", new MappingData(c: true, u: GenerateDefault().A(277, -5)));
 			files.Add(@"map1R.cpk/mapfile_olleR.cpk/map/sce/R/ja/s218_002.scs", new MappingData(c: true, u: GenerateDefault().A(277, -5)));
 			files.Add(@"map1R.cpk/mapfile_olleR.cpk/map/sce/R/ja/s401_002.scs", new MappingData(c: true, u: GenerateDefault().A(277, -5), w: new W().Sys(559)));
@@ -289,7 +289,7 @@ namespace ToGLocInject {
 			files.Add(@"map1R.cpk/mapfile_otheR.cpk/map/sce/R/ja/othe_i01.scs", new MappingData(c: true, u: GenerateDefault().A(279, 278).A(293, 269)));
 			files.Add(@"map1R.cpk/mapfile_otheR.cpk/map/sce/R/ja/othe_i02.scs", new MappingData(c: true, u: GenerateDefault().A(277, 276)));
 			files.Add(@"map1R.cpk/mapfile_otheR.cpk/map/sce/R/ja/othe_i03.scs", new MappingData(c: true, u: GenerateDefault().A(273, 272).A(324, 318)));
-			files.Add(@"map1R.cpk/mapfile_otheR.cpk/map/sce/R/ja/othe_i04.scs", new MappingData(c: true, u: GenerateCommonU(481).A(310, 309), j: GenerateCommonJ(482), w: new W().R(659, 457).R(661, 459)));
+			files.Add(@"map1R.cpk/mapfile_otheR.cpk/map/sce/R/ja/othe_i04.scs", new MappingData(c: true, u: GenerateCommonU(481).A(310, 309), j: GenerateCommonJ(482), w: new W().R(659, 457).R(661, 459).Password(487)));
 			files.Add(@"map1R.cpk/mapfile_otheR.cpk/map/sce/R/ja/othe_i05.scs", new MappingData(c: true, u: GenerateDefault().A(271, 270)));
 			files.Add(@"map1R.cpk/mapfile_otheR.cpk/map/sce/R/ja/othe_t01.scs", new MappingData(c: true, u: GenerateDefault().A(291, 290), w: new W().R(487, 268)));
 			files.Add(@"map1R.cpk/mapfile_otheR.cpk/map/sce/R/ja/othe_t02.scs", new MappingData(c: true, u: GenerateCommonU(467).A(293, 292), j: GenerateCommonJ(468), w: new W().R(489, 270)));
@@ -310,7 +310,7 @@ namespace ToGLocInject {
 			files.Add(@"map1R.cpk/mapfile_riotR.cpk/map/sce/R/ja/e522_050.scs", new MappingData(c: true, u: GenerateDefault().A(272, 270, 271).A(281, 277), j: new M().A(283, 279), w: new W().R(503, 283).R(504, 284).R(505, 285).R(506, 286).R(507, 287).R(508, 288)));
 			files.Add(@"map1R.cpk/mapfile_riotR.cpk/map/sce/R/ja/riot_i01.scs", new MappingData(c: true, u: GenerateDefault(), w: new W().R(503, 284).R(490, 271)));
 			files.Add(@"map1R.cpk/mapfile_riotR.cpk/map/sce/R/ja/riot_i02.scs", new MappingData(c: true, u: GenerateDefault()));
-			files.Add(@"map1R.cpk/mapfile_riotR.cpk/map/sce/R/ja/riot_t01.scs", new MappingData(c: true, u: GenerateDefault().A(292, 36).A(313, -7).A(318, -1).A(329, -5).A(380, -3).A(413, 411, 412).A(422, 418).A(492, 431).FeedSplit(514), j: new M().A(441, 437), w: new W().R(520, 300).R(529, 309).R(556, 337).R(621, 424).R(622, 425).R(623, 426).R(624, 427).R(625, 428).R(626, 429)));
+			files.Add(@"map1R.cpk/mapfile_riotR.cpk/map/sce/R/ja/riot_t01.scs", new MappingData(c: true, u: GenerateDefault().A(292, 36).A(313, -7).A(318, -1).A(329, -5).A(380, -3).A(413, 411, 412).A(422, 418).A(492, 431).FeedSplit(514), j: new M().A(441, 437), w: new W().R(520, 300).R(529, 309).R(556, 337).R(621, 424).R(622, 425).R(623, 426).R(624, 427).R(625, 428).R(626, 429).Password(531)));
 			files.Add(@"map1R.cpk/mapfile_riotR.cpk/map/sce/R/ja/s225_001.scs", new MappingData(c: true, u: GenerateDefault().A(272, 270, 271).A(281, 277), j: new M().A(283, 279), w: new W().R(503, 283).R(504, 284).R(505, 285).R(506, 286).R(507, 287).R(508, 288)));
 			files.Add(@"map1R.cpk/mapfile_riotR.cpk/map/sce/R/ja/s407_001.scs", new MappingData(c: true, u: GenerateDefault()));
 			files.Add(@"map1R.cpk/mapfile_riotR.cpk/map/sce/R/ja/s407_002.scs", new MappingData(c: true, u: GenerateDefault(), w: new W().RP(592, 373, (o, r) => o.Substring(0, 16) + r).RP(593, 374, (o, r) => o.Substring(0, 16) + r).RP(594, 375, (o, r) => o.Substring(0, 16) + r).RP(595, 376, (o, r) => o.Substring(0, 16) + r)));
@@ -330,7 +330,7 @@ namespace ToGLocInject {
 			files.Add(@"map1R.cpk/mapfile_sablR.cpk/map/sce/R/ja/sabl_i01.scs", new MappingData(c: true, u: GenerateDefault().A(301, 298)));
 			files.Add(@"map1R.cpk/mapfile_sablR.cpk/map/sce/R/ja/sabl_i02.scs", new MappingData(c: true, u: GenerateDefault()));
 			files.Add(@"map1R.cpk/mapfile_sablR.cpk/map/sce/R/ja/sabl_i03.scs", new MappingData(c: true, u: GenerateDefault()));
-			files.Add(@"map1R.cpk/mapfile_sablR.cpk/map/sce/R/ja/sabl_t01.scs", new MappingData(c: true, u: GenerateCommonU(692).A(298, 36).A(477, 60), j: GenerateCommonJ(694).A(848, -1).A(870, -1), w: new W().R(816, 668).R(818, 670).R(570, 385).R(714, 564)));
+			files.Add(@"map1R.cpk/mapfile_sablR.cpk/map/sce/R/ja/sabl_t01.scs", new MappingData(c: true, u: GenerateCommonU(692).A(298, 36).A(477, 60), j: GenerateCommonJ(694).A(848, -1).A(870, -1), w: new W().R(816, 668).R(818, 670).R(570, 385).R(714, 564).Password(523)));
 			files.Add(@"map1R.cpk/mapfile_shatR.cpk/map/sce/R/ja/e730_010.scs", new MappingData(c: true, u: GenerateDefault()));
 			files.Add(@"map1R.cpk/mapfile_shatR.cpk/map/sce/R/ja/e833_040.scs", new MappingData(c: true, u: GenerateDefault()));
 			files.Add(@"map1R.cpk/mapfile_shatR.cpk/map/sce/R/ja/e942_081.scs", new MappingData(c: true, u: GenerateDefault()));
@@ -390,7 +390,7 @@ namespace ToGLocInject {
 			files.Add(@"map1R.cpk/mapfile_strtR.cpk/map/sce/R/ja/s452_001.scs", new MappingData(c: true, u: GenerateDefault()));
 			files.Add(@"map1R.cpk/mapfile_strtR.cpk/map/sce/R/ja/strt_e01.scs", new MappingData(c: true, u: GenerateDefault(), w: new W().R(517, 298)));
 			files.Add(@"map1R.cpk/mapfile_strtR.cpk/map/sce/R/ja/strt_i01.scs", new MappingData(c: true, u: GenerateCommonU(514), j: GenerateCommonJ(514), w: new W().R(679, 490).R(681, 492).R(570, 379)));
-			files.Add(@"map1R.cpk/mapfile_strtR.cpk/map/sce/R/ja/strt_i02.scs", new MappingData(c: true, u: GenerateDefault(), w: new W().R(572, 358)));
+			files.Add(@"map1R.cpk/mapfile_strtR.cpk/map/sce/R/ja/strt_i02.scs", new MappingData(c: true, u: GenerateDefault(), w: new W().R(572, 358).Password(485)));
 			files.Add(@"map1R.cpk/mapfile_strtR.cpk/map/sce/R/ja/strt_i03.scs", new MappingData(c: true, u: GenerateDefault(), w: new W().R(563, 355)));
 			files.Add(@"map1R.cpk/mapfile_strtR.cpk/map/sce/R/ja/strt_i04.scs", new MappingData(c: true, u: GenerateDefault(), w: new W().R(557, 338)));
 			files.Add(@"map1R.cpk/mapfile_strtR.cpk/map/sce/R/ja/strt_i05.scs", new MappingData(c: true, u: GenerateDefault().A(289, 36), j: new M().A(305, 301), w: new W().R(586, 367)));
@@ -446,7 +446,7 @@ namespace ToGLocInject {
 			files.Add(@"map1R.cpk/mapfile_winR.cpk/map/sce/R/ja/win1_t02.scs", new MappingData(c: true, u: GenerateDefault().A(721 - 198, 716 - 198).A(795 - 198, 793 - 198).A(807 - 198, new List<int>() { 766 - 198, 766 - 198, 766 - 198, 766 - 198, 766 - 198, 766 - 198, 766 - 198 }).A(817 - 198, 766 - 198).A(819 - 198, 805 - 198).A(823 - 198, 822 - 198).A(824 - 198, 822 - 198).A(839 - 198, 815 - 198, 815 - 198).A(844 - 198, new List<int>() { 843 - 198, 843 - 198, 843 - 198, 843 - 198, 843 - 198, 843 - 198 }).A(845 - 198, 844 - 198).A(846 - 198, 845 - 198), j: new M().A(810 - 200, 751 - 200).A(814 - 200, 771 - 200).A(853 - 200, 818 - 200, 826 - 200, 827 - 200).A(855 - 200, 830 - 200), w: new W().R(506, 287).R(716, 499).R(718, 501).RP(504, 285, (o, r) => r.ReplaceSubstring(52, 6, o, 19, 9))));
 			files.Add(@"map1R.cpk/mapfile_winR.cpk/map/sce/R/ja/win1_t03.scs", new MappingData(c: true, u: GenerateDefault()));
 			files.Add(@"map1R.cpk/mapfile_winR.cpk/map/sce/R/ja/win2_i01.scs", new MappingData(c: true, u: GenerateDefault().A(721 - 246, 716 - 246).A(795 - 246, 793 - 246).A(807 - 246, new List<int>() { 766 - 246, 766 - 246, 766 - 246, 766 - 246, 766 - 246, 766 - 246, 766 - 246 }).A(817 - 246, 766 - 246).A(819 - 246, 805 - 246).A(823 - 246, 822 - 246).A(824 - 246, 822 - 246).A(839 - 246, 815 - 246, 815 - 246).A(844 - 246, new List<int>() { 843 - 246, 843 - 246, 843 - 246, 843 - 246, 843 - 246, 843 - 246 }).A(845 - 246, 844 - 246).A(846 - 246, 845 - 246), j: new M().A(810 - 248, 751 - 248).A(814 - 248, 771 - 248).A(853 - 248, 818 - 248, 826 - 248, 827 - 248).A(855 - 248, 830 - 248), w: new W().R(502, 292).R(655, 451).R(657, 453)));
-			files.Add(@"map1R.cpk/mapfile_winR.cpk/map/sce/R/ja/win2_i02.scs", new MappingData(c: true, u: GenerateDefault()));
+			files.Add(@"map1R.cpk/mapfile_winR.cpk/map/sce/R/ja/win2_i02.scs", new MappingData(c: true, u: GenerateDefault(), w: new W().Password(496)));
 			files.Add(@"map1R.cpk/mapfile_winR.cpk/map/sce/R/ja/win2_i03.scs", new MappingData(c: true, u: GenerateDefault().A(721 - 274, 716 - 274).A(795 - 274, 793 - 274).A(807 - 274, new List<int>() { 766 - 274, 766 - 274, 766 - 274, 766 - 274, 766 - 274, 766 - 274, 766 - 274 }).A(817 - 274, 766 - 274).A(819 - 274, 805 - 274).A(823 - 274, 822 - 274).A(824 - 274, 822 - 274).A(839 - 274, 815 - 274, 815 - 274).A(844 - 274, new List<int>() { 843 - 274, 843 - 274, 843 - 274, 843 - 274, 843 - 274, 843 - 274 }).A(845 - 274, 844 - 274).A(846 - 274, 845 - 274), j: new M().A(810 - 276, 751 - 276).A(814 - 276, 771 - 276).A(853 - 276, 818 - 276, 826 - 276, 827 - 276).A(855 - 276, 830 - 276), w: new W().R(637, 423).R(639, 425)));
 			files.Add(@"map1R.cpk/mapfile_winR.cpk/map/sce/R/ja/win2_i04.scs", new MappingData(c: true, u: GenerateDefault()));
 			files.Add(@"map1R.cpk/mapfile_winR.cpk/map/sce/R/ja/win2_i05.scs", new MappingData(c: true, u: GenerateDefault().A(365, 363, 363).A(319, -1).A(356, -1).A(375, -1)));

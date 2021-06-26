@@ -25,7 +25,6 @@ namespace ToGLocInject {
 			// - dualize result message is slightly broken, see if we can fix that
 			// - request reward message is super broken, suspected culprit is the printf string at 0x5327A6, dunno if this is easily fixable
 			// - there might be more buffer overflows for sprintf'd strings
-			// - password treasure chests don't work cause the menu doesn't allow letters to be entered
 			// - text in card minigame, is in module/Mg1RR.rso and/or module/Mg2RR.rso
 			// - text in music player (rootR/mnu/bin/snd_test.bin and/or soundTest.bin)
 			// - don't inject the v0-inject files into the v2 archives

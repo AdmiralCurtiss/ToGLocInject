@@ -96,5 +96,56 @@ namespace ToGLocInject {
 			ms.Position = fixupPos;
 			ms.WriteUInt32(replacedInstruction);
 		}
+
+		public static void ModifyTextInputForEnglish(MemoryStream ms, Dol dol) {
+			// characters available in text input are stored in a few long strings that assume all characters are 2-byte Shift-JIS
+			// to avoid having to recode the entire menu we also just store them like that even for English characters...
+
+			// some scratchpad notes:
+			// function at 0x8024ec8c sets up the text input menu
+			// if you break there and modify the u32 at [r4 + 0x54] you can affect what selections are available to the user
+			// 0x8007d674 is the strcmp for the checking password chests
+
+			string[] charmaps = new string[12];
+			for (int i = 0; i < 12; ++i) {
+				ms.Position = 0x530068 + i * 0x5b;
+				charmaps[i] = ms.ReadShiftJis(0x5a);
+			}
+
+			// hiragana -> generic alphanumeric
+			// TODO: some of these symbols are not in the font
+			string alphanumeric = Util.ConvertToFullwidth("ABCDEFGHIJKLMNOPQRSTUVWXYZ    abcdefghijklmnopqrstuvwxyz    0123456789+-*/=@'\".,!?%&#~¢£¬¦");
+			(charmaps[3], charmaps[7]) = ConvertToHalves(alphanumeric);
+
+			// katakana -> password chest limited charset
+			string chest = Util.ConvertToFullwidth("abcdefghijklmnopqrstuvwxyz    0123456789".PadRight(90));
+			(charmaps[2], charmaps[6]) = ConvertToHalves(chest);
+
+			// latin -> symbols
+			// TODO: some of these symbols are not in the font, clearly this table is not actually used originally...
+			charmaps[8] = charmaps[10];
+			charmaps[9] = charmaps[11];
+
+			for (int i = 0; i < 12; ++i) {
+				ms.Position = 0x530068 + i * 0x5b;
+				ms.WriteShiftJis(charmaps[i], 0x5a);
+			}
+
+			// TODO: text entry style 0 (generic) should hide the 2nd (of 3) input field
+			// TODO: text entry style 3 (chest pass) should hide the 2nd (of 2) input field
+			// TODO: text entry needs to allow spaces, a chest password uses one!
+		}
+
+		private static (string, string) ConvertToHalves(string alphanumeric) {
+			System.Text.StringBuilder sb1 = new System.Text.StringBuilder();
+			System.Text.StringBuilder sb2 = new System.Text.StringBuilder();
+			for (int i = 0; i < 9; ++i) {
+				for (int j = 0; j < 5; ++j) {
+					sb1.Append(alphanumeric[i * 10 + j + 0]);
+					sb2.Append(alphanumeric[i * 10 + j + 5]);
+				}
+			}
+			return (sb1.ToString(), sb2.ToString());
+		}
 	}
 }

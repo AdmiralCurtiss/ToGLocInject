@@ -866,6 +866,8 @@ namespace ToGLocInject {
 
 							CodePatches.ApplyFontTexPointerFix(ms, dol, reservedSpaceFontTexPointerFix);
 
+							CodePatches.ModifyTextInputForEnglish(ms, dol);
+
 							fontStream.Position = 0;
 							newFontTexture = new DuplicatableByteArrayStream(fontStream.CopyToByteArrayAndDispose());
 
