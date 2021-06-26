@@ -90,7 +90,7 @@ namespace ToGLocInject {
 			files.Add(@"map1R.cpk/mapfile_kameR.cpk/map/sce/R/ja/s212_001.scs", new MappingData(c: true, u: GenerateDefault().A(349, 331), j: new M().A(347, 338, 339)));
 			files.Add(@"map1R.cpk/mapfile_kameR.cpk/map/sce/R/ja/s414_002.scs", new MappingData(c: true, u: GenerateDefault(), j: new M().A(365, 333)));
 			files.Add(@"map1R.cpk/mapfile_kameR.cpk/map/sce/R/ja/s459_001.scs", new MappingData(c: true, u: GenerateDefault()));
-			files.Add(@"map1R.cpk/mapfile_koya_r06R.cpk/map/sce/R/ja/koya_r06.scs", new MappingData(c: true, u: GenerateDefault().A(269, -1)));
+			files.Add(@"map1R.cpk/mapfile_koya_r06R.cpk/map/sce/R/ja/koya_r06.scs", new MappingData(c: true, u: GenerateDefault().A(269, 268)));
 			files.Add(@"map1R.cpk/mapfile_koya_r06R.cpk/map/sce/R/ja/s424_004.scs", new MappingData(c: true, u: GenerateDefault()));
 			files.Add(@"map1R.cpk/mapfile_lakeR.cpk/map/sce/R/ja/e313_010.scs", new MappingData(c: true, u: GenerateDefault().A(286, 279).A(311, 304, 305).A(314, -19), j: new M().A(279, 276).A(301, 297).A(308, 303).A(311, 305).A(349, 345), w: new W().R(489, 270).R(490, 271).R(492, 273).R(501, 285)));
 			files.Add(@"map1R.cpk/mapfile_lakeR.cpk/map/sce/R/ja/e313_020.scs", new MappingData(c: true, u: GenerateDefault()));
