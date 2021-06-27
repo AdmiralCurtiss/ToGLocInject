@@ -667,8 +667,9 @@ namespace ToGLocInject {
 								File.WriteAllLines(Path.Combine(config.DebugTextOutputPath, "non_cleared_text_areas.txt"), statusMessagesReusedTextPositions);
 							}
 							// put found memory chunks into a more usable format; address + bytes left
-							List<MemChunk> memchunks = new List<MemChunk>();
+							MemchunkStorage memchunks;
 							{
+								List<MemChunk> memchunksList = new List<MemChunk>();
 								storageFinder.Position = 0;
 								uint startaddress = 0;
 								bool in_chunk = false;
@@ -688,15 +689,17 @@ namespace ToGLocInject {
 											mc.File = ms;
 											mc.Mapper = dol;
 											mc.IsInternal = true;
-											memchunks.Add(mc);
+											memchunksList.Add(mc);
 										}
 									}
 								}
 
 								bool allowInjectIntoFontTexture = true;
 								if (allowInjectIntoFontTexture) {
-									memchunks.AddRange(ToGLocInject.FontSpaceFinder.FindFreeMemoryInFontTexture(fontStream));
+									memchunksList.AddRange(ToGLocInject.FontSpaceFinder.FindFreeMemoryInFontTexture(fontStream));
 								}
+
+								memchunks = new MemchunkStorage(memchunksList);
 							}
 
 							uint maxTextLength = 0;
@@ -721,104 +724,7 @@ namespace ToGLocInject {
 							);
 
 							// actually write strings to executable
-							List<string> failedToFinds = new List<string>();
-							long requiredExtraBytes = 0;
-							Dictionary<SJisString, uint> alreadyWrittenStrings = new Dictionary<SJisString, uint>();
-							foreach ((int dolidx, bool forceInternal) in GenerateDoltextInjectOrder(doltext)) {
-								var d = doltext[dolidx];
-								string t = wscs.Entries[dolidx];
-								if (t == null) {
-									// if text is null write a nullptr to the rom
-									ms.Position = d.RomPointerPosition;
-									ms.WriteUInt32(0);
-								} else {
-									byte[] inject = TextUtils.StringToBytesShiftJis(t);
-									SJisString sjis = new SJisString(inject);
-									uint address;
-									if (alreadyWrittenStrings.TryGetValue(sjis, out address)) {
-										ms.Position = d.RomPointerPosition;
-										ms.WriteUInt32(address);
-									} else {
-										uint bytecount = ((uint)inject.Length) + 1;
-										MemChunk chunk = memchunks.FirstOrDefault(x => x.FreeBytes >= bytecount && (!forceInternal || x.IsInternal));
-										if (chunk != null) {
-											address = chunk.Mapper.MapRomToRam(chunk.Address).ToEndian(EndianUtils.Endianness.BigEndian);
-											chunk.File.Position = chunk.Address;
-											for (uint cnt = 0; cnt < bytecount; ++cnt) {
-												byte b = (byte)(cnt < inject.Length ? inject[cnt] : 0);
-												chunk.File.WriteByte(b);
-											}
-											chunk.Address += bytecount;
-											chunk.FreeBytes -= bytecount;
-
-											ms.Position = d.RomPointerPosition;
-											ms.WriteUInt32(address);
-											alreadyWrittenStrings.Add(sjis, address);
-										} else {
-											Console.WriteLine("ERROR: Failed to find free space for string " + t);
-											failedToFinds.Add("ERROR: Failed to find free space for string " + t);
-											requiredExtraBytes += bytecount;
-											ms.Position = d.RomPointerPosition;
-											ms.WriteUInt32(dol.MapRomToRam(0x4D2828u).ToEndian(EndianUtils.Endianness.BigEndian)); // point at a default string instead
-										}
-									}
-								}
-							}
-
-							if (config.DebugTextOutputPath != null) {
-								Directory.CreateDirectory(config.DebugTextOutputPath);
-								List<string> tmp = new List<string>();
-								for (int dolidx = 0; dolidx < doltext.Count; ++dolidx) {
-									var d = doltext[dolidx];
-									string t = wscs.Entries[dolidx];
-									StringBuilder sbj = new StringBuilder();
-									StringBuilder sbe = new StringBuilder();
-									sbj.Append("[" + dolidx.ToString().PadLeft(5) + "/0x" + d.RomPointerPosition.ToString("X8") + "] ");
-									sbe.Append("[" + dolidx.ToString().PadLeft(5) + "/0x" + d.RomPointerPosition.ToString("X8") + "] ");
-									if (d.Text != null) {
-										sbj.Append(ReduceToSingleLine(d.Text));
-									}
-									if (t != null) {
-										sbe.Append(ReduceToSingleLine(t));
-									}
-									tmp.Add(sbj.ToString());
-									tmp.Add(sbe.ToString());
-									tmp.Add("");
-								}
-								File.WriteAllLines(Path.Combine(config.DebugTextOutputPath, "maindol_mappings.txt"), tmp);
-							}
-							if (config.DebugTextOutputPath != null) {
-								Directory.CreateDirectory(config.DebugTextOutputPath);
-								List<string> tmp = new List<string>();
-								for (int juidx = 0; juidx < u.Count; ++juidx) {
-									string sj = j[juidx].entry;
-									string su = u[juidx].entry;
-									StringBuilder sbj = new StringBuilder();
-									StringBuilder sbe = new StringBuilder();
-									sbj.Append("[" + juidx.ToString().PadLeft(5) + "] ");
-									sbe.Append("[" + juidx.ToString().PadLeft(5) + "] ");
-									if (sj != null) {
-										sbj.Append(ReduceToSingleLine(sj));
-									}
-									if (su != null) {
-										sbe.Append(ReduceToSingleLine(su));
-									}
-									tmp.Add(sbj.ToString());
-									tmp.Add(sbe.ToString());
-									tmp.Add("");
-								}
-								File.WriteAllLines(Path.Combine(config.DebugTextOutputPath, "bootelf_ju.txt"), tmp);
-							}
-							if (config.DebugTextOutputPath != null) {
-								Directory.CreateDirectory(config.DebugTextOutputPath);
-								failedToFinds.Add("Would need " + requiredExtraBytes + " extra bytes.");
-								long unusedByteCount = 0;
-								foreach (MemChunk mc in memchunks) {
-									unusedByteCount += mc.FreeBytes;
-								}
-								failedToFinds.Add("Have " + unusedByteCount + " bytes of unused space.");
-								File.WriteAllLines(Path.Combine(config.DebugTextOutputPath, "maindol_no_space_left.txt"), failedToFinds);
-							}
+							InjectAllStrings(config, wscs, doltext, ms, dol, memchunks, j, u);
 
 							// finally apply a few code patches
 
@@ -1054,7 +960,7 @@ namespace ToGLocInject {
 			return;
 		}
 
-		private static ReservedMemchunk InjectStringShiftJisNullterm(MemoryStream bin, List<MemChunk> memchunks, string str) {
+		private static ReservedMemchunk InjectStringShiftJisNullterm(MemoryStream bin, MemchunkStorage memchunks, string str) {
 			MemoryStream ms = new MemoryStream();
 			ms.WriteShiftJisNullterm(str);
 			var chunk = ReserveMemory(memchunks, (uint)ms.Length, 1);

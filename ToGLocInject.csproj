@@ -52,6 +52,7 @@
     <Compile Include="FileFetcher.cs" />
     <Compile Include="FileInjector.cs" />
     <Compile Include="FileInjectorV0V2.cs" />
+    <Compile Include="FileProcessing.DolStringInject.cs" />
     <Compile Include="FileProcessing.Main.cs" />
     <Compile Include="FileProcessing.Utility.cs" />
     <Compile Include="FontProcessing.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="Mappings.Map0.cs" />
     <Compile Include="Mappings.Map1.cs" />
     <Compile Include="Mappings.Root.cs" />
+    <Compile Include="MemchunkStorage.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScenarioProcessing.cs" />

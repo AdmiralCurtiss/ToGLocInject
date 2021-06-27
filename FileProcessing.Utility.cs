@@ -119,19 +119,6 @@ namespace ToGLocInject {
 			}
 		}
 
-		private static IEnumerable<(int dolidx, bool forceInternal)> GenerateDoltextInjectOrder(List<MainDolString> doltext) {
-			// late strings will be written to font tex, early strings will go into the eboot
-			for (int i = 10456; i < doltext.Count; ++i) { yield return (i, true); }
-			for (int i = 0; i < 4384; ++i) { yield return (i, true); }
-			for (int i = 4419; i < 4489; ++i) { yield return (i, true); }
-			for (int i = 4637; i < 6888; ++i) { yield return (i, true); }
-			for (int i = 7644; i < 10456; ++i) { yield return (i, true); }
-			for (int i = 6888; i < 7644; i += 3) { yield return (i, true); } // request names
-			for (int i = 6888; i < 7644; i += 3) { yield return (i + 1, false); yield return (i + 2, false); } // request text
-			for (int i = 4384; i < 4419; ++i) { yield return (i, false); } // synopsis text
-			for (int i = 4489; i < 4637; ++i) { yield return (i, false); } // sidequest text
-		}
-
 		private static string ReduceToSingleLine(string text) {
 			string t = text.Replace("\r", "\\r").Replace("\n", "\\n");
 			for (int i = 0; i < 0x20; ++i) {
@@ -1000,8 +987,8 @@ namespace ToGLocInject {
 			return entry.Split(new char[] { ch });
 		}
 
-		private static ReservedMemchunk ReserveMemory(List<MemChunk> memchunks, uint size, uint alignment = 4) {
-			MemChunk scratchChunk = memchunks.FirstOrDefault(x => x.FreeBytes >= size && x.IsInternal && (x.Mapper.MapRomToRam(x.Address) % alignment) == 0);
+		private static ReservedMemchunk ReserveMemory(MemchunkStorage memchunks, uint size, uint alignment = 4) {
+			MemChunk scratchChunk = memchunks.FindInternalAlignedBlock(size, alignment);
 			if (scratchChunk != null) {
 				uint addressRom = scratchChunk.Address;
 				uint addressRam = scratchChunk.Mapper.MapRomToRam(addressRom);
@@ -1009,8 +996,7 @@ namespace ToGLocInject {
 				for (uint cnt = 0; cnt < size; ++cnt) {
 					scratchChunk.File.WriteByte(0x00);
 				}
-				scratchChunk.Address += size;
-				scratchChunk.FreeBytes -= size;
+				memchunks.TakeBytes(scratchChunk, size);
 				return new ReservedMemchunk() { Size = size, AddressRom = addressRom, AddressRam = addressRam };
 			} else {
 				throw new Exception("failed to find scratch space, should not happen");
