@@ -184,7 +184,7 @@ namespace ToGLocInject {
 			return 0x7c000378 | (rS << 21) | (rA << 16) | (rB << 11);
 		}
 
-		public static void FixRequestRewardMesssages(MemoryStream ms, Dol dol, ReservedMemchunk memoryAreaSprintfStringItemReward, ReservedMemchunk memoryAreaSprintfStringGaldReward) {
+		public static void FixRequestRewardMesssages(MemoryStream ms, Dol dol, ReservedMemchunk memoryAreaSprintfStringItemReward, ReservedMemchunk memoryAreaSprintfStringGaldReward, ReservedMemchunk memoryAreaSprintfStringNotEnough) {
 			var be = EndianUtils.Endianness.BigEndian;
 			// function at 80290d44 builds these
 
@@ -224,6 +224,51 @@ namespace ToGLocInject {
 				ms.WriteUInt32(AssembleMR(8, 28), be);                  // mr r8,r28
 				ms.WriteUInt32(AssembleMR(10, 27), be);                 // mr r10,r27
 				ms.Position += 4;
+				ms.WriteUInt32(0x60000000, be);                         // nop
+			}
+
+			// adjust sprintf parameters for message when you don't have the necessary items
+			{
+				uint address = memoryAreaSprintfStringNotEnough.AddressRam;
+				var imm = GenerateHighLowImmediatesFor32BitLoad(address);
+
+				ms.Position = dol.MapRamToRom(0x80290e6c);
+				ms.WriteUInt32(0x3c800000u | (imm.high & 0xffffu), be); // lis r4, imm.high
+				ms.Position += 4;
+				ms.WriteUInt32(0x38840000u | (imm.low & 0xffffu), be);  // addi r4, r4, imm.low
+				ms.Position += 20;
+				ms.WriteUInt32(0x60000000, be);                         // nop
+			}
+		}
+
+		public static void FixDualizeResultMessages(MemoryStream ms, Dol dol, ReservedMemchunk memoryAreaSprintfStringDualizeResult, ReservedMemchunk memoryAreaSprintfStringNewDualizeResult) {
+			var be = EndianUtils.Endianness.BigEndian;
+
+			// adjust sprintf parameters for dualize result
+			{
+				uint address = memoryAreaSprintfStringDualizeResult.AddressRam;
+				var imm = GenerateHighLowImmediatesFor32BitLoad(address);
+
+				ms.Position = dol.MapRamToRom(0x8027bc58);
+				ms.WriteUInt32(0x3c800000u | (imm.high & 0xffffu), be); // lis r4, imm.high
+				ms.WriteUInt32(AssembleMR(5, 3), be);                   // mr r5,r3
+				ms.WriteUInt32(0x38840000u | (imm.low & 0xffffu), be);  // addi r4, r4, imm.low
+				ms.Position += 4;
+				ms.WriteUInt32(0x60000000, be);                         // nop
+				ms.WriteUInt32((ms.PeekUInt32(be) & 0xfc1fffff) | (6 << 21), be); // replace target register with r6
+			}
+
+			// adjust sprintf parameters for dualize result
+			{
+				uint address = memoryAreaSprintfStringNewDualizeResult.AddressRam;
+				var imm = GenerateHighLowImmediatesFor32BitLoad(address);
+
+				ms.Position = dol.MapRamToRom(0x8027bc1c);
+				ms.WriteUInt32(0x3c800000u | (imm.high & 0xffffu), be); // lis r4, imm.high
+				ms.WriteUInt32(AssembleMR(9, 3), be);                   // mr r9,r3
+				ms.WriteUInt32(0x38840000u | (imm.low & 0xffffu), be);  // addi r4, r4, imm.low
+				ms.WriteUInt32(AssembleMR(5, 30), be);                  // mr r5,r30
+				ms.Position += 8;
 				ms.WriteUInt32(0x60000000, be);                         // nop
 			}
 		}

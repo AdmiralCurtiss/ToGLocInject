@@ -716,11 +716,26 @@ namespace ToGLocInject {
 							string oldSprintfStringItemReward = ms.ReadShiftJisNullterm();
 							ms.Position = 0x532790;
 							string oldSprintfStringGaldReward = ms.ReadShiftJisNullterm();
+							ms.Position = 0x53277c;
+							string oldSprintfStringNotEnough = ms.ReadShiftJisNullterm();
+							ms.Position = 0x53225e;
+							string oldSprintfStringDualizeResult = ms.ReadShiftJisNullterm();
+							ms.Position = 0x532247;
+							string oldSprintfStringNewDualizeResult = ms.ReadShiftJisNullterm();
 							ReservedMemchunk memoryAreaSprintfStringItemReward = InjectStringShiftJisNullterm(ms, memchunks,
 								oldSprintfStringItemReward.Remove(13, 4).Insert(8, " ").ReplaceSubstring(11, 1, " x", 0, 2).Insert(18, " ").Insert(21, " ")
 							);
 							ReservedMemchunk memoryAreaSprintfStringGaldReward = InjectStringShiftJisNullterm(ms, memchunks,
 								oldSprintfStringGaldReward.Remove(12, 2).Insert(8, " ").Insert(11, " ").Insert(17, " ").Insert(20, " ")
+							);
+							ReservedMemchunk memoryAreaSprintfStringNotEnough = InjectStringShiftJisNullterm(ms, memchunks,
+								oldSprintfStringNotEnough.Insert(11, " ").Insert(17, " ")
+							);
+							ReservedMemchunk memoryAreaSprintfStringDualizeResult = InjectStringShiftJisNullterm(ms, memchunks,
+								oldSprintfStringDualizeResult.Insert(8, " ")
+							);
+							ReservedMemchunk memoryAreaSprintfStringNewDualizeResult = InjectStringShiftJisNullterm(ms, memchunks,
+								oldSprintfStringNewDualizeResult.Insert(8, " ").Insert(21, " ")
 							);
 
 							// actually write strings to executable
@@ -790,7 +805,9 @@ namespace ToGLocInject {
 
 							CodePatches.IncreaseNoticeBoxBufferSize(ms, dol);
 
-							CodePatches.FixRequestRewardMesssages(ms, dol, memoryAreaSprintfStringItemReward, memoryAreaSprintfStringGaldReward);
+							CodePatches.FixRequestRewardMesssages(ms, dol, memoryAreaSprintfStringItemReward, memoryAreaSprintfStringGaldReward, memoryAreaSprintfStringNotEnough);
+
+							CodePatches.FixDualizeResultMessages(ms, dol, memoryAreaSprintfStringDualizeResult, memoryAreaSprintfStringNewDualizeResult);
 
 							fontStream.Position = 0;
 							newFontTexture = new DuplicatableByteArrayStream(fontStream.CopyToByteArrayAndDispose());
