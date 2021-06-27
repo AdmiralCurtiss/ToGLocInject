@@ -23,6 +23,8 @@ namespace ToGLocInject {
 		public uint bytecount { get { return ((uint)sjis.Data.Length) + 1; } }
 
 		public List<DolTextEntry> Duplicates = null;
+
+		public DolTextEntry IsSuffixOf = null;
 	}
 
 	internal static partial class FileProcessing {
@@ -67,33 +69,79 @@ namespace ToGLocInject {
 				}
 			}
 
+			{
+				List<DolTextEntry> ordered = dolTextEntriesWithText.OrderByDescending(x => x.bytecount).ToList();
+				for (int i = 0; i < ordered.Count; ++i) {
+					DolTextEntry eshort = ordered[i];
+					byte[] shortdata = eshort.sjis.Data;
+					for (int k = 0; k < i; ++k) {
+						DolTextEntry elong = ordered[k];
+						if (eshort.ForceInternal != elong.ForceInternal) {
+							continue;
+						}
+
+						byte[] longdata = elong.sjis.Data;
+						if (longdata.Length == 0 || shortdata.Length == 0) {
+							continue;
+						}
+						if (longdata.Length > shortdata.Length && IsSuffixOf(longdata, shortdata)) {
+							if (eshort.IsSuffixOf != null) {
+								Console.WriteLine("this shouldn't happen, i'm confused");
+							}
+							eshort.IsSuffixOf = elong;
+							break;
+						}
+					}
+				}
+			}
+
+			List<DolTextEntry> dolTextEntriesWithTextSuffixCleaned = new List<DolTextEntry>();
 			for (int i = 0; i < dolTextEntriesWithText.Count; ++i) {
 				DolTextEntry e = dolTextEntriesWithText[i];
+				if (e.IsSuffixOf != null) {
+					DolTextEntry curr = e;
+					DolTextEntry next = e.IsSuffixOf;
+					while (next != null) {
+						curr = next;
+						next = curr.IsSuffixOf;
+					}
+
+					if (curr.Duplicates == null) {
+						curr.Duplicates = new List<DolTextEntry>();
+					}
+					if (e.Duplicates != null) {
+						curr.Duplicates.AddRange(e.Duplicates);
+					}
+					curr.Duplicates.Add(e);
+				} else {
+					dolTextEntriesWithTextSuffixCleaned.Add(e);
+				}
+			}
+
+			var injected = new List<(uint location, uint writtenAddress)>();
+			for (int i = 0; i < dolTextEntriesWithTextSuffixCleaned.Count; ++i) {
+				DolTextEntry e = dolTextEntriesWithTextSuffixCleaned[i];
 
 				uint address;
 				MemChunk chunk = memchunks.FindBlock(e.bytecount, e.ForceInternal);
 				if (chunk != null) {
-					address = chunk.Mapper.MapRomToRam(chunk.Address).ToEndian(EndianUtils.Endianness.BigEndian);
+					address = chunk.Mapper.MapRomToRam(chunk.Address);
 					chunk.File.Position = chunk.Address;
-					for (uint cnt = 0; cnt < e.bytecount; ++cnt) {
-						byte b = (byte)(cnt < e.sjis.Data.Length ? e.sjis.Data[cnt] : 0);
-						chunk.File.WriteByte(b);
-					}
+					chunk.File.Write(e.sjis.Data);
+					chunk.File.WriteByte(0);
 					memchunks.TakeBytes(chunk, e.bytecount);
 				} else {
 					Console.WriteLine("ERROR: Failed to find free space for string " + e.Text);
 					failedToFinds.Add("ERROR: Failed to find free space for string " + e.Text);
 					requiredExtraBytes += e.bytecount;
-					address = dol.MapRomToRam(0x4D2828u).ToEndian(EndianUtils.Endianness.BigEndian); // point at a default string instead
+					address = dol.MapRomToRam(0x4D2828u); // point at a default string instead
 				}
 
-				ms.Position = e.DolString.RomPointerPosition;
-				ms.WriteUInt32(address);
+				InjectStringPointerAt(ms, e, address, injected);
 
 				if (e.Duplicates != null) {
 					foreach (DolTextEntry de in e.Duplicates) {
-						ms.Position = de.DolString.RomPointerPosition;
-						ms.WriteUInt32(address);
+						InjectStringPointerAt(ms, de, address + (e.bytecount - de.bytecount), injected);
 					}
 				}
 			}
@@ -157,6 +205,31 @@ namespace ToGLocInject {
 				}
 				File.WriteAllLines(Path.Combine(config.DebugTextOutputPath, "maindol_no_space_left.txt"), failedToFinds);
 			}
+			if (config.DebugTextOutputPath != null) {
+				Directory.CreateDirectory(config.DebugTextOutputPath);
+				List<string> tmp = new List<string>();
+				foreach (var a in injected) {
+					tmp.Add(string.Format("wrote at 0x{0:x8} the address 0x{1:x8}", a.location, a.writtenAddress));
+				}
+				File.WriteAllLines(Path.Combine(config.DebugTextOutputPath, "written_data.txt"), tmp);
+			}
+		}
+
+		private static void InjectStringPointerAt(MemoryStream ms, DolTextEntry e, uint address, List<(uint location, uint writtenAddress)> injected) {
+			injected.Add((e.DolString.RomPointerPosition, address));
+
+			ms.Position = e.DolString.RomPointerPosition;
+			ms.WriteUInt32(address, EndianUtils.Endianness.BigEndian);
+		}
+
+		private static bool IsSuffixOf(byte[] longdata, byte[] shortdata) {
+			int diff = longdata.Length - shortdata.Length;
+			for (int i = shortdata.Length - 1; i >= 0; --i) {
+				if (shortdata[i] != longdata[diff + i]) {
+					return false;
+				}
+			}
+			return true;
 		}
 
 		private static IEnumerable<(int dolidx, bool forceInternal)> GenerateDoltextInjectOrder(List<MainDolString> doltext) {
