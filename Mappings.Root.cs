@@ -445,7 +445,7 @@ namespace ToGLocInject {
 			files.Add(@"rootR.cpk/str/ja/Navigation.bin", new MappingData(c: true));
 			files.Add(@"rootR.cpk/SysSub/JA/TitleTexture.tex", new MappingData(c: true, skipTextMapping: true));
 			files.Add(@"rootR.cpk/SysSub/JA/TOG_SS_ChatName.dat", new MappingData(c: true));
-			files.Add(@"rootR.cpk/sys/ja/SysString.bin", new MappingData(c: true, j: new M().A(141, -601), w: new W().R(34, 34).R(35, 35).R(36, 36).Sys(45).Sys(46).Sys(47).R(50, 76).Sys(53).Sys(54).Sys(55).P(56, (o, r) => r.Substring(0, 5) + r.Substring(11)).R(87, 87).R(90, "").Un(105).Un(107).Un(116).Un(122).Un(123)));
+			files.Add(@"rootR.cpk/sys/ja/SysString.bin", new MappingData(c: true, j: new M().A(141, -601), w: new W().R(34, 34).R(35, 35).R(36, 36).Sys(45).Sys(46).Sys(47).R(50, 76).R(51, "Seeking the Strength to Protect").Sys(53).Sys(54).Sys(55).P(56, (o, r) => r.Substring(0, 5) + r.Substring(11)).R(87, 87).R(90, "").Un(105).Un(107).Un(116).Un(122).Un(123)));
 			files.Add(@"rootR.cpk/sys/FontBinary2.bin", new MappingData(c: true, skipTextMapping: true));
 			files.Add(@"rootR.cpk/sys/FontTexture2.tex", new MappingData(c: true, skipTextMapping: true));
 		}
