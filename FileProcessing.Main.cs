@@ -916,7 +916,7 @@ namespace ToGLocInject {
 									WritePatchedFile(Path.Combine(v0outpath, "sys", "main.dol"), scsstr);
 								}
 								if (config.RiivolutionOutputPath != null) {
-									WritePatchedFile(Path.Combine(config.RiivolutionOutputPath, "main.dol"), scsstr);
+									WritePatchedFile(Path.Combine(config.RiivolutionOutputPath, "graces_english", "main.dol"), scsstr);
 								}
 							} else {
 								if (delayInjection) {
@@ -961,13 +961,15 @@ namespace ToGLocInject {
 						xml.AppendLine("\t\t</section>");
 						xml.AppendLine("\t</options>");
 						xml.AppendLine("\t<patch id=\"eng\" root=\"/graces_english\">");
-						map0inject.GenerateRiivolutionData(xml, config.RiivolutionOutputPath, "map0R.cpk", gameversion == 2);
-						map1inject.GenerateRiivolutionData(xml, config.RiivolutionOutputPath, "map1R.cpk", gameversion == 2);
-						rootinject.GenerateRiivolutionData(xml, config.RiivolutionOutputPath, "rootR.cpk", gameversion == 2);
+						map0inject.GenerateRiivolutionData(xml, Path.Combine(config.RiivolutionOutputPath, "graces_english"), "map0R.cpk", gameversion == 2);
+						map1inject.GenerateRiivolutionData(xml, Path.Combine(config.RiivolutionOutputPath, "graces_english"), "map1R.cpk", gameversion == 2);
+						rootinject.GenerateRiivolutionData(xml, Path.Combine(config.RiivolutionOutputPath, "graces_english"), "rootR.cpk", gameversion == 2);
 						xml.AppendLine("\t\t<file disc=\"main.dol\" external=\"main.dol\" />");
 						xml.AppendLine("\t</patch>");
 						xml.AppendLine("</wiidisc>");
-						File.WriteAllText(Path.Combine(config.RiivolutionOutputPath, string.Format("STGJv{0}.xml", gameversion)), xml.ToString());
+						string riivolution_xml_dir = Path.Combine(config.RiivolutionOutputPath, "riivolution");
+						Directory.CreateDirectory(riivolution_xml_dir);
+						File.WriteAllText(Path.Combine(riivolution_xml_dir, string.Format("STGJv{0}.xml", gameversion)), xml.ToString());
 					}
 				}
 
