@@ -16,19 +16,19 @@ namespace ToGLocInject {
 	internal static partial class FileProcessing {
 		public static void GenerateTranslatedFiles(Config config) {
 			var delayedInjects = new Dictionary<string, Stream>(); // injects that we may need to modify further before injecting
-			bool generateNew = config.PatchedFileOutputPath != null;
+			bool generateNew = config.PatchedFileOutputPath != null || config.RiivolutionOutputPath != null;
 			var _fc = new FileFetcher(config);
 			var files = Mappings.GetFileMappings(_fc, config.EnglishVoiceProcessingDir != null);
 
 			FileInjectorV0V2 map0inject = null;
 			FileInjectorV0V2 map1inject = null;
 			FileInjectorV0V2 rootinject = null;
-			string v2outpath = generateNew ? Path.Combine(config.PatchedFileOutputPath, "v2patched") : null;
-			string v0outpath = generateNew ? (config.GamefileContainerWiiV0 == null ? null : Path.Combine(config.PatchedFileOutputPath, "v0patched")) : null;
+			string v2outpath = config.PatchedFileOutputPath != null ? Path.Combine(config.PatchedFileOutputPath, "v2patched") : null;
+			string v0outpath = config.PatchedFileOutputPath != null ? (config.GamefileContainerWiiV0 == null ? null : Path.Combine(config.PatchedFileOutputPath, "v0patched")) : null;
 			if (generateNew) {
-				map0inject = new FileInjectorV0V2(_fc.TryGetContainer("map0R.cpk", Version.W) as CpkContainer, config.GamefileContainerWiiV0 == null ? null : _fc.TryGetContainer("map0R.cpk", Version.Wv0) as CpkContainer, Path.Combine(v2outpath, "files", "map0R.cpk"), v0outpath == null ? null : Path.Combine(v0outpath, "files", "map0R.cpk"), 0x4A694000);
-				map1inject = new FileInjectorV0V2(_fc.TryGetContainer("map1R.cpk", Version.W) as CpkContainer, config.GamefileContainerWiiV0 == null ? null : _fc.TryGetContainer("map1R.cpk", Version.Wv0) as CpkContainer, Path.Combine(v2outpath, "files", "map1R.cpk"), v0outpath == null ? null : Path.Combine(v0outpath, "files", "map1R.cpk"), 0x25DFB000);
-				rootinject = new FileInjectorV0V2(_fc.TryGetContainer("rootR.cpk", Version.W) as CpkContainer, config.GamefileContainerWiiV0 == null ? null : _fc.TryGetContainer("rootR.cpk", Version.Wv0) as CpkContainer, Path.Combine(v2outpath, "files", "rootR.cpk"), v0outpath == null ? null : Path.Combine(v0outpath, "files", "rootR.cpk"), 0x30084000);
+				map0inject = new FileInjectorV0V2(_fc.TryGetContainer("map0R.cpk", Version.W) as CpkContainer, config.GamefileContainerWiiV0 == null ? null : _fc.TryGetContainer("map0R.cpk", Version.Wv0) as CpkContainer, v2outpath == null ? null : Path.Combine(v2outpath, "files", "map0R.cpk"), v0outpath == null ? null : Path.Combine(v0outpath, "files", "map0R.cpk"), 0x4A694000);
+				map1inject = new FileInjectorV0V2(_fc.TryGetContainer("map1R.cpk", Version.W) as CpkContainer, config.GamefileContainerWiiV0 == null ? null : _fc.TryGetContainer("map1R.cpk", Version.Wv0) as CpkContainer, v2outpath == null ? null : Path.Combine(v2outpath, "files", "map1R.cpk"), v0outpath == null ? null : Path.Combine(v0outpath, "files", "map1R.cpk"), 0x25DFB000);
+				rootinject = new FileInjectorV0V2(_fc.TryGetContainer("rootR.cpk", Version.W) as CpkContainer, config.GamefileContainerWiiV0 == null ? null : _fc.TryGetContainer("rootR.cpk", Version.Wv0) as CpkContainer, v2outpath == null ? null : Path.Combine(v2outpath, "files", "rootR.cpk"), v0outpath == null ? null : Path.Combine(v0outpath, "files", "rootR.cpk"), 0x30084000);
 			}
 
 			DuplicatableStream newFontMetrics = null;
@@ -909,7 +909,9 @@ namespace ToGLocInject {
 									fontTextureInjected = true;
 								}
 							} else if (isExecutable) {
-								WritePatchedFile(Path.Combine(v2outpath, "sys", "main.dol"), scsstr);
+								if (v2outpath != null) {
+									WritePatchedFile(Path.Combine(v2outpath, "sys", "main.dol"), scsstr);
+								}
 								if (v0outpath != null) {
 									WritePatchedFile(Path.Combine(v0outpath, "sys", "main.dol"), scsstr);
 								}

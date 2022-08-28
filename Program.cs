@@ -74,7 +74,9 @@ namespace ToGLocInject {
 			config.MainDolWiiV2 = new FileOnDisk(@"c:\_graces\wii-jp-v2\sys\main.dol");
 			config.EbootBinPS3JP = new FileOnDisk(@"c:\_graces\ps3-jp\boot.elf");
 			config.EbootBinPS3US = new FileOnDisk(@"c:\_graces\ps3-us\boot.elf");
-			config.PatchedFileOutputPath = @"c:\_graces\wii-en-patched";
+
+			// at least one of these two should be set, you can also set both
+			//config.PatchedFileOutputPath = @"c:\_graces\wii-en-patched";
 			config.RiivolutionOutputPath = @"c:\_graces\wii-en-patched\riivolution";
 
 			// can be set to get transfer the english voice clips as well, see comment above for how to set this up
