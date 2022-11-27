@@ -19,23 +19,29 @@ namespace ToGLocInject {
 
 			w.Entries[1147] = j[161].entry.Substring(0, 3) + " " + u[161].entry;
 
-			// replace localized wii error messages with english ones
-			for (int i = 935; i <= 941; ++i) {
-				w.Entries[i] = w.Entries[936];
+			// replace wii error messages with english ones
+			w.Entries[984] = w.Entries[985].Substring(0, 13) + w.Entries[943];
+			w.Entries[985] = w.Entries[984];
+			w.Entries[935] = w.Entries[943];
+			w.Entries[942] = w.Entries[943];
+			w.Entries[956] = "Please insert the Tales of Graces disc.";
+			w.Entries[957] = "The disc could not be read." + w.Entries[943].Substring(105);
+			w.Entries[958] = "Communications with the Wii Remote\nhave been interrupted.";
+			w.Entries[959] = "Please connect a Nunchuk or Classic Controller\nto the Wii Remote.";
+			for (int i = 936; i <= 941; ++i) {
+				w.Entries[i] = w.Entries[935];
 			}
-			for (int i = 942; i <= 948; ++i) {
-				w.Entries[i] = w.Entries[943];
+			for (int i = 943; i <= 948; ++i) {
+				w.Entries[i] = w.Entries[942];
 			}
 			for (int i = 949; i <= 955; ++i) {
 				w.Entries[i] = w.Entries[950];
 			}
-			w.Entries[984] = w.Entries[985];
-			// TODO: english messages for this block are not proper english, fix that
-			for (int i = 956; i <= 983; i += 4) {
-				w.Entries[i + 0] = w.Entries[960];
-				w.Entries[i + 1] = w.Entries[961];
-				w.Entries[i + 2] = w.Entries[962];
-				w.Entries[i + 3] = w.Entries[963];
+			for (int i = 960; i <= 983; i += 4) {
+				w.Entries[i + 0] = w.Entries[956];
+				w.Entries[i + 1] = w.Entries[957];
+				w.Entries[i + 2] = w.Entries[958];
+				w.Entries[i + 3] = w.Entries[959];
 			}
 
 			w.Entries[1187] = w.Entries[1187].Substring(0, 9) + u[204].entry.Substring(10);
