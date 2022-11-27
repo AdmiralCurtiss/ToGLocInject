@@ -401,6 +401,24 @@ namespace ToGLocInject {
 				w.Entries[10335 + i * 2] = u[10230 + i * 2].entry;
 			}
 
+			// Wii exclusive menu items.
+			w.Entries[6102] = "Men's Overalls";
+			w.Entries[6103] = "Overalls that reflect the color that represents the spirit of its wearer.\nApparently becomes red when a certain older brother wears it.";
+			w.Entries[6146] = "Ray Suit";
+			w.Entries[6147] = "A full-body suit that legendary bounty hunters\nare said to have worn when facing their trials.";
+			w.Entries[6276] = "Orange Antennae";
+			w.Entries[6277] = "Amazing antennae whose overflowing power seems to\nrival that of a million people. For the dreamer in you.";
+			w.Entries[6448] = "Turtlez Tot Whistle";
+			w.Entries[6449] = "A whistle that lets you summon the Turtlez Tot.\nWith this, you can view the Turtlez Tot Menu.";
+			w.Entries[6536] = "Book of Profoundness";
+			w.Entries[6537] = "A spellbook that greatly restores eleth when your\neleth is exactly 1 after winning a battle.";
+			w.Entries[6720] = "Carrot";
+			w.Entries[6721] = "Request item: A delicious-looking carrot\nfound on the Old Grale Highroad.";
+			w.Entries[6850] = "Inherit Turtlez Tot";
+			w.Entries[6851] = "Inherit Turtlez Tot's strength and accumulated items.";
+			w.Entries[9742] = "Diva";
+			w.Entries[9743] = "An outfit that makes you want to sing\na live performance.";
+
 			// reformat tutorials
 			for (int i = 3323; i < 3967; i += 7) {
 				TryReformatTutorial(i, w, charToWidthMap, 480);
